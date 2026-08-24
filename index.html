@@ -1,1237 +1,2312 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="0DTE Trader">
-<title>0DTE Trader</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;color:#1c1c1e;padding-bottom:80px;min-height:100%}
-.hdr{background:#fff;padding:12px 16px 8px;border-bottom:0.5px solid #e0e0e5;position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center}
-.hdr h1{font-size:17px;font-weight:600}
-.wb{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
-.wb.open{background:#f0fff4;color:#1a7f37}
-.wb.warn{background:#fffbf0;color:#b7620a}
-.wb.off{background:#f2f2f7;color:#8e8e93}
-/* TABS — always visible, never hidden */
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:0.5px solid #e0e0e5;display:flex;z-index:9999;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -1px 8px rgba(0,0,0,0.08)}
-.tab{flex:1;padding:7px 1px 6px;font-size:9.5px;text-align:center;cursor:pointer;color:#8e8e93;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;-webkit-tap-highlight-color:transparent;min-width:0}
-.tab.on{color:#007aff}
-.tab svg{width:19px;height:19px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.pg{display:none;padding:12px 16px 96px}
-.pg.on{display:block}
-.lbl{font-size:11px;color:#8e8e93;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
-.lbl:first-child{margin-top:4px}
-.card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:10px}
-.row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 14px;border-bottom:0.5px solid #f2f2f7;gap:8px}
-.row:last-child{border-bottom:none}
-.rk{font-size:13px;color:#636366;flex-shrink:0;max-width:52%;line-height:1.4}
-.rv{font-size:13px;font-weight:500;text-align:right;line-height:1.4}
-.g{color:#34c759}.r{color:#ff3b30}.o{color:#ff9500}.b{color:#007aff}
-.sig{border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:10px}
-.sig.go{background:#f0fff4;border:1px solid #34c759}
-.sig.no{background:#fff1f0;border:1px solid #ff3b30}
-.sig.wait{background:#fffbf0;border:1px solid #ff9500}
-.sig.idle{background:#f2f2f7;border:1px solid #e0e0e5}
-.sig.info{background:#f0f4ff;border:1px solid #007aff}
-.sigt{font-size:19px;font-weight:600;margin-bottom:3px}
-.sig.go .sigt{color:#1a7f37}.sig.no .sigt{color:#c0392b}.sig.wait .sigt{color:#b7620a}.sig.idle .sigt{color:#8e8e93}.sig.info .sigt{color:#2c5aaa}
-.ss{font-size:12px;color:#636366;line-height:1.5}
-.inp{width:100%;padding:9px 8px;font-size:15px;border:1px solid #e0e0e5;border-radius:8px;background:#f9f9fb;color:#1c1c1e;-webkit-appearance:none}
-.inp:focus{outline:none;border-color:#007aff;background:#fff}
-.ch{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-bottom:0.5px solid #f2f2f7;cursor:pointer;-webkit-user-select:none}
-.ch:last-child{border-bottom:none}
-.cb{width:24px;height:24px;border-radius:50%;border:1.5px solid #c7c7cc;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s}
-.cb.on{background:#007aff;border-color:#007aff}
-.cl{font-size:14px;font-weight:500;color:#1c1c1e;margin-bottom:2px}
-.cs{font-size:12px;color:#8e8e93;line-height:1.4}
-.shdr{padding:8px 14px 6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid #f2f2f7}
-.shdr.blue{color:#007aff;background:#f8f9ff}
-.shdr.orange{color:#b7620a;background:#fffbf0}
-.shdr.green{color:#1a7f37;background:#f0fff4}
-.shdr.red{color:#c0392b;background:#fff1f0}
-.shdr.purple{color:#5856d6;background:#f5f4ff}
-.sbar{height:5px;border-radius:3px;background:#e0e0e5;margin:6px 0 2px;overflow:hidden}
-.sf{height:100%;border-radius:3px;transition:width .3s,background .3s}
-.st2{font-size:11px;color:#8e8e93;text-align:right;margin-bottom:8px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.sc{background:#fff;border-radius:10px;padding:10px 6px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.sn{font-size:18px;font-weight:600}.sl{font-size:10px;color:#8e8e93;margin-top:2px}
-.sn.pos{color:#34c759}.sn.neg{color:#ff3b30}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.fi{width:100%;padding:9px 10px;font-size:14px;border:1px solid #e0e0e5;border-radius:8px;background:#f9f9fb;color:#1c1c1e;-webkit-appearance:none}
-.fi:focus{outline:none;border-color:#007aff;background:#fff}
-.full{grid-column:1/-1}
-.btn{width:100%;padding:12px;font-size:15px;font-weight:600;border-radius:10px;cursor:pointer;border:none;margin-bottom:8px}
-.prim{background:#007aff;color:#fff}
-.sec{background:#f2f2f7;color:#1c1c1e}
-.dng{background:#fff1f0;color:#c0392b;border:0.5px solid #ff3b30}
-.btn:active{opacity:.8}
-.tl{display:flex;gap:8px;align-items:center;padding:9px 14px;border-bottom:0.5px solid #f2f2f7;font-size:12px}
-.tl:last-child{border-bottom:none}
-.td{color:#8e8e93;font-size:11px;width:38px;flex-shrink:0}
-.tt{color:#636366;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bdg{font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;flex-shrink:0}
-.bdg.win{background:#f0fff4;color:#1a7f37}
-.bdg.loss{background:#fff1f0;color:#c0392b}
-.bdg.skip{background:#f2f2f7;color:#8e8e93}
-.bdg.man{background:#f0f4ff;color:#3a56c0}
-.tp{font-weight:500;width:46px;text-align:right;flex-shrink:0}
-.tp.pos{color:#34c759}.tp.neg{color:#ff3b30}
-.empty{text-align:center;color:#8e8e93;font-size:14px;padding:28px 0}
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
-.er{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:0.5px solid #f2f2f7;font-size:13px;color:#1c1c1e;line-height:1.5}
-.er:last-child{border-bottom:none}
-.gex-dir{display:flex;gap:6px;margin-bottom:10px}
-.gex-btn{flex:1;padding:12px 4px;font-size:13px;font-weight:600;border-radius:10px;border:1.5px solid #e0e0e5;background:#f9f9fb;color:#636366;cursor:pointer;text-align:center;transition:all .15s}
-.gex-btn.sel-trend{background:#f0fff4;border-color:#34c759;color:#1a7f37}
-.gex-btn.sel-pin{background:#fff1f0;border-color:#ff3b30;color:#c0392b}
-.gex-btn.sel-zero{background:#fffbf0;border-color:#ff9500;color:#b7620a}
-.scn-btn{padding:9px 6px;font-size:12px;font-weight:500;border-radius:8px;border:1.5px solid #e0e0e5;background:#f9f9fb;color:#636366;cursor:pointer;text-align:center;transition:all .15s;-webkit-user-select:none}
-.scn-btn.sel{background:#f0f4ff;border-color:#007aff;color:#007aff}
-.dist-table{width:100%;border-collapse:collapse;font-size:12px}
-.dist-table th{font-size:11px;color:#8e8e93;font-weight:500;padding:6px 8px;text-align:left;border-bottom:1px solid #f2f2f7}
-.dist-table td{padding:7px 8px;border-bottom:0.5px solid #f2f2f7;color:#1c1c1e}
-.dist-table tr:last-child td{border-bottom:none}
-.dist-table td:not(:first-child){font-weight:500;color:#007aff}
-.tgt-box{border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1px solid}
-.tgt-neg{background:#f0fff4;border-color:#b7e4c7}
-.tgt-pin{background:#fff1f0;border-color:#ffb3b3}
-.tgt-zero{background:#fffbf0;border-color:#ffe0a3}
-.tgt-title{font-size:12px;font-weight:600;margin-bottom:4px}
-.tgt-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0}
-.tgt-row span:first-child{color:#636366}
-.tgt-row span:last-child{font-weight:600}
-.sw-ch{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-bottom:0.5px solid #f2f2f7;cursor:pointer;-webkit-user-select:none}
-.sw-ch:last-child{border-bottom:none}
-.scb{width:22px;height:22px;border-radius:6px;border:1.5px solid #c7c7cc;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s}
-.scb.on{background:#5856d6;border-color:#5856d6}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="0DTE Trader">
+  <title>0DTE Trader</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f2f2f7;
+      color: #1c1c1e;
+      padding-bottom: 80px;
+      min-height: 100%
+    }
+
+    .app-shell {
+      display: none
+    }
+
+    body.auth-ready .app-shell {
+      display: block
+    }
+
+    body.auth-ready #auth-gate {
+      display: none
+    }
+
+    body:not(.auth-ready) #auth-gate {
+      display: block
+    }
+
+    .hdr {
+      background: #fff;
+      padding: 12px 16px 8px;
+      border-bottom: 0.5px solid #e0e0e5;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .hdr h1 {
+      font-size: 17px;
+      font-weight: 600
+    }
+
+    .wb {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px
+    }
+
+    .wb.open {
+      background: #f0fff4;
+      color: #1a7f37
+    }
+
+    .wb.warn {
+      background: #fffbf0;
+      color: #b7620a
+    }
+
+    .wb.off {
+      background: #f2f2f7;
+      color: #8e8e93
+    }
+
+    /* TABS — always visible, never hidden */
+    .tabs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 0.5px solid #e0e0e5;
+      display: flex;
+      z-index: 9999;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.08)
+    }
+
+    .tab {
+      flex: 1;
+      padding: 7px 1px 6px;
+      font-size: 9.5px;
+      text-align: center;
+      cursor: pointer;
+      color: #8e8e93;
+      border: none;
+      background: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      -webkit-tap-highlight-color: transparent;
+      min-width: 0
+    }
+
+    .tab.on {
+      color: #007aff
+    }
+
+    .tab svg {
+      width: 19px;
+      height: 19px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .pg {
+      display: none;
+      padding: 12px 16px 96px
+    }
+
+    .pg.on {
+      display: block
+    }
+
+    .lbl {
+      font-size: 11px;
+      color: #8e8e93;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin: 14px 0 6px
+    }
+
+    .lbl:first-child {
+      margin-top: 4px
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+      margin-bottom: 10px
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px 14px;
+      border-bottom: 0.5px solid #f2f2f7;
+      gap: 8px
+    }
+
+    .row:last-child {
+      border-bottom: none
+    }
+
+    .rk {
+      font-size: 13px;
+      color: #636366;
+      flex-shrink: 0;
+      max-width: 52%;
+      line-height: 1.4
+    }
+
+    .rv {
+      font-size: 13px;
+      font-weight: 500;
+      text-align: right;
+      line-height: 1.4
+    }
+
+    .g {
+      color: #34c759
+    }
+
+    .r {
+      color: #ff3b30
+    }
+
+    .o {
+      color: #ff9500
+    }
+
+    .b {
+      color: #007aff
+    }
+
+    .sig {
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: center;
+      margin-bottom: 10px
+    }
+
+    .sig.go {
+      background: #f0fff4;
+      border: 1px solid #34c759
+    }
+
+    .sig.no {
+      background: #fff1f0;
+      border: 1px solid #ff3b30
+    }
+
+    .sig.wait {
+      background: #fffbf0;
+      border: 1px solid #ff9500
+    }
+
+    .sig.idle {
+      background: #f2f2f7;
+      border: 1px solid #e0e0e5
+    }
+
+    .sig.info {
+      background: #f0f4ff;
+      border: 1px solid #007aff
+    }
+
+    .sigt {
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 3px
+    }
+
+    .sig.go .sigt {
+      color: #1a7f37
+    }
+
+    .sig.no .sigt {
+      color: #c0392b
+    }
+
+    .sig.wait .sigt {
+      color: #b7620a
+    }
+
+    .sig.idle .sigt {
+      color: #8e8e93
+    }
+
+    .sig.info .sigt {
+      color: #2c5aaa
+    }
+
+    .ss {
+      font-size: 12px;
+      color: #636366;
+      line-height: 1.5
+    }
+
+    .inp {
+      width: 100%;
+      padding: 9px 8px;
+      font-size: 15px;
+      border: 1px solid #e0e0e5;
+      border-radius: 8px;
+      background: #f9f9fb;
+      color: #1c1c1e;
+      -webkit-appearance: none
+    }
+
+    .inp:focus {
+      outline: none;
+      border-color: #007aff;
+      background: #fff
+    }
+
+    .ch {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 0.5px solid #f2f2f7;
+      cursor: pointer;
+      -webkit-user-select: none
+    }
+
+    .ch:last-child {
+      border-bottom: none
+    }
+
+    .cb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid #c7c7cc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all .15s
+    }
+
+    .cb.on {
+      background: #007aff;
+      border-color: #007aff
+    }
+
+    .cl {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1c1c1e;
+      margin-bottom: 2px
+    }
+
+    .cs {
+      font-size: 12px;
+      color: #8e8e93;
+      line-height: 1.4
+    }
+
+    .shdr {
+      padding: 8px 14px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      border-bottom: 0.5px solid #f2f2f7
+    }
+
+    .shdr.blue {
+      color: #007aff;
+      background: #f8f9ff
+    }
+
+    .shdr.orange {
+      color: #b7620a;
+      background: #fffbf0
+    }
+
+    .shdr.green {
+      color: #1a7f37;
+      background: #f0fff4
+    }
+
+    .shdr.red {
+      color: #c0392b;
+      background: #fff1f0
+    }
+
+    .shdr.purple {
+      color: #5856d6;
+      background: #f5f4ff
+    }
+
+    .sbar {
+      height: 5px;
+      border-radius: 3px;
+      background: #e0e0e5;
+      margin: 6px 0 2px;
+      overflow: hidden
+    }
+
+    .sf {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .3s, background .3s
+    }
+
+    .st2 {
+      font-size: 11px;
+      color: #8e8e93;
+      text-align: right;
+      margin-bottom: 8px
+    }
+
+    .g3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    .g2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px
+    }
+
+    .sc {
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .06)
+    }
+
+    .sn {
+      font-size: 18px;
+      font-weight: 600
+    }
+
+    .sl {
+      font-size: 10px;
+      color: #8e8e93;
+      margin-top: 2px
+    }
+
+    .sn.pos {
+      color: #34c759
+    }
+
+    .sn.neg {
+      color: #ff3b30
+    }
+
+    .fg {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px
+    }
+
+    .fi {
+      width: 100%;
+      padding: 9px 10px;
+      font-size: 14px;
+      border: 1px solid #e0e0e5;
+      border-radius: 8px;
+      background: #f9f9fb;
+      color: #1c1c1e;
+      -webkit-appearance: none
+    }
+
+    .fi:focus {
+      outline: none;
+      border-color: #007aff;
+      background: #fff
+    }
+
+    .full {
+      grid-column: 1/-1
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      margin-bottom: 8px
+    }
+
+    .prim {
+      background: #007aff;
+      color: #fff
+    }
+
+    .sec {
+      background: #f2f2f7;
+      color: #1c1c1e
+    }
+
+    .dng {
+      background: #fff1f0;
+      color: #c0392b;
+      border: 0.5px solid #ff3b30
+    }
+
+    .btn:active {
+      opacity: .8
+    }
+
+    .tl {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 9px 14px;
+      border-bottom: 0.5px solid #f2f2f7;
+      font-size: 12px
+    }
+
+    .tl:last-child {
+      border-bottom: none
+    }
+
+    .td {
+      color: #8e8e93;
+      font-size: 11px;
+      width: 38px;
+      flex-shrink: 0
+    }
+
+    .tt {
+      color: #636366;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .bdg {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 20px;
+      flex-shrink: 0
+    }
+
+    .bdg.win {
+      background: #f0fff4;
+      color: #1a7f37
+    }
+
+    .bdg.loss {
+      background: #fff1f0;
+      color: #c0392b
+    }
+
+    .bdg.skip {
+      background: #f2f2f7;
+      color: #8e8e93
+    }
+
+    .bdg.man {
+      background: #f0f4ff;
+      color: #3a56c0
+    }
+
+    .tp {
+      font-weight: 500;
+      width: 46px;
+      text-align: right;
+      flex-shrink: 0
+    }
+
+    .tp.pos {
+      color: #34c759
+    }
+
+    .tp.neg {
+      color: #ff3b30
+    }
+
+    .empty {
+      text-align: center;
+      color: #8e8e93;
+      font-size: 14px;
+      padding: 28px 0
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px
+    }
+
+    .er {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 14px;
+      border-bottom: 0.5px solid #f2f2f7;
+      font-size: 13px;
+      color: #1c1c1e;
+      line-height: 1.5
+    }
+
+    .er:last-child {
+      border-bottom: none
+    }
+
+    .gex-dir {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px
+    }
+
+    .gex-btn {
+      flex: 1;
+      padding: 12px 4px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 10px;
+      border: 1.5px solid #e0e0e5;
+      background: #f9f9fb;
+      color: #636366;
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s
+    }
+
+    .gex-btn.sel-trend {
+      background: #f0fff4;
+      border-color: #34c759;
+      color: #1a7f37
+    }
+
+    .gex-btn.sel-pin {
+      background: #fff1f0;
+      border-color: #ff3b30;
+      color: #c0392b
+    }
+
+    .gex-btn.sel-zero {
+      background: #fffbf0;
+      border-color: #ff9500;
+      color: #b7620a
+    }
+
+    .scn-btn {
+      padding: 9px 6px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 8px;
+      border: 1.5px solid #e0e0e5;
+      background: #f9f9fb;
+      color: #636366;
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s;
+      -webkit-user-select: none
+    }
+
+    .scn-btn.sel {
+      background: #f0f4ff;
+      border-color: #007aff;
+      color: #007aff
+    }
+
+    .dist-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px
+    }
+
+    .dist-table th {
+      font-size: 11px;
+      color: #8e8e93;
+      font-weight: 500;
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid #f2f2f7
+    }
+
+    .dist-table td {
+      padding: 7px 8px;
+      border-bottom: 0.5px solid #f2f2f7;
+      color: #1c1c1e
+    }
+
+    .dist-table tr:last-child td {
+      border-bottom: none
+    }
+
+    .dist-table td:not(:first-child) {
+      font-weight: 500;
+      color: #007aff
+    }
+
+    .tgt-box {
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      border: 1px solid
+    }
+
+    .tgt-neg {
+      background: #f0fff4;
+      border-color: #b7e4c7
+    }
+
+    .tgt-pin {
+      background: #fff1f0;
+      border-color: #ffb3b3
+    }
+
+    .tgt-zero {
+      background: #fffbf0;
+      border-color: #ffe0a3
+    }
+
+    .tgt-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px
+    }
+
+    .tgt-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 2px 0
+    }
+
+    .tgt-row span:first-child {
+      color: #636366
+    }
+
+    .tgt-row span:last-child {
+      font-weight: 600
+    }
+
+    .sw-ch {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 0.5px solid #f2f2f7;
+      cursor: pointer;
+      -webkit-user-select: none
+    }
+
+    .sw-ch:last-child {
+      border-bottom: none
+    }
+
+    .scb {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1.5px solid #c7c7cc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: all .15s
+    }
+
+    .scb.on {
+      background: #5856d6;
+      border-color: #5856d6
+    }
+  </style>
 </head>
+
 <body>
-
-<div class="hdr">
-  <h1>0DTE Trader</h1>
-  <span class="wb off" id="wb">—</span>
-</div>
-
-<!-- ══ SETUP PAGE ══ -->
-<div id="pg-setup" class="pg on">
-
-  <div class="lbl">Net GEX <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:#aaa">optioncharts.io · set this first</span></div>
-  <div class="gex-dir">
-    <div class="gex-btn" id="gb-trend" onclick="setGexEnv('trend')">Negative<br><span style="font-size:11px;font-weight:400">Trending</span></div>
-    <div class="gex-btn" id="gb-zero" onclick="setGexEnv('zero')">Near Zero<br><span style="font-size:11px;font-weight:400">Unclear</span></div>
-    <div class="gex-btn" id="gb-pin" onclick="setGexEnv('pin')">Positive<br><span style="font-size:11px;font-weight:400">Pinning</span></div>
-  </div>
-  <div id="gex-env-box" class="sig idle">
-    <div class="sigt" id="gex-env-t">Select net GEX above</div>
-    <div class="ss" id="gex-env-s">Tap the environment from optioncharts.io</div>
-  </div>
-
-  <div class="lbl">GEX walls + current price</div>
-  <div class="card" style="padding:12px">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <div>
-        <div style="font-size:11px;color:#007aff;font-weight:500;margin-bottom:5px">Call wall</div>
-        <input class="inp" id="wspx-call" type="number" placeholder="e.g. 5800" inputmode="numeric" oninput="calcWalls()">
-      </div>
-      <div>
-        <div style="font-size:11px;color:#ff3b30;font-weight:500;margin-bottom:5px">Put wall</div>
-        <input class="inp" id="wspx-put" type="number" placeholder="e.g. 5700" inputmode="numeric" oninput="calcWalls()">
-      </div>
-      <div>
-        <div style="font-size:11px;color:#636366;font-weight:500;margin-bottom:5px">Price now</div>
-        <input class="inp" id="wspx" type="number" placeholder="e.g. 5757" inputmode="numeric" oninput="calcWalls()">
-      </div>
+  <div id="auth-gate" class="card" style="margin:12px 16px 0; padding:12px">
+    <div class="lbl" style="margin-top:0">Firebase access</div>
+    <div id="auth-status" class="sig idle" style="margin-bottom:8px">
+      <div class="sigt">Not signed in</div>
+      <div class="ss">Sign in with an email/password to sync journal entries to Firebase.</div>
     </div>
-  </div>
-  <div class="card" id="wall-card" style="display:none">
-    <div class="row"><span class="rk">Pts to call wall</span><span class="rv" id="wd-ptsc">—</span></div>
-    <div class="row"><span class="rk">Pts to put wall</span><span class="rv" id="wd-ptsp">—</span></div>
-    <div class="row"><span class="rk">Bull exit target</span><span class="rv g" id="wd-bt">—</span></div>
-    <div class="row"><span class="rk">Bear exit target</span><span class="rv r" id="wd-bert">—</span></div>
-    <div class="row"><span class="rk">Wall behavior</span><span class="rv" id="wd-behavior">—</span></div>
-  </div>
-
-  <div class="lbl">Pre-market gap</div>
-  <div class="card" style="padding:12px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div>
-        <div style="font-size:11px;color:#8e8e93;margin-bottom:5px">Yesterday close</div>
-        <input class="inp" id="g-close" type="number" placeholder="e.g. 7779" inputmode="numeric" oninput="calcGap()">
-      </div>
-      <div>
-        <div style="font-size:11px;color:#8e8e93;margin-bottom:5px">Pre-market</div>
-        <input class="inp" id="g-pm" type="number" placeholder="e.g. 7749" inputmode="numeric" oninput="calcGap()">
-      </div>
+    <div class="fg">
+      <input id="auth-email" class="fi full" type="email" placeholder="Email address" autocomplete="email" />
+      <input id="auth-password" class="fi full" type="password" placeholder="Password" autocomplete="current-password" />
     </div>
-    <div id="gap-result" style="display:none;margin-top:10px">
-      <div class="row" style="padding:6px 0;border:none"><span class="rk">Gap</span><span class="rv" id="gap-size">—</span></div>
-      <div class="row" style="padding:4px 0;border:none"><span class="rk" style="font-size:12px" id="gap-note">—</span></div>
+    <div class="g2">
+      <button class="btn prim" onclick="signInWithEmailPassword()">Sign in</button>
+      <button class="btn sec" onclick="signUpWithEmailPassword()">Create account</button>
     </div>
+    <button class="btn sec" onclick="signOutCurrentUser()">Sign out</button>
   </div>
 
-  <div class="lbl">GEX scenario reader <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:#aaa">tap what you see on chart</span></div>
-  <div class="card" style="padding:12px">
-    <div style="font-size:11px;color:#8e8e93;margin-bottom:5px;font-weight:500">Call bars</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-      <div class="scn-btn" id="sc-ca" onclick="setScn('calls','above')">Above only</div>
-      <div class="scn-btn" id="sc-cb" onclick="setScn('calls','both')">Both sides</div>
-      <div class="scn-btn" id="sc-cn" onclick="setScn('calls','none')">Minimal / none</div>
-      <div class="scn-btn" id="sc-co" onclick="setScn('calls','on')">Price ON call bar</div>
+  <div id="app-shell" class="app-shell">
+    <div class="hdr">
+      <h1>0DTE Trader</h1>
+      <span class="wb off" id="wb">—</span>
     </div>
-    <div style="font-size:11px;color:#8e8e93;margin-bottom:5px;font-weight:500">Put bars</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-      <div class="scn-btn" id="sc-pb" onclick="setScn('puts','below')">Below only</div>
-      <div class="scn-btn" id="sc-pp" onclick="setScn('puts','both')">Both sides</div>
-      <div class="scn-btn" id="sc-pn" onclick="setScn('puts','none')">Minimal / none</div>
-      <div class="scn-btn" id="sc-po" onclick="setScn('puts','on')">Price ON put bar</div>
+
+  <!-- ══ SETUP PAGE ══ -->
+  <div id="pg-setup" class="pg on">
+
+    <div class="lbl">Net GEX <span
+        style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:#aaa">optioncharts.io · set
+        this first</span></div>
+    <div class="gex-dir">
+      <div class="gex-btn" id="gb-trend" onclick="setGexEnv('trend')">Negative<br><span
+          style="font-size:11px;font-weight:400">Trending</span></div>
+      <div class="gex-btn" id="gb-zero" onclick="setGexEnv('zero')">Near Zero<br><span
+          style="font-size:11px;font-weight:400">Unclear</span></div>
+      <div class="gex-btn" id="gb-pin" onclick="setGexEnv('pin')">Positive<br><span
+          style="font-size:11px;font-weight:400">Pinning</span></div>
     </div>
-    <div style="font-size:11px;color:#8e8e93;margin-bottom:5px;font-weight:500">Dominant side</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-      <div class="scn-btn" id="sc-dc" onclick="setScn('dom','calls')">Calls larger</div>
-      <div class="scn-btn" id="sc-de" onclick="setScn('dom','equal')">Equal</div>
-      <div class="scn-btn" id="sc-dp" onclick="setScn('dom','puts')">Puts larger</div>
+    <div id="gex-env-box" class="sig idle">
+      <div class="sigt" id="gex-env-t">Select net GEX above</div>
+      <div class="ss" id="gex-env-s">Tap the environment from optioncharts.io</div>
     </div>
-  </div>
-  <div id="scn-result" class="sig idle" style="display:none">
-    <div class="sigt" id="scn-title">—</div>
-    <div class="ss" id="scn-body">—</div>
-  </div>
-  <div class="card" id="scn-detail" style="display:none;padding:0">
-    <div class="row"><span class="rk">Bias</span><span class="rv" id="scn-bias">—</span></div>
-    <div class="row"><span class="rk">Walls</span><span class="rv" id="scn-walls">—</span></div>
-    <div class="row"><span class="rk">Strategy</span><span class="rv" id="scn-strat">—</span></div>
-    <div class="row"><span class="rk">Caution</span><span class="rv o" id="scn-warn">—</span></div>
-  </div>
 
-  <button class="btn sec" onclick="resetSetup()">Clear setup</button>
-</div>
-
-<!-- ══ ENTRY PAGE ══ -->
-<div id="pg-entry" class="pg">
-
-  <div class="lbl">Today's read</div>
-  <div class="card">
-    <div class="row"><span class="rk">GEX</span><span class="rv" id="es-gex">— set in Setup tab</span></div>
-    <div class="row"><span class="rk">Call wall</span><span class="rv r" id="es-cwall">—</span></div>
-    <div class="row"><span class="rk">Put wall</span><span class="rv g" id="es-pwall">—</span></div>
-    <div class="row"><span class="rk">Gap</span><span class="rv" id="es-gap">—</span></div>
-  </div>
-
-  <div class="lbl">Checklist — top down, in order</div>
-  <div class="card" style="padding:0">
-    <div class="shdr blue">Step 1 — 15min · Trend by 10:15am</div>
-    <div class="ch" onclick="ct(0)">
-      <div class="cb" id="cb0"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Bullish — VWAP sloping up</div>
-        <div class="cs">VWAP up + price 10–15pts above (SPX) / 5pts (QQQ) + EMA9 up. All three aligned.</div>
+    <div class="lbl">GEX walls + current price</div>
+    <div class="card" style="padding:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div>
+          <div style="font-size:11px;color:#007aff;font-weight:500;margin-bottom:5px">Call wall</div>
+          <input class="inp" id="wspx-call" type="number" placeholder="e.g. 5800" inputmode="numeric"
+            oninput="calcWalls()">
+        </div>
+        <div>
+          <div style="font-size:11px;color:#ff3b30;font-weight:500;margin-bottom:5px">Put wall</div>
+          <input class="inp" id="wspx-put" type="number" placeholder="e.g. 5700" inputmode="numeric"
+            oninput="calcWalls()">
+        </div>
+        <div>
+          <div style="font-size:11px;color:#636366;font-weight:500;margin-bottom:5px">Price now</div>
+          <input class="inp" id="wspx" type="number" placeholder="e.g. 5757" inputmode="numeric" oninput="calcWalls()">
+        </div>
       </div>
     </div>
-    <div class="ch" onclick="ct(1)">
-      <div class="cb" id="cb1"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Bearish — VWAP sloping down</div>
-        <div class="cs">VWAP down + price 10–15pts below (SPX) / 5pts (QQQ) + EMA9 down. All three aligned.</div>
-      </div>
+    <div class="card" id="wall-card" style="display:none">
+      <div class="row"><span class="rk">Pts to call wall</span><span class="rv" id="wd-ptsc">—</span></div>
+      <div class="row"><span class="rk">Pts to put wall</span><span class="rv" id="wd-ptsp">—</span></div>
+      <div class="row"><span class="rk">Bull exit target</span><span class="rv g" id="wd-bt">—</span></div>
+      <div class="row"><span class="rk">Bear exit target</span><span class="rv r" id="wd-bert">—</span></div>
+      <div class="row"><span class="rk">Wall behavior</span><span class="rv" id="wd-behavior">—</span></div>
     </div>
-    <div style="padding:7px 14px;font-size:11px;color:#8e8e93;border-bottom:0.5px solid #f2f2f7">Within 5pts of VWAP = no trade. Near-zero GEX: clear by 10:15am or skip day.</div>
 
-    <div class="shdr orange">Step 2 — 5min · Setup</div>
-    <div class="ch" onclick="ct(2)">
-      <div class="cb" id="cb2"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">VWAP + EMA9 both confirm direction</div>
-        <div class="cs">5min candle on correct side of VWAP. EMA9 sloping same way. Not extended 25+pts from VWAP.</div>
+    <div class="lbl">Pre-market gap</div>
+    <div class="card" style="padding:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <div style="font-size:11px;color:#8e8e93;margin-bottom:5px">Yesterday close</div>
+          <input class="inp" id="g-close" type="number" placeholder="e.g. 7779" inputmode="numeric" oninput="calcGap()">
+        </div>
+        <div>
+          <div style="font-size:11px;color:#8e8e93;margin-bottom:5px">Pre-market</div>
+          <input class="inp" id="g-pm" type="number" placeholder="e.g. 7749" inputmode="numeric" oninput="calcGap()">
+        </div>
       </div>
-    </div>
-    <div class="ch" onclick="ct(3)">
-      <div class="cb" id="cb3"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Price pulling back toward EMA9</div>
-        <div class="cs">Candles drifting toward orange EMA9. Not within 15pts (SPX) / 5pts (QQQ) of a wall.</div>
+      <div id="gap-result" style="display:none;margin-top:10px">
+        <div class="row" style="padding:6px 0;border:none"><span class="rk">Gap</span><span class="rv"
+            id="gap-size">—</span></div>
+        <div class="row" style="padding:4px 0;border:none"><span class="rk" style="font-size:12px"
+            id="gap-note">—</span></div>
       </div>
     </div>
 
-    <div class="shdr green">Step 3 — 2min · First EMA9 touch only</div>
-    <div class="ch" onclick="ct(4)">
-      <div class="cb" id="cb4"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Wick touched EMA9 — first touch of the day</div>
-        <div class="cs">Candle wick reached EMA9. This is the FIRST touch today — not 2nd or 3rd.</div>
+    <div class="lbl">GEX scenario reader <span
+        style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:#aaa">tap what you see on
+        chart</span></div>
+    <div class="card" style="padding:12px">
+      <div style="font-size:11px;color:#8e8e93;margin-bottom:5px;font-weight:500">Call bars</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        <div class="scn-btn" id="sc-ca" onclick="setScn('calls','above')">Above only</div>
+        <div class="scn-btn" id="sc-cb" onclick="setScn('calls','both')">Both sides</div>
+        <div class="scn-btn" id="sc-cn" onclick="setScn('calls','none')">Minimal / none</div>
+        <div class="scn-btn" id="sc-co" onclick="setScn('calls','on')">Price ON call bar</div>
+      </div>
+      <div style="font-size:11px;color:#8e8e93;margin-bottom:5px;font-weight:500">Put bars</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        <div class="scn-btn" id="sc-pb" onclick="setScn('puts','below')">Below only</div>
+        <div class="scn-btn" id="sc-pp" onclick="setScn('puts','both')">Both sides</div>
+        <div class="scn-btn" id="sc-pn" onclick="setScn('puts','none')">Minimal / none</div>
+        <div class="scn-btn" id="sc-po" onclick="setScn('puts','on')">Price ON put bar</div>
+      </div>
+      <div style="font-size:11px;color:#8e8e93;margin-bottom:5px;font-weight:500">Dominant side</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <div class="scn-btn" id="sc-dc" onclick="setScn('dom','calls')">Calls larger</div>
+        <div class="scn-btn" id="sc-de" onclick="setScn('dom','equal')">Equal</div>
+        <div class="scn-btn" id="sc-dp" onclick="setScn('dom','puts')">Puts larger</div>
       </div>
     </div>
-    <div class="ch" onclick="ct(5)">
-      <div class="cb" id="cb5"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Bounce candle closed away ← enter on this close</div>
-        <div class="cs">Body closed in trend direction. If unsure — not a bounce. Wait for next touch.</div>
-      </div>
+    <div id="scn-result" class="sig idle" style="display:none">
+      <div class="sigt" id="scn-title">—</div>
+      <div class="ss" id="scn-body">—</div>
     </div>
-    <div style="padding:7px 14px;font-size:11px;color:#8e8e93">Enter on candle CLOSE only. 2nd or 3rd touch = move exhausted = do not enter.</div>
+    <div class="card" id="scn-detail" style="display:none;padding:0">
+      <div class="row"><span class="rk">Bias</span><span class="rv" id="scn-bias">—</span></div>
+      <div class="row"><span class="rk">Walls</span><span class="rv" id="scn-walls">—</span></div>
+      <div class="row"><span class="rk">Strategy</span><span class="rv" id="scn-strat">—</span></div>
+      <div class="row"><span class="rk">Caution</span><span class="rv o" id="scn-warn">—</span></div>
+    </div>
+
+    <button class="btn sec" onclick="resetSetup()">Clear setup</button>
   </div>
 
-  <div class="sbar"><div class="sf" id="e-fill" style="width:0%;background:#ff3b30"></div></div>
-  <div class="st2" id="e-score">0 of 6 checks</div>
+  <!-- ══ ENTRY PAGE ══ -->
+  <div id="pg-entry" class="pg">
 
-  <div id="e-verdict" class="sig idle" style="margin-bottom:10px">
-    <div class="sigt">Tick the checks above</div>
-    <div class="ss">Start with 15min — VWAP sloping + price clearly outside zone?</div>
-  </div>
-
-  <div id="e-trade" style="display:none">
-    <div class="lbl">Trade parameters</div>
+    <div class="lbl">Today's read</div>
     <div class="card">
-      <div class="row"><span class="rk">Direction</span><span class="rv" id="et-dir">—</span></div>
-      <div class="row"><span class="rk">Strike</span><span class="rv">ATM or 1 strike OTM only</span></div>
-      <div class="row"><span class="rk">Max premium</span><span class="rv o">$1.80–$2.00 max at $3k account</span></div>
-      <div class="row"><span class="rk">EMA9 stop (SPX)</span><span class="rv r">5min body through EMA9 by 2pts → exit</span></div>
-      <div class="row"><span class="rk">EMA9 stop (QQQ)</span><span class="rv r">5min body through EMA9 by 0.20pts → exit</span></div>
-      <div class="row"><span class="rk">Safety bracket</span><span class="rv r">70% in IBKR — catastrophe only</span></div>
-      <div class="row"><span class="rk">Hard close</span><span class="rv r">11:30am — no exceptions</span></div>
+      <div class="row"><span class="rk">GEX</span><span class="rv" id="es-gex">— set in Setup tab</span></div>
+      <div class="row"><span class="rk">Call wall</span><span class="rv r" id="es-cwall">—</span></div>
+      <div class="row"><span class="rk">Put wall</span><span class="rv g" id="es-pwall">—</span></div>
+      <div class="row"><span class="rk">Gap</span><span class="rv" id="es-gap">—</span></div>
+    </div>
+
+    <div class="lbl">Checklist — top down, in order</div>
+    <div class="card" style="padding:0">
+      <div class="shdr blue">Step 1 — 15min · Trend by 10:15am</div>
+      <div class="ch" onclick="ct(0)">
+        <div class="cb" id="cb0"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Bullish — VWAP sloping up</div>
+          <div class="cs">VWAP up + price 10–15pts above (SPX) / 5pts (QQQ) + EMA9 up. All three aligned.</div>
+        </div>
+      </div>
+      <div class="ch" onclick="ct(1)">
+        <div class="cb" id="cb1"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Bearish — VWAP sloping down</div>
+          <div class="cs">VWAP down + price 10–15pts below (SPX) / 5pts (QQQ) + EMA9 down. All three aligned.</div>
+        </div>
+      </div>
+      <div style="padding:7px 14px;font-size:11px;color:#8e8e93;border-bottom:0.5px solid #f2f2f7">Within 5pts of VWAP =
+        no trade. Near-zero GEX: clear by 10:15am or skip day.</div>
+
+      <div class="shdr orange">Step 2 — 5min · Setup</div>
+      <div class="ch" onclick="ct(2)">
+        <div class="cb" id="cb2"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">VWAP + EMA9 both confirm direction</div>
+          <div class="cs">5min candle on correct side of VWAP. EMA9 sloping same way. Not extended 25+pts from VWAP.
+          </div>
+        </div>
+      </div>
+      <div class="ch" onclick="ct(3)">
+        <div class="cb" id="cb3"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Price pulling back toward EMA9</div>
+          <div class="cs">Candles drifting toward orange EMA9. Not within 15pts (SPX) / 5pts (QQQ) of a wall.</div>
+        </div>
+      </div>
+
+      <div class="shdr green">Step 3 — 2min · First EMA9 touch only</div>
+      <div class="ch" onclick="ct(4)">
+        <div class="cb" id="cb4"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Wick touched EMA9 — first touch of the day</div>
+          <div class="cs">Candle wick reached EMA9. This is the FIRST touch today — not 2nd or 3rd.</div>
+        </div>
+      </div>
+      <div class="ch" onclick="ct(5)">
+        <div class="cb" id="cb5"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Bounce candle closed away ← enter on this close</div>
+          <div class="cs">Body closed in trend direction. If unsure — not a bounce. Wait for next touch.</div>
+        </div>
+      </div>
+      <div style="padding:7px 14px;font-size:11px;color:#8e8e93">Enter on candle CLOSE only. 2nd or 3rd touch = move
+        exhausted = do not enter.</div>
+    </div>
+
+    <div class="sbar">
+      <div class="sf" id="e-fill" style="width:0%;background:#ff3b30"></div>
+    </div>
+    <div class="st2" id="e-score">0 of 6 checks</div>
+
+    <div id="e-verdict" class="sig idle" style="margin-bottom:10px">
+      <div class="sigt">Tick the checks above</div>
+      <div class="ss">Start with 15min — VWAP sloping + price clearly outside zone?</div>
+    </div>
+
+    <div id="e-trade" style="display:none">
+      <div class="lbl">Trade parameters</div>
+      <div class="card">
+        <div class="row"><span class="rk">Direction</span><span class="rv" id="et-dir">—</span></div>
+        <div class="row"><span class="rk">Strike</span><span class="rv">ATM or 1 strike OTM only</span></div>
+        <div class="row"><span class="rk">Max premium</span><span class="rv o">$1.80–$2.00 max at $3k account</span>
+        </div>
+        <div class="row"><span class="rk">EMA9 stop (SPX)</span><span class="rv r">5min body through EMA9 by 2pts →
+            exit</span></div>
+        <div class="row"><span class="rk">EMA9 stop (QQQ)</span><span class="rv r">5min body through EMA9 by 0.20pts →
+            exit</span></div>
+        <div class="row"><span class="rk">Safety bracket</span><span class="rv r">70% in IBKR — catastrophe only</span>
+        </div>
+        <div class="row"><span class="rk">Hard close</span><span class="rv r">11:30am — no exceptions</span></div>
+      </div>
+
+      <div class="lbl">GEX-adjusted targets</div>
+      <div id="tgt-neg" class="tgt-box tgt-neg" style="display:none">
+        <div class="tgt-title" style="color:#1a7f37">Negative GEX — Trending · Let it run</div>
+        <div id="tgt-neg-early" style="margin-bottom:6px">
+          <div class="tgt-row"><span>Early half exit (10:00–10:30)</span><span class="g">+$100 / contract</span></div>
+          <div class="tgt-row"><span>Early full exit</span><span class="g">+$200 / contract</span></div>
+        </div>
+        <div id="tgt-neg-late">
+          <div class="tgt-row"><span>Late half exit (10:30–11:00)</span><span class="g">+$70 / contract</span></div>
+          <div class="tgt-row"><span>Late full exit</span><span class="g">+$130 / contract</span></div>
+        </div>
+        <div class="tgt-row" style="margin-top:6px;border-top:0.5px solid #b7e4c7;padding-top:6px"><span>Wall
+            override</span><span class="g">Exit 5pts before SPX wall / 2pts QQQ</span></div>
+      </div>
+      <div id="tgt-pin" class="tgt-box tgt-pin" style="display:none">
+        <div class="tgt-title" style="color:#c0392b">Positive GEX — Pinning · Take quickly</div>
+        <div id="tgt-pin-early" style="margin-bottom:6px">
+          <div class="tgt-row"><span>Early half exit (10:00–10:30)</span><span class="r">+$50 / contract</span></div>
+          <div class="tgt-row"><span>Early full exit</span><span class="r">+$80 / contract</span></div>
+        </div>
+        <div id="tgt-pin-late">
+          <div class="tgt-row"><span>Late half exit (10:30–11:00)</span><span class="r">+$30 / contract</span></div>
+          <div class="tgt-row"><span>Late full exit</span><span class="r">+$50 / contract</span></div>
+        </div>
+        <div class="tgt-row" style="margin-top:6px;border-top:0.5px solid #ffb3b3;padding-top:6px"><span>Wall
+            override</span><span class="r">Exit 5pts before SPX wall / 2pts QQQ</span></div>
+      </div>
+      <div id="tgt-zero" class="tgt-box tgt-zero" style="display:none">
+        <div class="tgt-title" style="color:#b7620a">Near Zero GEX — Take what you get</div>
+        <div id="tgt-zero-early" style="margin-bottom:6px">
+          <div class="tgt-row"><span>Early half exit (10:00–10:30)</span><span class="o">+$40 / contract</span></div>
+          <div class="tgt-row"><span>Early full exit</span><span class="o">+$60 / contract</span></div>
+        </div>
+        <div id="tgt-zero-late">
+          <div class="tgt-row"><span>Late half exit (10:30–11:00)</span><span class="o">+$25 / contract</span></div>
+          <div class="tgt-row"><span>Late full exit</span><span class="o">+$40 / contract</span></div>
+        </div>
+        <div class="tgt-row" style="margin-top:6px;border-top:0.5px solid #ffe0a3;padding-top:6px"><span>Wall
+            override</span><span class="o">Exit 5pts before SPX wall / 2pts QQQ</span></div>
+      </div>
+      <div id="tgt-none" class="card" style="padding:12px;text-align:center;color:#8e8e93;font-size:13px">Set GEX in
+        Setup tab to see adjusted targets</div>
+
+      <div class="lbl">Fill price → risk check</div>
+      <div class="card" style="padding:12px">
+        <input class="inp" id="fill-p" type="number" placeholder="Your fill price e.g. 1.80" step="0.01"
+          inputmode="decimal" oninput="calcFill()">
+      </div>
+      <div class="card" id="calc-res" style="display:none;padding:0">
+        <div class="row"><span class="rk">Safety bracket fires at</span><span class="rv r" id="cr-sl">—</span></div>
+        <div class="row"><span class="rk">Expected loss at 30% stop</span><span class="rv r" id="cr-el">—</span></div>
+        <div class="row"><span class="rk">% of $3k account</span><span class="rv" id="cr-acct">—</span></div>
+        <div class="row"><span class="rk">GEX wall exit</span><span class="rv b" id="cr-wall">—</span></div>
+      </div>
+
+      <div class="lbl">Exit — priority order</div>
+      <div class="card" style="padding:0">
+        <div class="er">
+          <div class="dot" style="background:#ff3b30"></div>
+          <div><strong>1. EMA9 stop:</strong> 5min body through by 2pts SPX / 0.20pts QQQ → exit immediately</div>
+        </div>
+        <div class="er">
+          <div class="dot" style="background:#ff9500"></div>
+          <div><strong>2. Half exit:</strong> hit dollar target above → close half</div>
+        </div>
+        <div class="er">
+          <div class="dot" style="background:#34c759"></div>
+          <div><strong>3. Full exit:</strong> hit full dollar target → close all, done for day</div>
+        </div>
+        <div class="er">
+          <div class="dot" style="background:#007aff"></div>
+          <div><strong>4. Wall override:</strong> exit 5pts before SPX wall / 2pts QQQ — always overrides dollar target
+            if closer</div>
+        </div>
+        <div class="er">
+          <div class="dot" style="background:#ff9500"></div>
+          <div><strong>5. Stall:</strong> price stalls 10pts before wall for 2+ candles → take profit now</div>
+        </div>
+        <div class="er">
+          <div class="dot" style="background:#ff3b30"></div>
+          <div><strong>6. Time:</strong> 11:30am → close at market. No exceptions.</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn sec" onclick="resetEntry()">Reset checks</button>
+  </div>
+
+  <!-- ══ JOURNAL PAGE ══ -->
+  <div id="pg-journal" class="pg">
+    <div class="g3">
+      <div class="sc">
+        <div class="sn" id="j-pnl">$0</div>
+        <div class="sl">Total P&L</div>
+      </div>
+      <div class="sc">
+        <div class="sn" id="j-wr">0%</div>
+        <div class="sl">Win rate</div>
+      </div>
+      <div class="sc">
+        <div class="sn" id="j-n">0</div>
+        <div class="sl">Trades</div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="sc">
+        <div class="sn" id="j-wins">0</div>
+        <div class="sl">Wins</div>
+      </div>
+      <div class="sc">
+        <div class="sn" id="j-losses">0</div>
+        <div class="sl">Losses</div>
+      </div>
+    </div>
+
+    <div class="lbl">Log trade or observation</div>
+    <div class="fg">
+      <input class="fi" id="j-date" type="date">
+      <select class="fi" id="j-type">
+        <option value="">Instrument</option>
+        <optgroup label="0DTE">
+          <option value="SPX Call 0DTE">SPX Call 0DTE</option>
+          <option value="SPX Put 0DTE">SPX Put 0DTE</option>
+          <option value="QQQ Call 0DTE">QQQ Call 0DTE</option>
+          <option value="QQQ Put 0DTE">QQQ Put 0DTE</option>
+        </optgroup>
+        <optgroup label="Swing">
+          <option value="QQQ Call Swing">QQQ Call Swing</option>
+          <option value="QQQ Put Swing">QQQ Put Swing</option>
+          <option value="SPY Call Swing">SPY Call Swing</option>
+          <option value="SPY Put Swing">SPY Put Swing</option>
+        </optgroup>
+        <option value="Observation">Observation</option>
+      </select>
+      <input class="fi" id="j-entry" type="number" placeholder="Fill price" step="0.01" inputmode="decimal">
+      <input class="fi" id="j-exit" type="number" placeholder="Exit price" step="0.01" inputmode="decimal">
+      <select class="fi" id="j-result">
+        <option value="">Outcome</option>
+        <option value="WIN">Win — target hit</option>
+        <option value="LOSS-EMA">Loss — EMA9 stop</option>
+        <option value="LOSS-TIME">Loss — 11:30am exit</option>
+        <option value="MANUAL">Manual exit</option>
+        <option value="SKIP">Skipped — no setup</option>
+        <option value="OBS">Observation only</option>
+      </select>
+      <select class="fi" id="j-gex">
+        <option value="">GEX today</option>
+        <option value="NEG">Negative — trending</option>
+        <option value="POS">Positive — pinning</option>
+        <option value="ZERO">Near zero</option>
+      </select>
+      <select class="fi" id="j-touch">
+        <option value="">EMA9 touch #</option>
+        <option value="1">1st touch</option>
+        <option value="2">2nd touch</option>
+        <option value="3">3rd+ touch</option>
+        <option value="NA">N/A</option>
+      </select>
+      <select class="fi" id="j-rules">
+        <option value="">Rules followed?</option>
+        <option value="YES">Yes</option>
+        <option value="NO">No — broke rule</option>
+      </select>
+      <input class="fi full" id="j-note" type="text" placeholder="What happened? Setup quality? Lesson?">
+    </div>
+    <button class="btn prim" onclick="addTrade()">Log entry</button>
+
+    <div class="lbl">History</div>
+    <div class="card" id="j-list">
+      <div class="empty">No entries yet</div>
+    </div>
+    <br>
+    <button class="btn dng" onclick="clearAll()">Clear all history</button>
+  </div>
+
+  <!-- ══ RULES PAGE ══ -->
+  <div id="pg-rules" class="pg">
+
+    <div class="lbl">The process — in order</div>
+    <div class="card" style="padding:0">
+      <div class="er">
+        <div class="dot" style="background:#5856d6"></div>
+        <div><strong>Pre-market:</strong> Read net GEX on optioncharts.io. Note call wall and put wall strikes. Check
+          gap vs yesterday close. Enter in Setup tab.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff9500"></div>
+        <div><strong>Near-zero GEX:</strong> Need clear VWAP slope + price outside zone + EMA9 aligned by 10:15am. If
+          unclear → skip day. No exceptions.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#007aff"></div>
+        <div><strong>Gap rule:</strong> Under 10pts normal. 10–25pts wait for fresh leg. 25pts+ move may be mature —
+          skip or require exceptional signal.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#007aff"></div>
+        <div><strong>15min trend:</strong> VWAP sloping + price 10–15pts clear (SPX) / 5pts (QQQ) + EMA9 aligned. All
+          three. Within zone = no trade. 25pts+ extended = skip.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff9500"></div>
+        <div><strong>5min setup:</strong> VWAP + EMA9 confirm direction. Price pulling back toward EMA9. Not within
+          15pts (SPX) / 5pts (QQQ) of a wall.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#34c759"></div>
+        <div><strong>2min entry:</strong> First EMA9 touch only. Wick touches EMA9. Body closes away in trend direction.
+          Enter on candle close. 2nd or 3rd touch = exhausted = skip.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff3b30"></div>
+        <div><strong>Time rules:</strong> No entry after 11:00am. Close all by 11:30am. One trade per day. Stopped trade
+          counts — no re-entry.</div>
+      </div>
     </div>
 
     <div class="lbl">GEX-adjusted targets</div>
-    <div id="tgt-neg" class="tgt-box tgt-neg" style="display:none">
-      <div class="tgt-title" style="color:#1a7f37">Negative GEX — Trending · Let it run</div>
-      <div id="tgt-neg-early" style="margin-bottom:6px">
-        <div class="tgt-row"><span>Early half exit (10:00–10:30)</span><span class="g">+$100 / contract</span></div>
-        <div class="tgt-row"><span>Early full exit</span><span class="g">+$200 / contract</span></div>
-      </div>
-      <div id="tgt-neg-late">
-        <div class="tgt-row"><span>Late half exit (10:30–11:00)</span><span class="g">+$70 / contract</span></div>
-        <div class="tgt-row"><span>Late full exit</span><span class="g">+$130 / contract</span></div>
-      </div>
-      <div class="tgt-row" style="margin-top:6px;border-top:0.5px solid #b7e4c7;padding-top:6px"><span>Wall override</span><span class="g">Exit 5pts before SPX wall / 2pts QQQ</span></div>
-    </div>
-    <div id="tgt-pin" class="tgt-box tgt-pin" style="display:none">
-      <div class="tgt-title" style="color:#c0392b">Positive GEX — Pinning · Take quickly</div>
-      <div id="tgt-pin-early" style="margin-bottom:6px">
-        <div class="tgt-row"><span>Early half exit (10:00–10:30)</span><span class="r">+$50 / contract</span></div>
-        <div class="tgt-row"><span>Early full exit</span><span class="r">+$80 / contract</span></div>
-      </div>
-      <div id="tgt-pin-late">
-        <div class="tgt-row"><span>Late half exit (10:30–11:00)</span><span class="r">+$30 / contract</span></div>
-        <div class="tgt-row"><span>Late full exit</span><span class="r">+$50 / contract</span></div>
-      </div>
-      <div class="tgt-row" style="margin-top:6px;border-top:0.5px solid #ffb3b3;padding-top:6px"><span>Wall override</span><span class="r">Exit 5pts before SPX wall / 2pts QQQ</span></div>
-    </div>
-    <div id="tgt-zero" class="tgt-box tgt-zero" style="display:none">
-      <div class="tgt-title" style="color:#b7620a">Near Zero GEX — Take what you get</div>
-      <div id="tgt-zero-early" style="margin-bottom:6px">
-        <div class="tgt-row"><span>Early half exit (10:00–10:30)</span><span class="o">+$40 / contract</span></div>
-        <div class="tgt-row"><span>Early full exit</span><span class="o">+$60 / contract</span></div>
-      </div>
-      <div id="tgt-zero-late">
-        <div class="tgt-row"><span>Late half exit (10:30–11:00)</span><span class="o">+$25 / contract</span></div>
-        <div class="tgt-row"><span>Late full exit</span><span class="o">+$40 / contract</span></div>
-      </div>
-      <div class="tgt-row" style="margin-top:6px;border-top:0.5px solid #ffe0a3;padding-top:6px"><span>Wall override</span><span class="o">Exit 5pts before SPX wall / 2pts QQQ</span></div>
-    </div>
-    <div id="tgt-none" class="card" style="padding:12px;text-align:center;color:#8e8e93;font-size:13px">Set GEX in Setup tab to see adjusted targets</div>
-
-    <div class="lbl">Fill price → risk check</div>
-    <div class="card" style="padding:12px">
-      <input class="inp" id="fill-p" type="number" placeholder="Your fill price e.g. 1.80" step="0.01" inputmode="decimal" oninput="calcFill()">
-    </div>
-    <div class="card" id="calc-res" style="display:none;padding:0">
-      <div class="row"><span class="rk">Safety bracket fires at</span><span class="rv r" id="cr-sl">—</span></div>
-      <div class="row"><span class="rk">Expected loss at 30% stop</span><span class="rv r" id="cr-el">—</span></div>
-      <div class="row"><span class="rk">% of $3k account</span><span class="rv" id="cr-acct">—</span></div>
-      <div class="row"><span class="rk">GEX wall exit</span><span class="rv b" id="cr-wall">—</span></div>
-    </div>
-
-    <div class="lbl">Exit — priority order</div>
     <div class="card" style="padding:0">
-      <div class="er"><div class="dot" style="background:#ff3b30"></div><div><strong>1. EMA9 stop:</strong> 5min body through by 2pts SPX / 0.20pts QQQ → exit immediately</div></div>
-      <div class="er"><div class="dot" style="background:#ff9500"></div><div><strong>2. Half exit:</strong> hit dollar target above → close half</div></div>
-      <div class="er"><div class="dot" style="background:#34c759"></div><div><strong>3. Full exit:</strong> hit full dollar target → close all, done for day</div></div>
-      <div class="er"><div class="dot" style="background:#007aff"></div><div><strong>4. Wall override:</strong> exit 5pts before SPX wall / 2pts QQQ — always overrides dollar target if closer</div></div>
-      <div class="er"><div class="dot" style="background:#ff9500"></div><div><strong>5. Stall:</strong> price stalls 10pts before wall for 2+ candles → take profit now</div></div>
-      <div class="er"><div class="dot" style="background:#ff3b30"></div><div><strong>6. Time:</strong> 11:30am → close at market. No exceptions.</div></div>
-    </div>
-  </div>
-
-  <button class="btn sec" onclick="resetEntry()">Reset checks</button>
-</div>
-
-<!-- ══ JOURNAL PAGE ══ -->
-<div id="pg-journal" class="pg">
-  <div class="g3">
-    <div class="sc"><div class="sn" id="j-pnl">$0</div><div class="sl">Total P&L</div></div>
-    <div class="sc"><div class="sn" id="j-wr">0%</div><div class="sl">Win rate</div></div>
-    <div class="sc"><div class="sn" id="j-n">0</div><div class="sl">Trades</div></div>
-  </div>
-  <div class="g2">
-    <div class="sc"><div class="sn" id="j-wins">0</div><div class="sl">Wins</div></div>
-    <div class="sc"><div class="sn" id="j-losses">0</div><div class="sl">Losses</div></div>
-  </div>
-
-  <div class="lbl">Log trade or observation</div>
-  <div class="fg">
-    <input class="fi" id="j-date" type="date">
-    <select class="fi" id="j-type">
-      <option value="">Instrument</option>
-      <optgroup label="0DTE">
-        <option value="SPX Call 0DTE">SPX Call 0DTE</option>
-        <option value="SPX Put 0DTE">SPX Put 0DTE</option>
-        <option value="QQQ Call 0DTE">QQQ Call 0DTE</option>
-        <option value="QQQ Put 0DTE">QQQ Put 0DTE</option>
-      </optgroup>
-      <optgroup label="Swing">
-        <option value="QQQ Call Swing">QQQ Call Swing</option>
-        <option value="QQQ Put Swing">QQQ Put Swing</option>
-        <option value="SPY Call Swing">SPY Call Swing</option>
-        <option value="SPY Put Swing">SPY Put Swing</option>
-      </optgroup>
-      <option value="Observation">Observation</option>
-    </select>
-    <input class="fi" id="j-entry" type="number" placeholder="Fill price" step="0.01" inputmode="decimal">
-    <input class="fi" id="j-exit" type="number" placeholder="Exit price" step="0.01" inputmode="decimal">
-    <select class="fi" id="j-result">
-      <option value="">Outcome</option>
-      <option value="WIN">Win — target hit</option>
-      <option value="LOSS-EMA">Loss — EMA9 stop</option>
-      <option value="LOSS-TIME">Loss — 11:30am exit</option>
-      <option value="MANUAL">Manual exit</option>
-      <option value="SKIP">Skipped — no setup</option>
-      <option value="OBS">Observation only</option>
-    </select>
-    <select class="fi" id="j-gex">
-      <option value="">GEX today</option>
-      <option value="NEG">Negative — trending</option>
-      <option value="POS">Positive — pinning</option>
-      <option value="ZERO">Near zero</option>
-    </select>
-    <select class="fi" id="j-touch">
-      <option value="">EMA9 touch #</option>
-      <option value="1">1st touch</option>
-      <option value="2">2nd touch</option>
-      <option value="3">3rd+ touch</option>
-      <option value="NA">N/A</option>
-    </select>
-    <select class="fi" id="j-rules">
-      <option value="">Rules followed?</option>
-      <option value="YES">Yes</option>
-      <option value="NO">No — broke rule</option>
-    </select>
-    <input class="fi full" id="j-note" type="text" placeholder="What happened? Setup quality? Lesson?">
-  </div>
-  <button class="btn prim" onclick="addTrade()">Log entry</button>
-
-  <div class="lbl">History</div>
-  <div class="card" id="j-list"><div class="empty">No entries yet</div></div>
-  <br>
-  <button class="btn dng" onclick="clearAll()">Clear all history</button>
-</div>
-
-<!-- ══ RULES PAGE ══ -->
-<div id="pg-rules" class="pg">
-
-  <div class="lbl">The process — in order</div>
-  <div class="card" style="padding:0">
-    <div class="er"><div class="dot" style="background:#5856d6"></div><div><strong>Pre-market:</strong> Read net GEX on optioncharts.io. Note call wall and put wall strikes. Check gap vs yesterday close. Enter in Setup tab.</div></div>
-    <div class="er"><div class="dot" style="background:#ff9500"></div><div><strong>Near-zero GEX:</strong> Need clear VWAP slope + price outside zone + EMA9 aligned by 10:15am. If unclear → skip day. No exceptions.</div></div>
-    <div class="er"><div class="dot" style="background:#007aff"></div><div><strong>Gap rule:</strong> Under 10pts normal. 10–25pts wait for fresh leg. 25pts+ move may be mature — skip or require exceptional signal.</div></div>
-    <div class="er"><div class="dot" style="background:#007aff"></div><div><strong>15min trend:</strong> VWAP sloping + price 10–15pts clear (SPX) / 5pts (QQQ) + EMA9 aligned. All three. Within zone = no trade. 25pts+ extended = skip.</div></div>
-    <div class="er"><div class="dot" style="background:#ff9500"></div><div><strong>5min setup:</strong> VWAP + EMA9 confirm direction. Price pulling back toward EMA9. Not within 15pts (SPX) / 5pts (QQQ) of a wall.</div></div>
-    <div class="er"><div class="dot" style="background:#34c759"></div><div><strong>2min entry:</strong> First EMA9 touch only. Wick touches EMA9. Body closes away in trend direction. Enter on candle close. 2nd or 3rd touch = exhausted = skip.</div></div>
-    <div class="er"><div class="dot" style="background:#ff3b30"></div><div><strong>Time rules:</strong> No entry after 11:00am. Close all by 11:30am. One trade per day. Stopped trade counts — no re-entry.</div></div>
-  </div>
-
-  <div class="lbl">GEX-adjusted targets</div>
-  <div class="card" style="padding:0">
-    <div class="shdr green">Negative GEX — Trending · Let it run</div>
-    <div class="row"><span class="rk">Early half / full (10:00–10:30)</span><span class="rv g">+$100 / +$200</span></div>
-    <div class="row"><span class="rk">Late half / full (10:30–11:00)</span><span class="rv g">+$70 / +$130</span></div>
-    <div class="row"><span class="rk">Why larger</span><span class="rv" style="font-size:12px">MM flow amplifies move. Trend has structural fuel. Be patient.</span></div>
-    <div class="shdr red">Positive GEX — Pinning · Take quickly</div>
-    <div class="row"><span class="rk">Early half / full (10:00–10:30)</span><span class="rv r">+$50 / +$80</span></div>
-    <div class="row"><span class="rk">Late half / full (10:30–11:00)</span><span class="rv r">+$30 / +$50</span></div>
-    <div class="row"><span class="rk">Why smaller</span><span class="rv" style="font-size:12px">MM hedging fights every tick toward wall. Move stalls early. Don't wait.</span></div>
-    <div class="shdr orange">Near Zero GEX — Take what you get</div>
-    <div class="row"><span class="rk">Early half / full (10:00–10:30)</span><span class="rv o">+$40 / +$60</span></div>
-    <div class="row"><span class="rk">Late half / full (10:30–11:00)</span><span class="rv o">+$25 / +$40</span></div>
-    <div class="row"><span class="rk">Wall override</span><span class="rv">Always exit 5pts before SPX wall / 2pts QQQ — overrides all dollar targets</span></div>
-  </div>
-
-  <div class="lbl">EMA9 rules</div>
-  <div class="card" style="padding:0">
-    <div class="row"><span class="rk">Bull bounce</span><span class="rv g">Lower wick touches EMA9 · body closes above</span></div>
-    <div class="row"><span class="rk">Bear bounce</span><span class="rv r">Upper wick touches EMA9 · body closes below</span></div>
-    <div class="row"><span class="rk">If unsure</span><span class="rv o">Not a bounce — wait for next touch</span></div>
-    <div class="row"><span class="rk">SPX stop</span><span class="rv r">5min body closes through EMA9 by 2+ pts → exit immediately</span></div>
-    <div class="row"><span class="rk">QQQ stop</span><span class="rv r">5min body closes through EMA9 by 0.20+ pts → exit immediately</span></div>
-    <div class="row"><span class="rk">Wick only</span><span class="rv g">Wick through EMA9, body correct side → hold</span></div>
-    <div class="row"><span class="rk">Touch number</span><span class="rv r">1st touch only. 2nd or 3rd = exhausted = do not enter</span></div>
-  </div>
-
-  <div class="lbl">GEX walls</div>
-  <div class="card" style="padding:0">
-    <div class="row"><span class="rk">Negative GEX</span><span class="rv r">Walls accelerate moves through — not bounce levels</span></div>
-    <div class="row"><span class="rk">Positive GEX</span><span class="rv g">Walls bounce price back — MMs defend them</span></div>
-    <div class="row"><span class="rk">No entry zone (SPX)</span><span class="rv r">Within 15pts of relevant wall → skip entry</span></div>
-    <div class="row"><span class="rk">No entry zone (QQQ)</span><span class="rv r">Within 5pts of relevant wall → skip entry</span></div>
-    <div class="row"><span class="rk">Exit before wall</span><span class="rv">5pts before SPX / 2pts before QQQ</span></div>
-    <div class="row"><span class="rk">Stall signal</span><span class="rv o">Price stops 10pts before wall for 2+ candles → exit now</span></div>
-  </div>
-
-  <div class="lbl">Distance reference</div>
-  <div class="card" style="padding:12px">
-    <table class="dist-table">
-      <tr><th>Measurement</th><th>SPX</th><th>QQQ</th></tr>
-      <tr><td>VWAP confirmation</td><td>10–15 pts</td><td>5 pts</td></tr>
-      <tr><td>Wall zone width</td><td>±15 pts</td><td>±5 pts</td></tr>
-      <tr><td>Exit before wall</td><td>5 pts</td><td>2 pts</td></tr>
-      <tr><td>EMA9 stop buffer</td><td>2 pts</td><td>0.20 pts</td></tr>
-    </table>
-  </div>
-
-  <div class="lbl">Sizing — $3,000 account</div>
-  <div class="card" style="padding:0">
-    <div class="row"><span class="rk">Max risk per trade</span><span class="rv">2% = $60</span></div>
-    <div class="row"><span class="rk">Contracts</span><span class="rv">1 always</span></div>
-    <div class="row"><span class="rk">Max premium</span><span class="rv o">$1.80–$2.00 per contract</span></div>
-    <div class="row"><span class="rk">Go live after</span><span class="rv">30 paper trades + win rate above 37.5%</span></div>
-    <div class="row"><span class="rk">Re-evaluate at</span><span class="rv">60 and 100 trades</span></div>
-  </div>
-
-  <div class="lbl">Non-negotiables</div>
-  <div class="card" style="padding:0">
-    <div class="row"><span class="rk">1 trade per day</span><span class="rv r">Stopped trade counts. No re-entry ever.</span></div>
-    <div class="row"><span class="rk">No setup = good day</span><span class="rv g">Missed trade costs nothing. Bad entry costs money.</span></div>
-    <div class="row"><span class="rk">Cancelled before fill</span><span class="rv g">Does not count as the day's trade</span></div>
-    <div class="row"><span class="rk">Log every day</span><span class="rv">Trade or skip — GEX + touch # + rules Y/N</span></div>
-  </div>
-
-  <div class="lbl" style="margin-top:20px">GEX learnings — field observations</div>
-
-  <div class="card" style="padding:0">
-    <div class="shdr green">How negative GEX actually behaves</div>
-    <div class="er"><div class="dot" style="background:#34c759"></div><div><strong>Amplification ≠ explosive.</strong> Negative GEX amplifies moves but most negative GEX days are slow grinds in one direction — not waterfalls. Explosive days need a catalyst. Adjust expectation accordingly.</div></div>
-    <div class="er"><div class="dot" style="background:#34c759"></div><div><strong>Negative GEX needs a trigger.</strong> The regime removes the pinning force but does not create the move. Institutional order flow or a macro event is still needed to start the trend. GEX sets the environment only.</div></div>
-    <div class="er"><div class="dot" style="background:#34c759"></div><div><strong>Magnitude matters.</strong> A mildly negative reading (-$50M) produces mild trending. A deeply negative reading (-$2B+) with a catalyst produces the sharp moves. Always note the actual net GEX number not just the sign.</div></div>
-    <div class="er"><div class="dot" style="background:#34c759"></div><div><strong>Large pre-market gap on negative GEX.</strong> If SPX gaps down 25pts+ overnight, amplification may be mostly done before your entry window opens. The trending move happened pre-market. Wait for a confirmed fresh leg — not continuation of overnight move.</div></div>
-  </div>
-
-  <div class="card" style="padding:0">
-    <div class="shdr red">Wall behavior — the critical distinction</div>
-    <div class="er"><div class="dot" style="background:#ff3b30"></div><div><strong>Positive GEX walls bounce price.</strong> MMs are long gamma — they buy dips and sell rips mechanically. Call wall = real ceiling. Put wall = real floor. Pinning is not coincidence, it is MM hedging.</div></div>
-    <div class="er"><div class="dot" style="background:#ff3b30"></div><div><strong>Negative GEX walls accelerate through.</strong> MMs are short gamma — they sell into dips and buy into rips, amplifying the move. Put walls on negative GEX days are acceleration zones not bounce zones. Do not expect a bounce at the wall.</div></div>
-    <div class="er"><div class="dot" style="background:#ff3b30"></div><div><strong>Exhaustion bounces still happen.</strong> Even on negative GEX, a hard sell into a put wall can bounce if selling is exhausted — volume dries up + reversal candle = real buyers stepping in. These bounces are weaker and shorter than positive GEX wall bounces. Do not rely on them.</div></div>
-    <div class="er"><div class="dot" style="background:#ff3b30"></div><div><strong>Wall crossed = role reversal.</strong> When price breaks below a put wall, that wall becomes resistance above — not support. On negative GEX, MMs sell into any bounce back toward it. When price breaks above a call wall, that wall becomes support below.</div></div>
-  </div>
-
-  <div class="card" style="padding:0">
-    <div class="shdr orange">Wall position vs current price — what it means</div>
-    <div class="er"><div class="dot" style="background:#ff9500"></div><div><strong>Put wall above price (price broke below it).</strong> Bearish signal. Put wall is now resistance. On negative GEX: MMs sell into every bounce toward it. Next put wall below is the acceleration target. Do not expect recovery to the broken wall easily.</div></div>
-    <div class="er"><div class="dot" style="background:#ff9500"></div><div><strong>Call wall below price (price broke above it).</strong> Bullish signal. Call wall is now support. On negative GEX: MMs buy into every dip toward it. Next call wall above is the acceleration target.</div></div>
-    <div class="er"><div class="dot" style="background:#ff9500"></div><div><strong>Price between two put walls.</strong> Strong downside structure. Both put bars amplify selling on negative GEX. Highest conviction short setup — slow grind down days come from this structure.</div></div>
-    <div class="er"><div class="dot" style="background:#ff9500"></div><div><strong>Call wall and put wall within 5pts of each other.</strong> Contested zone. The open price determines directional bias — above both = bullish, below both = bearish. No middle ground. High conviction move once side is determined.</div></div>
-  </div>
-
-  <div class="card" style="padding:0">
-    <div class="shdr blue">Options skew vs GEX — reading conflicts</div>
-    <div class="er"><div class="dot" style="background:#007aff"></div><div><strong>GEX = structural positioning.</strong> Based on existing open interest. Tells you what MMs must do mechanically based on current positions. Changes slowly.</div></div>
-    <div class="er"><div class="dot" style="background:#007aff"></div><div><strong>Options skew = fresh flow.</strong> Based on what traders are buying right now. Can shift overnight. Tells you where active money is positioning for tomorrow — but not why.</div></div>
-    <div class="er"><div class="dot" style="background:#007aff"></div><div><strong>When GEX and skew conflict.</strong> Raise signal quality threshold. Do not pre-commit to either direction. Let the 15min chart at 10:15am be the final judge. Both signals pointing the same way = highest conviction.</div></div>
-    <div class="er"><div class="dot" style="background:#007aff"></div><div><strong>Heavy call skew alone does not confirm bullish direction.</strong> Three reasons call premium gets expensive: genuine bullish buying, institutions hedging short positions, or traders positioning for a dead cat bounce. You cannot tell which from price alone.</div></div>
-    <div class="er"><div class="dot" style="background:#007aff"></div><div><strong>When skew resolves to match GEX.</strong> If skew initially conflicts with GEX but then shifts to align with it during the session or overnight — that is the conflict resolving. Higher conviction for the direction both now agree on.</div></div>
-  </div>
-
-  <div class="card" style="padding:0">
-    <div class="shdr purple">Entry timing — hard lessons</div>
-    <div class="er"><div class="dot" style="background:#5856d6"></div><div><strong>First EMA9 touch only.</strong> By the 2nd or 3rd touch, trend momentum is fading. The bounce is weaker each time. Your checklist cannot distinguish touch 1 from touch 3 visually — you must count manually. 2nd or 3rd touch = exhausted = do not enter.</div></div>
-    <div class="er"><div class="dot" style="background:#5856d6"></div><div><strong>Extended from VWAP = move is mature.</strong> If price is 25+pts from VWAP when you see the EMA9 setup, the institutional move that created the trend is already largely done. You are entering at exhaustion not continuation. Skip it.</div></div>
-    <div class="er"><div class="dot" style="background:#5856d6"></div><div><strong>GEX confirms environment — price action confirms entry.</strong> Negative GEX alone is not a signal. It sets conditions. The 15min VWAP slope + EMA9 alignment IS your order flow proxy — when institutional money commits to a direction it shows up there first.</div></div>
-    <div class="er"><div class="dot" style="background:#5856d6"></div><div><strong>Crowded setups get squeezed first.</strong> When GEX and skew both point bearish, every retail trader is short at the open. The open often produces a brief counter-rally to shake out weak shorts before the real move. Wait for 10:15am — do not enter at 10:00am on a perfectly aligned pre-market read.</div></div>
-    <div class="er"><div class="dot" style="background:#5856d6"></div><div><strong>No setup = the strategy working.</strong> Negative GEX days that produce explosive amplification are roughly 1 in 4 or 5. Most are slow grinds or muted trends. Waiting 3–4 days without a clean signal is not failure — it is selectivity, which is the edge.</div></div>
-  </div>
-</div>
-
-<!-- ══ SWING PAGE ══ -->
-<div id="pg-swing" class="pg">
-
-  <div class="sig info" style="margin-bottom:10px">
-    <div class="sigt">Swing / Monthly</div>
-    <div class="ss">Weekly → Daily → 4hr cascade. Same GEX logic, longer timeframe. Paper trade now. Go live at $5k+ account.</div>
-  </div>
-
-  <div class="lbl">Weekly GEX regime <span style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">check Sunday evening</span></div>
-  <div class="card" style="padding:0">
-    <div class="er"><div class="dot" style="background:#34c759"></div><div><strong>Negative GEX week:</strong> Trending. Walls accelerate moves through them. Directional bias valid. Confirm daily aligns before entry.</div></div>
-    <div class="er"><div class="dot" style="background:#ff3b30"></div><div><strong>Positive GEX week:</strong> Pinning. Walls are real bounce levels — use as targets. Tighter moves, may reverse at walls.</div></div>
-    <div class="er"><div class="dot" style="background:#ff9500"></div><div><strong>Near-zero GEX week:</strong> No reliable edge. Wait for regime to clarify. No swing entry this week.</div></div>
-  </div>
-
-  <div class="lbl">Swing entry cascade — tap to check off</div>
-  <div class="card" style="padding:0">
-    <div class="shdr purple">Level 1 — Weekly · Big trend</div>
-    <div class="sw-ch" onclick="sct(0)">
-      <div class="scb" id="scb0"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Weekly VWAP sloping — 2+ consecutive weeks</div>
-        <div class="cs">Same slope direction for 2+ weeks. One week not enough. Candle closed outside VWAP zone (5pts+ clear).</div>
+      <div class="shdr green">Negative GEX — Trending · Let it run</div>
+      <div class="row"><span class="rk">Early half / full (10:00–10:30)</span><span class="rv g">+$100 / +$200</span>
       </div>
+      <div class="row"><span class="rk">Late half / full (10:30–11:00)</span><span class="rv g">+$70 / +$130</span>
+      </div>
+      <div class="row"><span class="rk">Why larger</span><span class="rv" style="font-size:12px">MM flow amplifies move.
+          Trend has structural fuel. Be patient.</span></div>
+      <div class="shdr red">Positive GEX — Pinning · Take quickly</div>
+      <div class="row"><span class="rk">Early half / full (10:00–10:30)</span><span class="rv r">+$50 / +$80</span>
+      </div>
+      <div class="row"><span class="rk">Late half / full (10:30–11:00)</span><span class="rv r">+$30 / +$50</span></div>
+      <div class="row"><span class="rk">Why smaller</span><span class="rv" style="font-size:12px">MM hedging fights
+          every tick toward wall. Move stalls early. Don't wait.</span></div>
+      <div class="shdr orange">Near Zero GEX — Take what you get</div>
+      <div class="row"><span class="rk">Early half / full (10:00–10:30)</span><span class="rv o">+$40 / +$60</span>
+      </div>
+      <div class="row"><span class="rk">Late half / full (10:30–11:00)</span><span class="rv o">+$25 / +$40</span></div>
+      <div class="row"><span class="rk">Wall override</span><span class="rv">Always exit 5pts before SPX wall / 2pts QQQ
+          — overrides all dollar targets</span></div>
     </div>
-    <div class="sw-ch" onclick="sct(1)">
-      <div class="scb" id="scb1"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Weekly GEX regime aligned with slope direction</div>
-        <div class="cs">Net GEX negative on bearish weeks / positive on bullish weeks confirms structural support for the move.</div>
+
+    <div class="lbl">EMA9 rules</div>
+    <div class="card" style="padding:0">
+      <div class="row"><span class="rk">Bull bounce</span><span class="rv g">Lower wick touches EMA9 · body closes
+          above</span></div>
+      <div class="row"><span class="rk">Bear bounce</span><span class="rv r">Upper wick touches EMA9 · body closes
+          below</span></div>
+      <div class="row"><span class="rk">If unsure</span><span class="rv o">Not a bounce — wait for next touch</span>
+      </div>
+      <div class="row"><span class="rk">SPX stop</span><span class="rv r">5min body closes through EMA9 by 2+ pts → exit
+          immediately</span></div>
+      <div class="row"><span class="rk">QQQ stop</span><span class="rv r">5min body closes through EMA9 by 0.20+ pts →
+          exit immediately</span></div>
+      <div class="row"><span class="rk">Wick only</span><span class="rv g">Wick through EMA9, body correct side →
+          hold</span></div>
+      <div class="row"><span class="rk">Touch number</span><span class="rv r">1st touch only. 2nd or 3rd = exhausted =
+          do not enter</span></div>
+    </div>
+
+    <div class="lbl">GEX walls</div>
+    <div class="card" style="padding:0">
+      <div class="row"><span class="rk">Negative GEX</span><span class="rv r">Walls accelerate moves through — not
+          bounce levels</span></div>
+      <div class="row"><span class="rk">Positive GEX</span><span class="rv g">Walls bounce price back — MMs defend
+          them</span></div>
+      <div class="row"><span class="rk">No entry zone (SPX)</span><span class="rv r">Within 15pts of relevant wall →
+          skip entry</span></div>
+      <div class="row"><span class="rk">No entry zone (QQQ)</span><span class="rv r">Within 5pts of relevant wall → skip
+          entry</span></div>
+      <div class="row"><span class="rk">Exit before wall</span><span class="rv">5pts before SPX / 2pts before QQQ</span>
+      </div>
+      <div class="row"><span class="rk">Stall signal</span><span class="rv o">Price stops 10pts before wall for 2+
+          candles → exit now</span></div>
+    </div>
+
+    <div class="lbl">Distance reference</div>
+    <div class="card" style="padding:12px">
+      <table class="dist-table">
+        <tr>
+          <th>Measurement</th>
+          <th>SPX</th>
+          <th>QQQ</th>
+        </tr>
+        <tr>
+          <td>VWAP confirmation</td>
+          <td>10–15 pts</td>
+          <td>5 pts</td>
+        </tr>
+        <tr>
+          <td>Wall zone width</td>
+          <td>±15 pts</td>
+          <td>±5 pts</td>
+        </tr>
+        <tr>
+          <td>Exit before wall</td>
+          <td>5 pts</td>
+          <td>2 pts</td>
+        </tr>
+        <tr>
+          <td>EMA9 stop buffer</td>
+          <td>2 pts</td>
+          <td>0.20 pts</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="lbl">Sizing — $3,000 account</div>
+    <div class="card" style="padding:0">
+      <div class="row"><span class="rk">Max risk per trade</span><span class="rv">2% = $60</span></div>
+      <div class="row"><span class="rk">Contracts</span><span class="rv">1 always</span></div>
+      <div class="row"><span class="rk">Max premium</span><span class="rv o">$1.80–$2.00 per contract</span></div>
+      <div class="row"><span class="rk">Go live after</span><span class="rv">30 paper trades + win rate above
+          37.5%</span></div>
+      <div class="row"><span class="rk">Re-evaluate at</span><span class="rv">60 and 100 trades</span></div>
+    </div>
+
+    <div class="lbl">Non-negotiables</div>
+    <div class="card" style="padding:0">
+      <div class="row"><span class="rk">1 trade per day</span><span class="rv r">Stopped trade counts. No re-entry
+          ever.</span></div>
+      <div class="row"><span class="rk">No setup = good day</span><span class="rv g">Missed trade costs nothing. Bad
+          entry costs money.</span></div>
+      <div class="row"><span class="rk">Cancelled before fill</span><span class="rv g">Does not count as the day's
+          trade</span></div>
+      <div class="row"><span class="rk">Log every day</span><span class="rv">Trade or skip — GEX + touch # + rules
+          Y/N</span></div>
+    </div>
+
+    <div class="lbl" style="margin-top:20px">GEX learnings — field observations</div>
+
+    <div class="card" style="padding:0">
+      <div class="shdr green">How negative GEX actually behaves</div>
+      <div class="er">
+        <div class="dot" style="background:#34c759"></div>
+        <div><strong>Amplification ≠ explosive.</strong> Negative GEX amplifies moves but most negative GEX days are
+          slow grinds in one direction — not waterfalls. Explosive days need a catalyst. Adjust expectation accordingly.
+        </div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#34c759"></div>
+        <div><strong>Negative GEX needs a trigger.</strong> The regime removes the pinning force but does not create the
+          move. Institutional order flow or a macro event is still needed to start the trend. GEX sets the environment
+          only.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#34c759"></div>
+        <div><strong>Magnitude matters.</strong> A mildly negative reading (-$50M) produces mild trending. A deeply
+          negative reading (-$2B+) with a catalyst produces the sharp moves. Always note the actual net GEX number not
+          just the sign.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#34c759"></div>
+        <div><strong>Large pre-market gap on negative GEX.</strong> If SPX gaps down 25pts+ overnight, amplification may
+          be mostly done before your entry window opens. The trending move happened pre-market. Wait for a confirmed
+          fresh leg — not continuation of overnight move.</div>
       </div>
     </div>
 
-    <div class="shdr blue">Level 2 — Daily · This week's move</div>
-    <div class="sw-ch" onclick="sct(2)">
-      <div class="scb" id="scb2"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Daily VWAP sloping same direction as weekly</div>
-        <div class="cs">Both weekly and daily slopes aligned. Conflict between timeframes = no trade — wait.</div>
+    <div class="card" style="padding:0">
+      <div class="shdr red">Wall behavior — the critical distinction</div>
+      <div class="er">
+        <div class="dot" style="background:#ff3b30"></div>
+        <div><strong>Positive GEX walls bounce price.</strong> MMs are long gamma — they buy dips and sell rips
+          mechanically. Call wall = real ceiling. Put wall = real floor. Pinning is not coincidence, it is MM hedging.
+        </div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff3b30"></div>
+        <div><strong>Negative GEX walls accelerate through.</strong> MMs are short gamma — they sell into dips and buy
+          into rips, amplifying the move. Put walls on negative GEX days are acceleration zones not bounce zones. Do not
+          expect a bounce at the wall.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff3b30"></div>
+        <div><strong>Exhaustion bounces still happen.</strong> Even on negative GEX, a hard sell into a put wall can
+          bounce if selling is exhausted — volume dries up + reversal candle = real buyers stepping in. These bounces
+          are weaker and shorter than positive GEX wall bounces. Do not rely on them.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff3b30"></div>
+        <div><strong>Wall crossed = role reversal.</strong> When price breaks below a put wall, that wall becomes
+          resistance above — not support. On negative GEX, MMs sell into any bounce back toward it. When price breaks
+          above a call wall, that wall becomes support below.</div>
       </div>
     </div>
-    <div class="sw-ch" onclick="sct(3)">
-      <div class="scb" id="scb3"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Daily EMA9 sloping in trend direction</div>
-        <div class="cs">Orange EMA9 on daily chart angled with the trend — not flat or opposing.</div>
+
+    <div class="card" style="padding:0">
+      <div class="shdr orange">Wall position vs current price — what it means</div>
+      <div class="er">
+        <div class="dot" style="background:#ff9500"></div>
+        <div><strong>Put wall above price (price broke below it).</strong> Bearish signal. Put wall is now resistance.
+          On negative GEX: MMs sell into every bounce toward it. Next put wall below is the acceleration target. Do not
+          expect recovery to the broken wall easily.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff9500"></div>
+        <div><strong>Call wall below price (price broke above it).</strong> Bullish signal. Call wall is now support. On
+          negative GEX: MMs buy into every dip toward it. Next call wall above is the acceleration target.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff9500"></div>
+        <div><strong>Price between two put walls.</strong> Strong downside structure. Both put bars amplify selling on
+          negative GEX. Highest conviction short setup — slow grind down days come from this structure.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff9500"></div>
+        <div><strong>Call wall and put wall within 5pts of each other.</strong> Contested zone. The open price
+          determines directional bias — above both = bullish, below both = bearish. No middle ground. High conviction
+          move once side is determined.</div>
       </div>
     </div>
-    <div class="sw-ch" onclick="sct(4)">
-      <div class="scb" id="scb4"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">Today's daily candle rejected EMA9</div>
-        <div class="cs">Bear: wick touched EMA9 from below, body closed back below. Bull: opposite. Confirms EMA9 as resistance / support.</div>
+
+    <div class="card" style="padding:0">
+      <div class="shdr blue">Options skew vs GEX — reading conflicts</div>
+      <div class="er">
+        <div class="dot" style="background:#007aff"></div>
+        <div><strong>GEX = structural positioning.</strong> Based on existing open interest. Tells you what MMs must do
+          mechanically based on current positions. Changes slowly.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#007aff"></div>
+        <div><strong>Options skew = fresh flow.</strong> Based on what traders are buying right now. Can shift
+          overnight. Tells you where active money is positioning for tomorrow — but not why.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#007aff"></div>
+        <div><strong>When GEX and skew conflict.</strong> Raise signal quality threshold. Do not pre-commit to either
+          direction. Let the 15min chart at 10:15am be the final judge. Both signals pointing the same way = highest
+          conviction.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#007aff"></div>
+        <div><strong>Heavy call skew alone does not confirm bullish direction.</strong> Three reasons call premium gets
+          expensive: genuine bullish buying, institutions hedging short positions, or traders positioning for a dead cat
+          bounce. You cannot tell which from price alone.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#007aff"></div>
+        <div><strong>When skew resolves to match GEX.</strong> If skew initially conflicts with GEX but then shifts to
+          align with it during the session or overnight — that is the conflict resolving. Higher conviction for the
+          direction both now agree on.</div>
       </div>
     </div>
 
-    <div class="shdr green">Level 3 — 4hr · Entry timing</div>
-    <div class="sw-ch" onclick="sct(5)">
-      <div class="scb" id="scb5"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">4hr candle pulled back to EMA9</div>
-        <div class="cs">Price drifted toward 4hr EMA9 — a healthy retracement, not a crash through it.</div>
+    <div class="card" style="padding:0">
+      <div class="shdr purple">Entry timing — hard lessons</div>
+      <div class="er">
+        <div class="dot" style="background:#5856d6"></div>
+        <div><strong>First EMA9 touch only.</strong> By the 2nd or 3rd touch, trend momentum is fading. The bounce is
+          weaker each time. Your checklist cannot distinguish touch 1 from touch 3 visually — you must count manually.
+          2nd or 3rd touch = exhausted = do not enter.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#5856d6"></div>
+        <div><strong>Extended from VWAP = move is mature.</strong> If price is 25+pts from VWAP when you see the EMA9
+          setup, the institutional move that created the trend is already largely done. You are entering at exhaustion
+          not continuation. Skip it.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#5856d6"></div>
+        <div><strong>GEX confirms environment — price action confirms entry.</strong> Negative GEX alone is not a
+          signal. It sets conditions. The 15min VWAP slope + EMA9 alignment IS your order flow proxy — when
+          institutional money commits to a direction it shows up there first.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#5856d6"></div>
+        <div><strong>Crowded setups get squeezed first.</strong> When GEX and skew both point bearish, every retail
+          trader is short at the open. The open often produces a brief counter-rally to shake out weak shorts before the
+          real move. Wait for 10:15am — do not enter at 10:00am on a perfectly aligned pre-market read.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#5856d6"></div>
+        <div><strong>No setup = the strategy working.</strong> Negative GEX days that produce explosive amplification
+          are roughly 1 in 4 or 5. Most are slow grinds or muted trends. Waiting 3–4 days without a clean signal is not
+          failure — it is selectivity, which is the edge.</div>
       </div>
     </div>
-    <div class="sw-ch" onclick="sct(6)">
-      <div class="scb" id="scb6"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="cl">4hr rejection candle closed in trend direction</div>
-        <div class="cs">Wick touched EMA9, body closed away in trend direction. Enter on close of this candle.</div>
+  </div>
+
+  <!-- ══ SWING PAGE ══ -->
+  <div id="pg-swing" class="pg">
+
+    <div class="sig info" style="margin-bottom:10px">
+      <div class="sigt">Swing / Monthly</div>
+      <div class="ss">Weekly → Daily → 4hr cascade. Same GEX logic, longer timeframe. Paper trade now. Go live at $5k+
+        account.</div>
+    </div>
+
+    <div class="lbl">Weekly GEX regime <span style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">check
+        Sunday evening</span></div>
+    <div class="card" style="padding:0">
+      <div class="er">
+        <div class="dot" style="background:#34c759"></div>
+        <div><strong>Negative GEX week:</strong> Trending. Walls accelerate moves through them. Directional bias valid.
+          Confirm daily aligns before entry.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff3b30"></div>
+        <div><strong>Positive GEX week:</strong> Pinning. Walls are real bounce levels — use as targets. Tighter moves,
+          may reverse at walls.</div>
+      </div>
+      <div class="er">
+        <div class="dot" style="background:#ff9500"></div>
+        <div><strong>Near-zero GEX week:</strong> No reliable edge. Wait for regime to clarify. No swing entry this
+          week.</div>
       </div>
     </div>
-    <div style="padding:7px 14px;font-size:11px;color:#8e8e93">Check morning and afternoon — setup takes hours to form. No need to watch constantly.</div>
-  </div>
 
-  <div id="sw-verdict" class="sig idle" style="margin-bottom:10px">
-    <div class="sigt">Tick swing checks above</div>
-    <div class="ss">Start with weekly — 2+ weeks of same VWAP slope?</div>
-  </div>
+    <div class="lbl">Swing entry cascade — tap to check off</div>
+    <div class="card" style="padding:0">
+      <div class="shdr purple">Level 1 — Weekly · Big trend</div>
+      <div class="sw-ch" onclick="sct(0)">
+        <div class="scb" id="scb0"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Weekly VWAP sloping — 2+ consecutive weeks</div>
+          <div class="cs">Same slope direction for 2+ weeks. One week not enough. Candle closed outside VWAP zone (5pts+
+            clear).</div>
+        </div>
+      </div>
+      <div class="sw-ch" onclick="sct(1)">
+        <div class="scb" id="scb1"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Weekly GEX regime aligned with slope direction</div>
+          <div class="cs">Net GEX negative on bearish weeks / positive on bullish weeks confirms structural support for
+            the move.</div>
+        </div>
+      </div>
 
-  <div class="lbl">Swing trade structure</div>
-  <div class="card" style="padding:0">
-    <div class="row"><span class="rk">Instrument</span><span class="rv b">QQQ puts or calls</span></div>
-    <div class="row"><span class="rk">Expiry</span><span class="rv">Buy 45–60 DTE. Close at 30 DTE or target hit.</span></div>
-    <div class="row"><span class="rk">Strike</span><span class="rv">ATM or 1 strike OTM maximum</span></div>
-    <div class="row"><span class="rk">Stop</span><span class="rv r">Daily candle body closes through EMA9 → exit next open</span></div>
-    <div class="row"><span class="rk">Target 1</span><span class="rv o">Nearest GEX wall → close half</span></div>
-    <div class="row"><span class="rk">Target 2</span><span class="rv g">Next GEX wall or 40% gain → close rest</span></div>
-    <div class="row"><span class="rk">Check schedule</span><span class="rv">Morning + afternoon only. Not all day.</span></div>
-  </div>
+      <div class="shdr blue">Level 2 — Daily · This week's move</div>
+      <div class="sw-ch" onclick="sct(2)">
+        <div class="scb" id="scb2"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Daily VWAP sloping same direction as weekly</div>
+          <div class="cs">Both weekly and daily slopes aligned. Conflict between timeframes = no trade — wait.</div>
+        </div>
+      </div>
+      <div class="sw-ch" onclick="sct(3)">
+        <div class="scb" id="scb3"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Daily EMA9 sloping in trend direction</div>
+          <div class="cs">Orange EMA9 on daily chart angled with the trend — not flat or opposing.</div>
+        </div>
+      </div>
+      <div class="sw-ch" onclick="sct(4)">
+        <div class="scb" id="scb4"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">Today's daily candle rejected EMA9</div>
+          <div class="cs">Bear: wick touched EMA9 from below, body closed back below. Bull: opposite. Confirms EMA9 as
+            resistance / support.</div>
+        </div>
+      </div>
 
-  <div class="lbl">GEX wall behavior on swings</div>
-  <div class="card" style="padding:0">
-    <div class="row" style="flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px">
-      <span style="font-size:13px;font-weight:600;color:#34c759">Negative GEX — walls accelerate through</span>
-      <span style="font-size:12px;color:#636366">MMs short gamma — sell into dips, buy into rips. Walls amplify moves. Put walls on negative GEX = acceleration zone, not bounce. Price breaks through with momentum.</span>
+      <div class="shdr green">Level 3 — 4hr · Entry timing</div>
+      <div class="sw-ch" onclick="sct(5)">
+        <div class="scb" id="scb5"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">4hr candle pulled back to EMA9</div>
+          <div class="cs">Price drifted toward 4hr EMA9 — a healthy retracement, not a crash through it.</div>
+        </div>
+      </div>
+      <div class="sw-ch" onclick="sct(6)">
+        <div class="scb" id="scb6"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <polyline points="2,6 5,9 10,3" />
+          </svg></div>
+        <div>
+          <div class="cl">4hr rejection candle closed in trend direction</div>
+          <div class="cs">Wick touched EMA9, body closed away in trend direction. Enter on close of this candle.</div>
+        </div>
+      </div>
+      <div style="padding:7px 14px;font-size:11px;color:#8e8e93">Check morning and afternoon — setup takes hours to
+        form. No need to watch constantly.</div>
     </div>
-    <div class="row" style="flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px">
-      <span style="font-size:13px;font-weight:600;color:#ff3b30">Positive GEX — walls bounce price back</span>
-      <span style="font-size:12px;color:#636366">MMs long gamma — buy dips, sell rips. Walls are real defended levels. Use as genuine targets and stops on swing trades.</span>
+
+    <div id="sw-verdict" class="sig idle" style="margin-bottom:10px">
+      <div class="sigt">Tick swing checks above</div>
+      <div class="ss">Start with weekly — 2+ weeks of same VWAP slope?</div>
     </div>
+
+    <div class="lbl">Swing trade structure</div>
+    <div class="card" style="padding:0">
+      <div class="row"><span class="rk">Instrument</span><span class="rv b">QQQ puts or calls</span></div>
+      <div class="row"><span class="rk">Expiry</span><span class="rv">Buy 45–60 DTE. Close at 30 DTE or target
+          hit.</span></div>
+      <div class="row"><span class="rk">Strike</span><span class="rv">ATM or 1 strike OTM maximum</span></div>
+      <div class="row"><span class="rk">Stop</span><span class="rv r">Daily candle body closes through EMA9 → exit next
+          open</span></div>
+      <div class="row"><span class="rk">Target 1</span><span class="rv o">Nearest GEX wall → close half</span></div>
+      <div class="row"><span class="rk">Target 2</span><span class="rv g">Next GEX wall or 40% gain → close rest</span>
+      </div>
+      <div class="row"><span class="rk">Check schedule</span><span class="rv">Morning + afternoon only. Not all
+          day.</span></div>
+    </div>
+
+    <div class="lbl">GEX wall behavior on swings</div>
+    <div class="card" style="padding:0">
+      <div class="row" style="flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px">
+        <span style="font-size:13px;font-weight:600;color:#34c759">Negative GEX — walls accelerate through</span>
+        <span style="font-size:12px;color:#636366">MMs short gamma — sell into dips, buy into rips. Walls amplify moves.
+          Put walls on negative GEX = acceleration zone, not bounce. Price breaks through with momentum.</span>
+      </div>
+      <div class="row" style="flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px">
+        <span style="font-size:13px;font-weight:600;color:#ff3b30">Positive GEX — walls bounce price back</span>
+        <span style="font-size:12px;color:#636366">MMs long gamma — buy dips, sell rips. Walls are real defended levels.
+          Use as genuine targets and stops on swing trades.</span>
+      </div>
+    </div>
+
+    <div class="lbl">Account size reality</div>
+    <div class="card" style="padding:12px;background:#fffbf0;border:1px solid #f5d78e">
+      <div style="font-size:13px;color:#7a5200;line-height:1.6"><strong>At $3,000:</strong> ATM QQQ 45–60DTE options
+        cost $400–700 per contract — too large for proper sizing. Deep OTM at $2–3 premium fits the 2% rule but needs a
+        big move to profit. Use this tab for paper trading only until account reaches $5,000–$8,000.</div>
+    </div>
+
+    <div class="lbl">Distance reference</div>
+    <div class="card" style="padding:12px">
+      <table class="dist-table">
+        <tr>
+          <th>Measurement</th>
+          <th>SPX</th>
+          <th>QQQ</th>
+        </tr>
+        <tr>
+          <td>VWAP confirmation</td>
+          <td>10–15 pts</td>
+          <td>5 pts</td>
+        </tr>
+        <tr>
+          <td>Wall zone width</td>
+          <td>±15 pts</td>
+          <td>±5 pts</td>
+        </tr>
+        <tr>
+          <td>Exit before wall</td>
+          <td>5 pts</td>
+          <td>2 pts</td>
+        </tr>
+        <tr>
+          <td>EMA9 stop buffer</td>
+          <td>2 pts</td>
+          <td>0.20 pts</td>
+        </tr>
+      </table>
+    </div>
+
+    <button class="btn sec" onclick="resetSwing()">Reset swing checks</button>
   </div>
 
-  <div class="lbl">Account size reality</div>
-  <div class="card" style="padding:12px;background:#fffbf0;border:1px solid #f5d78e">
-    <div style="font-size:13px;color:#7a5200;line-height:1.6"><strong>At $3,000:</strong> ATM QQQ 45–60DTE options cost $400–700 per contract — too large for proper sizing. Deep OTM at $2–3 premium fits the 2% rule but needs a big move to profit. Use this tab for paper trading only until account reaches $5,000–$8,000.</div>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab on" onclick="sp('setup',this)">
+      <svg viewBox="0 0 24 24">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </svg>Setup
+    </button>
+    <button class="tab" onclick="sp('entry',this)">
+      <svg viewBox="0 0 24 24">
+        <polyline points="9 11 12 14 22 4" />
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+      </svg>Entry
+    </button>
+    <button class="tab" onclick="sp('swing',this)">
+      <svg viewBox="0 0 24 24">
+        <polyline points="3 17 9 11 13 15 21 7" />
+        <polyline points="14 7 21 7 21 14" />
+      </svg>Swing
+    </button>
+    <button class="tab" onclick="sp('journal',this)">
+      <svg viewBox="0 0 24 24">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+      </svg>Journal
+    </button>
+    <button class="tab" onclick="sp('rules',this)">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>Rules
+    </button>
   </div>
 
-  <div class="lbl">Distance reference</div>
-  <div class="card" style="padding:12px">
-    <table class="dist-table">
-      <tr><th>Measurement</th><th>SPX</th><th>QQQ</th></tr>
-      <tr><td>VWAP confirmation</td><td>10–15 pts</td><td>5 pts</td></tr>
-      <tr><td>Wall zone width</td><td>±15 pts</td><td>±5 pts</td></tr>
-      <tr><td>Exit before wall</td><td>5 pts</td><td>2 pts</td></tr>
-      <tr><td>EMA9 stop buffer</td><td>2 pts</td><td>0.20 pts</td></tr>
-    </table>
-  </div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy, writeBatch } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
-  <button class="btn sec" onclick="resetSwing()">Reset swing checks</button>
-</div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC1MDGdqERfh91IXRBQlSKYm1g3-63V0kg",
+      authDomain: "dte-trader-tkhi.firebaseapp.com",
+      projectId: "dte-trader-tkhi",
+      storageBucket: "dte-trader-tkhi.firebasestorage.app",
+      messagingSenderId: "742321982350",
+      appId: "1:742321982350:web:1dc722b7050feed7d5b2df"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const tradesCol = collection(db, 'trades');
 
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab on" onclick="sp('setup',this)">
-    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Setup
-  </button>
-  <button class="tab" onclick="sp('entry',this)">
-    <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Entry
-  </button>
-  <button class="tab" onclick="sp('swing',this)">
-    <svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>Swing
-  </button>
-  <button class="tab" onclick="sp('journal',this)">
-    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Journal
-  </button>
-  <button class="tab" onclick="sp('rules',this)">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Rules
-  </button>
-</div>
+    function setAuthStatus(message, kind) {
+      var box = document.getElementById('auth-status');
+      if (!box) return;
+      box.className = 'sig ' + (kind || 'idle');
+      box.innerHTML = '<div class="sigt">' + message + '</div><div class="ss">' + (kind === 'go' ? 'Firebase auth is active.' : 'Sign in with an email/password to sync journal entries to Firebase.') + '</div>';
+    }
 
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy, writeBatch } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+    function getAuthFields() {
+      var email = document.getElementById('auth-email').value.trim();
+      var password = document.getElementById('auth-password').value;
+      return { email, password };
+    }
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC1MDGdqERfh91IXRBQlSKYm1g3-63V0kg",
-  authDomain: "dte-trader-tkhi.firebaseapp.com",
-  projectId: "dte-trader-tkhi",
-  storageBucket: "dte-trader-tkhi.firebasestorage.app",
-  messagingSenderId: "742321982350",
-  appId: "1:742321982350:web:1dc722b7050feed7d5b2df"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const tradesCol = collection(db, 'trades');
+    async function signUpWithEmailPassword() {
+      var { email, password } = getAuthFields();
+      if (!email || !password) { alert('Enter both email and password.'); return; }
+      if (password.length < 6) { alert('Password must be at least 6 characters.'); return; }
+      try {
+        var cred = await createUserWithEmailAndPassword(auth, email, password);
+        setAuthStatus('Signed up as ' + cred.user.email, 'go');
+        document.getElementById('auth-password').value = '';
+      } catch (err) {
+        console.error('Firebase sign-up failed', err);
+        alert(err.message || 'Could not create account.');
+      }
+    }
 
-var trades=[],checks=[false,false,false,false,false,false];
-var gexEnv='',walls={callWall:0,putWall:0,ptsToCall:0,ptsToPut:0,bullTgt:0,bearTgt:0};
-var gapSize=0;
-var scnState={calls:'',puts:'',dom:''};
-var scnMap={calls:{above:'sc-ca',both:'sc-cb',none:'sc-cn',on:'sc-co'},puts:{below:'sc-pb',both:'sc-pp',none:'sc-pn',on:'sc-po'},dom:{calls:'sc-dc',equal:'sc-de',puts:'sc-dp'}};
+    async function signInWithEmailPassword() {
+      var { email, password } = getAuthFields();
+      if (!email || !password) { alert('Enter both email and password.'); return; }
+      try {
+        var cred = await signInWithEmailAndPassword(auth, email, password);
+        setAuthStatus('Signed in as ' + cred.user.email, 'go');
+        document.getElementById('auth-password').value = '';
+      } catch (err) {
+        console.error('Firebase sign-in failed', err);
+        alert(err.message || 'Could not sign in.');
+      }
+    }
 
-// Live sync from Firestore (falls back to localStorage if offline / rules block)
-onSnapshot(query(tradesCol, orderBy('date', 'desc')), (snap) => {
-  trades = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  try { localStorage.setItem('qqq_v8', JSON.stringify(trades)); } catch(e){}
-  renderJ();
-}, (err) => {
-  console.warn('Firestore listen failed, using localStorage', err);
-  try { var sv = localStorage.getItem('qqq_v8'); if(sv) trades = JSON.parse(sv); } catch(e){}
-  renderJ();
-});
+    async function signOutCurrentUser() {
+      try {
+        await signOut(auth);
+        setAuthStatus('Not signed in', 'idle');
+        document.getElementById('auth-password').value = '';
+      } catch (err) {
+        console.error('Firebase sign-out failed', err);
+        alert(err.message || 'Could not sign out.');
+      }
+    }
 
-// CLOCK
-function tick(){
-  var d=new Date(),h=d.getHours(),m=d.getMinutes();
-  var wb=document.getElementById('wb');
-  var isWknd=d.getDay()===0||d.getDay()===6;
-  if(isWknd){wb.textContent='Weekend';wb.className='wb off';return;}
-  if(h===10&&m<=30){wb.textContent='Primary ●';wb.className='wb open';}
-  else if((h===10&&m>30)||(h===11&&m<30)){wb.textContent='Window open';wb.className='wb warn';}
-  else if(h===11&&m>=30){wb.textContent='Closed 11:30';wb.className='wb off';}
-  else if(h>=9&&h<10){wb.textContent='Pre-market';wb.className='wb off';}
-  else{wb.textContent='Market closed';wb.className='wb off';}
-}
-setInterval(tick,15000);tick();
+    onAuthStateChanged(auth, function (user) {
+      if (user) {
+        document.body.classList.add('auth-ready');
+        document.getElementById('auth-email').value = user.email || '';
+        setAuthStatus('Signed in as ' + user.email, 'go');
+      } else {
+        document.body.classList.remove('auth-ready');
+        document.getElementById('auth-email').value = '';
+        setAuthStatus('Not signed in', 'idle');
+      }
+    });
 
-// NAV
-function sp(id,btn){
-  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
-  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
-  document.getElementById('pg-'+id).classList.add('on');
-  btn.classList.add('on');
-  if(id==='journal')renderJ();
-  if(id==='entry')updateEntrySummary();
-  window.scrollTo(0,0);
-}
+    var trades = [], checks = [false, false, false, false, false, false];
+    var gexEnv = '', walls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0 };
+    var gapSize = 0;
+    var scnState = { calls: '', puts: '', dom: '' };
+    var scnMap = { calls: { above: 'sc-ca', both: 'sc-cb', none: 'sc-cn', on: 'sc-co' }, puts: { below: 'sc-pb', both: 'sc-pp', none: 'sc-pn', on: 'sc-po' }, dom: { calls: 'sc-dc', equal: 'sc-de', puts: 'sc-dp' } };
 
-function nv(id){var el=document.getElementById(id);return el?parseFloat(el.value)||0:0;}
+    // Live sync from Firestore (falls back to localStorage if offline / rules block)
+    onSnapshot(query(tradesCol, orderBy('date', 'desc')), (snap) => {
+      trades = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      try { localStorage.setItem('qqq_v8', JSON.stringify(trades)); } catch (e) { }
+      renderJ();
+    }, (err) => {
+      console.warn('Firestore listen failed, using localStorage', err);
+      try { var sv = localStorage.getItem('qqq_v8'); if (sv) trades = JSON.parse(sv); } catch (e) { }
+      renderJ();
+    });
 
-// GAP
-function calcGap(){
-  var cl=nv('g-close'),pm=nv('g-pm');
-  if(!cl||!pm){document.getElementById('gap-result').style.display='none';gapSize=0;updateEntrySummary();return;}
-  var gap=Math.abs(pm-cl);gapSize=gap;
-  var dir=pm>cl?'Gap UP ▲':'Gap DOWN ▼';
-  var note='',color='';
-  if(gap<10){note='Normal — trend move likely still available';color='#34c759';}
-  else if(gap<25){note='Caution — wait for fresh leg, not overnight continuation';color='#ff9500';}
-  else{note='High caution — move may be mature. Skip or exceptional signal only.';color='#ff3b30';}
-  document.getElementById('gap-size').textContent=gap.toFixed(0)+' pts ('+dir+')';
-  var noteEl=document.getElementById('gap-note');
-  noteEl.textContent=note;noteEl.style.color=color;
-  document.getElementById('gap-result').style.display='block';
-  updateEntrySummary();
-}
+    // CLOCK
+    function tick() {
+      var d = new Date(), h = d.getHours(), m = d.getMinutes();
+      var wb = document.getElementById('wb');
+      var isWknd = d.getDay() === 0 || d.getDay() === 6;
+      if (isWknd) { wb.textContent = 'Weekend'; wb.className = 'wb off'; return; }
+      if (h === 10 && m <= 30) { wb.textContent = 'Primary ●'; wb.className = 'wb open'; }
+      else if ((h === 10 && m > 30) || (h === 11 && m < 30)) { wb.textContent = 'Window open'; wb.className = 'wb warn'; }
+      else if (h === 11 && m >= 30) { wb.textContent = 'Closed 11:30'; wb.className = 'wb off'; }
+      else if (h >= 9 && h < 10) { wb.textContent = 'Pre-market'; wb.className = 'wb off'; }
+      else { wb.textContent = 'Market closed'; wb.className = 'wb off'; }
+    }
+    setInterval(tick, 15000); tick();
 
-// GEX ENV
-function setGexEnv(env){
-  gexEnv=env;
-  ['trend','zero','pin'].forEach(function(e){document.getElementById('gb-'+e).className='gex-btn'+(env===e?' sel-'+env:'');});
-  var box=document.getElementById('gex-env-box'),t=document.getElementById('gex-env-t'),s=document.getElementById('gex-env-s');
-  if(env==='trend'){box.className='sig go';t.textContent='Negative GEX — Trending day';s.textContent='MMs amplify moves. Walls are acceleration points. First EMA9 touch sustained. Larger targets.';}
-  else if(env==='pin'){box.className='sig no';t.textContent='Positive GEX — Pinning day';s.textContent='MMs suppress moves. Walls bounce price back. Takes profits quickly before move reverses.';}
-  else{box.className='sig wait';t.textContent='Near Zero GEX — Stricter confirmation';s.textContent='No reliable edge. Need clear VWAP slope + EMA9 aligned by 10:15am. If unclear → skip day.';}
-  updateTargetDisplay();
-  if(walls.callWall>0||walls.putWall>0)calcWalls();
-  if(scnState.calls||scnState.puts)interpretScenario();
-  updateEntrySummary();
-}
+    // NAV
+    function sp(id, btn) {
+      document.querySelectorAll('.pg').forEach(function (p) { p.classList.remove('on'); });
+      document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('on'); });
+      document.getElementById('pg-' + id).classList.add('on');
+      btn.classList.add('on');
+      if (id === 'journal') renderJ();
+      if (id === 'entry') updateEntrySummary();
+      window.scrollTo(0, 0);
+    }
 
-// TARGET DISPLAY
-function updateTargetDisplay(){
-  document.getElementById('tgt-neg').style.display=gexEnv==='trend'?'block':'none';
-  document.getElementById('tgt-pin').style.display=gexEnv==='pin'?'block':'none';
-  document.getElementById('tgt-zero').style.display=gexEnv==='zero'?'block':'none';
-  document.getElementById('tgt-none').style.display=gexEnv?'none':'block';
-}
+    function nv(id) { var el = document.getElementById(id); return el ? parseFloat(el.value) || 0 : 0; }
 
-// WALLS
-function calcWalls(){
-  var spx=nv('wspx'),cw=nv('wspx-call'),pw=nv('wspx-put');
-  if(!cw&&!pw){document.getElementById('wall-card').style.display='none';walls={callWall:0,putWall:0,ptsToCall:0,ptsToPut:0,bullTgt:0,bearTgt:0};updateEntrySummary();return;}
-  // Always use absolute distance — wall can be above OR below price
-  var ptc=spx>0&&cw>0?Math.abs(cw-spx):0;
-  var ptp=spx>0&&pw>0?Math.abs(pw-spx):0;
-  // Direction: is wall above or below current price?
-  var callAbove=spx>0&&cw>0&&cw>spx;
-  var putAbove=spx>0&&pw>0&&pw>spx; // price broke below put wall — put wall now above
-  var callBelow=spx>0&&cw>0&&cw<spx; // price broke above call wall — call wall now below
-  walls={callWall:cw,putWall:pw,ptsToCall:ptc,ptsToPut:ptp,bullTgt:cw>0?cw-5:0,bearTgt:pw>0?pw+5:0};
-  document.getElementById('wall-card').style.display='block';
-  // Call wall display
-  var ptcEl=document.getElementById('wd-ptsc');
-  var callLabel=ptc>0?ptc.toFixed(0)+' pts '+(callAbove?'above':'⚠ BELOW price — price above call wall')+(ptc<15&&callAbove?' ⚠ too close':''):'—';
-  ptcEl.textContent=callLabel;
-  ptcEl.className='rv'+(callBelow?' o':ptc>0&&ptc<15&&callAbove?' r':'');
-  // Put wall display
-  var ptpEl=document.getElementById('wd-ptsp');
-  var putLabel=ptp>0?ptp.toFixed(0)+' pts '+(putAbove?'⚠ ABOVE price — price below put wall':'below')+(ptp<15&&!putAbove?' ⚠ too close':''):'—';
-  ptpEl.textContent=putLabel;
-  ptpEl.className='rv'+(putAbove?' o':ptp>0&&ptp<15?' r':'');
-  // Exit targets
-  document.getElementById('wd-bt').textContent=cw>0?'Exit near '+(cw-5)+' (5pts before '+cw+' call wall)':'—';
-  document.getElementById('wd-bert').textContent=pw>0?'Exit near '+(pw+5)+' (5pts before '+pw+' put wall)':'—';
-  // Special situation alerts
-  var beh=document.getElementById('wd-behavior');
-  if(putAbove&&gexEnv==='trend'){beh.textContent='Price broke below put wall — negative GEX accelerates further downside. Put wall now resistance above.';beh.className='rv r';}
-  else if(callBelow&&gexEnv==='trend'){beh.textContent='Price broke above call wall — negative GEX accelerates further upside. Call wall now support below.';beh.className='rv g';}
-  else if(putAbove&&gexEnv==='pin'){beh.textContent='Price below put wall — positive GEX: put wall now acts as resistance above. Bearish until reclaimed.';beh.className='rv r';}
-  else if(callBelow&&gexEnv==='pin'){beh.textContent='Price above call wall — positive GEX: call wall now acts as support below. Bullish until lost.';beh.className='rv g';}
-  else if(gexEnv==='trend'){beh.textContent='Negative — walls accelerate moves through them';beh.className='rv r';}
-  else if(gexEnv==='pin'){beh.textContent='Positive — walls bounce price back';beh.className='rv g';}
-  else{beh.textContent='Set GEX above';beh.className='rv';}
-  updateEntrySummary();
-  if(document.getElementById('fill-p').value)calcFill();
-}
+    // GAP
+    function calcGap() {
+      var cl = nv('g-close'), pm = nv('g-pm');
+      if (!cl || !pm) { document.getElementById('gap-result').style.display = 'none'; gapSize = 0; updateEntrySummary(); return; }
+      var gap = Math.abs(pm - cl); gapSize = gap;
+      var dir = pm > cl ? 'Gap UP ▲' : 'Gap DOWN ▼';
+      var note = '', color = '';
+      if (gap < 10) { note = 'Normal — trend move likely still available'; color = '#34c759'; }
+      else if (gap < 25) { note = 'Caution — wait for fresh leg, not overnight continuation'; color = '#ff9500'; }
+      else { note = 'High caution — move may be mature. Skip or exceptional signal only.'; color = '#ff3b30'; }
+      document.getElementById('gap-size').textContent = gap.toFixed(0) + ' pts (' + dir + ')';
+      var noteEl = document.getElementById('gap-note');
+      noteEl.textContent = note; noteEl.style.color = color;
+      document.getElementById('gap-result').style.display = 'block';
+      updateEntrySummary();
+    }
 
-// SCENARIO READER
-function setScn(group,val){
-  Object.values(scnMap[group]).forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('sel');});
-  if(scnState[group]===val){scnState[group]='';}
-  else{scnState[group]=val;var el=document.getElementById(scnMap[group][val]);if(el)el.classList.add('sel');}
-  interpretScenario();
-}
+    // GEX ENV
+    function setGexEnv(env) {
+      gexEnv = env;
+      ['trend', 'zero', 'pin'].forEach(function (e) { document.getElementById('gb-' + e).className = 'gex-btn' + (env === e ? ' sel-' + env : ''); });
+      var box = document.getElementById('gex-env-box'), t = document.getElementById('gex-env-t'), s = document.getElementById('gex-env-s');
+      if (env === 'trend') { box.className = 'sig go'; t.textContent = 'Negative GEX — Trending day'; s.textContent = 'MMs amplify moves. Walls are acceleration points. First EMA9 touch sustained. Larger targets.'; }
+      else if (env === 'pin') { box.className = 'sig no'; t.textContent = 'Positive GEX — Pinning day'; s.textContent = 'MMs suppress moves. Walls bounce price back. Takes profits quickly before move reverses.'; }
+      else { box.className = 'sig wait'; t.textContent = 'Near Zero GEX — Stricter confirmation'; s.textContent = 'No reliable edge. Need clear VWAP slope + EMA9 aligned by 10:15am. If unclear → skip day.'; }
+      updateTargetDisplay();
+      if (walls.callWall > 0 || walls.putWall > 0) calcWalls();
+      if (scnState.calls || scnState.puts) interpretScenario();
+      updateEntrySummary();
+    }
 
-function interpretScenario(){
-  var c=scnState.calls,p=scnState.puts,d=scnState.dom,env=gexEnv;
-  if(!c&&!p){document.getElementById('scn-result').style.display='none';document.getElementById('scn-detail').style.display='none';return;}
-  var title='',body='',bias='',walls_txt='',strat='',warn='',cls='wait';
+    // TARGET DISPLAY
+    function updateTargetDisplay() {
+      document.getElementById('tgt-neg').style.display = gexEnv === 'trend' ? 'block' : 'none';
+      document.getElementById('tgt-pin').style.display = gexEnv === 'pin' ? 'block' : 'none';
+      document.getElementById('tgt-zero').style.display = gexEnv === 'zero' ? 'block' : 'none';
+      document.getElementById('tgt-none').style.display = gexEnv ? 'none' : 'block';
+    }
 
-  // Helper: env-specific text with fallback
-  function e(neg,pin,zero,none){return env==='trend'?neg:env==='pin'?pin:env==='zero'?zero:(none||'Set GEX above for full read.');}
+    // WALLS
+    function calcWalls() {
+      var spx = nv('wspx'), cw = nv('wspx-call'), pw = nv('wspx-put');
+      if (!cw && !pw) { document.getElementById('wall-card').style.display = 'none'; walls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0 }; updateEntrySummary(); return; }
+      // Always use absolute distance — wall can be above OR below price
+      var ptc = spx > 0 && cw > 0 ? Math.abs(cw - spx) : 0;
+      var ptp = spx > 0 && pw > 0 ? Math.abs(pw - spx) : 0;
+      // Direction: is wall above or below current price?
+      var callAbove = spx > 0 && cw > 0 && cw > spx;
+      var putAbove = spx > 0 && pw > 0 && pw > spx; // price broke below put wall — put wall now above
+      var callBelow = spx > 0 && cw > 0 && cw < spx; // price broke above call wall — call wall now below
+      walls = { callWall: cw, putWall: pw, ptsToCall: ptc, ptsToPut: ptp, bullTgt: cw > 0 ? cw - 5 : 0, bearTgt: pw > 0 ? pw + 5 : 0 };
+      document.getElementById('wall-card').style.display = 'block';
+      // Call wall display
+      var ptcEl = document.getElementById('wd-ptsc');
+      var callLabel = ptc > 0 ? ptc.toFixed(0) + ' pts ' + (callAbove ? 'above' : '⚠ BELOW price — price above call wall') + (ptc < 15 && callAbove ? ' ⚠ too close' : '') : '—';
+      ptcEl.textContent = callLabel;
+      ptcEl.className = 'rv' + (callBelow ? ' o' : ptc > 0 && ptc < 15 && callAbove ? ' r' : '');
+      // Put wall display
+      var ptpEl = document.getElementById('wd-ptsp');
+      var putLabel = ptp > 0 ? ptp.toFixed(0) + ' pts ' + (putAbove ? '⚠ ABOVE price — price below put wall' : 'below') + (ptp < 15 && !putAbove ? ' ⚠ too close' : '') : '—';
+      ptpEl.textContent = putLabel;
+      ptpEl.className = 'rv' + (putAbove ? ' o' : ptp > 0 && ptp < 15 ? ' r' : '');
+      // Exit targets
+      document.getElementById('wd-bt').textContent = cw > 0 ? 'Exit near ' + (cw - 5) + ' (5pts before ' + cw + ' call wall)' : '—';
+      document.getElementById('wd-bert').textContent = pw > 0 ? 'Exit near ' + (pw + 5) + ' (5pts before ' + pw + ' put wall)' : '—';
+      // Special situation alerts
+      var beh = document.getElementById('wd-behavior');
+      if (putAbove && gexEnv === 'trend') { beh.textContent = 'Price broke below put wall — negative GEX accelerates further downside. Put wall now resistance above.'; beh.className = 'rv r'; }
+      else if (callBelow && gexEnv === 'trend') { beh.textContent = 'Price broke above call wall — negative GEX accelerates further upside. Call wall now support below.'; beh.className = 'rv g'; }
+      else if (putAbove && gexEnv === 'pin') { beh.textContent = 'Price below put wall — positive GEX: put wall now acts as resistance above. Bearish until reclaimed.'; beh.className = 'rv r'; }
+      else if (callBelow && gexEnv === 'pin') { beh.textContent = 'Price above call wall — positive GEX: call wall now acts as support below. Bullish until lost.'; beh.className = 'rv g'; }
+      else if (gexEnv === 'trend') { beh.textContent = 'Negative — walls accelerate moves through them'; beh.className = 'rv r'; }
+      else if (gexEnv === 'pin') { beh.textContent = 'Positive — walls bounce price back'; beh.className = 'rv g'; }
+      else { beh.textContent = 'Set GEX above'; beh.className = 'rv'; }
+      updateEntrySummary();
+      if (document.getElementById('fill-p').value) calcFill();
+    }
 
-  // Price ON a wall — always highest priority
-  if(c==='on'||p==='on'){
-    title='Price ON a wall — sit on hands';
-    body='You are at the wall. Maximum uncertainty. Rejection or breakout — unpredictable in either direction.';
-    bias='Unknown — could snap either way';
-    walls_txt=e('Negative GEX: breakout could be explosive upward from call bar or crash through put bar.','Positive GEX: high probability of rejection back from wall — MMs defending it.','Near zero: wall is weak. Price could drift through without reaction.','Set GEX for full read.');
-    strat='No entry. Wait for price to move 15+pts (SPX) / 5pts (QQQ) clear of the wall before reassessing.';
-    warn='Rule: no entry within 15pts of any wall. You are AT the wall. Sit on hands.';
-    cls='no';
+    // SCENARIO READER
+    function setScn(group, val) {
+      Object.values(scnMap[group]).forEach(function (id) { var el = document.getElementById(id); if (el) el.classList.remove('sel'); });
+      if (scnState[group] === val) { scnState[group] = ''; }
+      else { scnState[group] = val; var el = document.getElementById(scnMap[group][val]); if (el) el.classList.add('sel'); }
+      interpretScenario();
+    }
 
-  // CALLS BOTH SIDES
-  } else if(c==='both'&&p==='below'){
-    title='Calls both sides + puts below';
-    body=e('Negative GEX: call bars on both sides create upside fuel. Bullish lean. MMs buy as price rises to upper call bar. Put bar below adds buying on any dip.','Positive GEX: price sandwiched between call bars. Very tight range. Largest call bar is the magnet.','Near zero: call bars on both sides with weak hedging force. Range bias but unreliable.','Set GEX for full read.');
-    bias=e('Bullish lean','Tight range — call bars are magnets','Cautious bullish — weak structure','—');
-    walls_txt=e('Both call bars accelerate rallies. Put bar below = support zone.','Price oscillates between call bars. Put bar = floor.','Walls present but weak.','—');
-    strat=e('Long bias if 15min confirms bullish. First EMA9 touch only.','Fade moves to outer call bars. Put wall = buy zone.','Wait for strong 15min signal before entering.','—');
-    warn='Calls both sides = price recently broke above a call wall. Confirm 15min is genuinely bullish before committing.';
-    cls=e('go','wait','wait','idle');
+    function interpretScenario() {
+      var c = scnState.calls, p = scnState.puts, d = scnState.dom, env = gexEnv;
+      if (!c && !p) { document.getElementById('scn-result').style.display = 'none'; document.getElementById('scn-detail').style.display = 'none'; return; }
+      var title = '', body = '', bias = '', walls_txt = '', strat = '', warn = '', cls = 'wait';
 
-  } else if(c==='both'&&p==='none'){
-    title='Calls both sides + minimal puts';
-    body=e('Negative GEX: call fuel above and below. No put floor — if bears take control, freefall with nothing to catch price.','Positive GEX: tight range between call bars. No put floor — if lower call bar fails, drop is fast and uncaught.','Near zero: calls both sides, no puts. Directional bias unclear. Volatile.','Set GEX for full read.');
-    bias=e('Bullish if trend confirms — bearish = freefall risk','Tight range — bear risk if lower call fails','Volatile — no structural floor','—');
-    walls_txt=e('Both call bars fuel rally. No puts = no structural support on drops.','Upper call = ceiling. Lower call = soft support only.','No put floor anywhere.','—');
-    strat=e('Long bias only if 15min confirms bullish. No short trades — no floor target.','Fade upper call bar only. Do not hold longs through lower call.','Only A-grade signal. Consider skipping.','—');
-    warn='No put bars = no structural support below. Bear scenario could be sharp and uncontrolled.';
-    cls='wait';
+      // Helper: env-specific text with fallback
+      function e(neg, pin, zero, none) { return env === 'trend' ? neg : env === 'pin' ? pin : env === 'zero' ? zero : (none || 'Set GEX above for full read.'); }
 
-  } else if(c==='both'&&p==='both'){
-    title='Calls and puts both sides — complex structure';
-    body=e('Negative GEX: price inside a cluster of competing bars. Whichever direction breaks first gets amplified by all surrounding bars.','Positive GEX: strong magnetic field from all sides. Very tight pin. Price unlikely to travel far in any direction.','Near zero: multiple bars but weak hedging. Could drift or chop randomly.','Set GEX for full read.');
-    bias=e('Explosive when direction commits — wait for break','Strong pin — very tight range','Random chop likely','—');
-    walls_txt=e('All bars accelerate moves away from them once direction commits.','All bars magnetic — price bounces between them.','Bars present but not reliable.','—');
-    strat=e('Do not guess direction. Wait for clear 15min break then enter on first EMA9 touch.','Strategy B at outermost walls only. Do not trade mid-cluster.','Skip day — too complex with no structural edge.','—');
-    warn='Most complex scenario. Highest whipsaw risk. Only A-grade setups. Consider skipping entirely.';
-    cls='wait';
+      // Price ON a wall — always highest priority
+      if (c === 'on' || p === 'on') {
+        title = 'Price ON a wall — sit on hands';
+        body = 'You are at the wall. Maximum uncertainty. Rejection or breakout — unpredictable in either direction.';
+        bias = 'Unknown — could snap either way';
+        walls_txt = e('Negative GEX: breakout could be explosive upward from call bar or crash through put bar.', 'Positive GEX: high probability of rejection back from wall — MMs defending it.', 'Near zero: wall is weak. Price could drift through without reaction.', 'Set GEX for full read.');
+        strat = 'No entry. Wait for price to move 15+pts (SPX) / 5pts (QQQ) clear of the wall before reassessing.';
+        warn = 'Rule: no entry within 15pts of any wall. You are AT the wall. Sit on hands.';
+        cls = 'no';
 
-  // PUTS BOTH SIDES
-  } else if(p==='both'&&c==='above'){
-    title='Puts both sides + calls above — highest short conviction';
-    body=e('Negative GEX: put bars both sides = strong downside fuel. MMs sell into every dip. Call bar above caps any bounce. Best short setup structure available.','Positive GEX: put bar above price acts as resistance. Put bar below = floor. Bearish range — rallies get sold hard.','Near zero: puts both sides with weak hedging. Bearish lean but unreliable fuel.','Set GEX for full read.');
-    bias=e('Bearish — highest conviction short setup','Bearish range — hard resistance above, floor below','Bearish lean — weak conviction','—');
-    walls_txt=e('Put bar above = resistance on any bounce. Put bar below = acceleration zone downward. Call bar = hard ceiling.','Put bar above = ceiling. Put bar below = floor. Range well defined.','Walls present but hedging force weak.','—');
-    strat=e('Strategy A short. High conviction. Enter on first 15min bearish EMA9 touch only.','Strategy B — short into put bar above resistance. Cover near put bar below.','Strategy A short at reduced conviction. Require very clean 15min signal.','—');
-    warn='This is the structure behind the slow grind down days you observed. Bounces are weak and short-lived. Hold the short.';
-    cls=e('go','wait','wait','idle');
+        // CALLS BOTH SIDES
+      } else if (c === 'both' && p === 'below') {
+        title = 'Calls both sides + puts below';
+        body = e('Negative GEX: call bars on both sides create upside fuel. Bullish lean. MMs buy as price rises to upper call bar. Put bar below adds buying on any dip.', 'Positive GEX: price sandwiched between call bars. Very tight range. Largest call bar is the magnet.', 'Near zero: call bars on both sides with weak hedging force. Range bias but unreliable.', 'Set GEX for full read.');
+        bias = e('Bullish lean', 'Tight range — call bars are magnets', 'Cautious bullish — weak structure', '—');
+        walls_txt = e('Both call bars accelerate rallies. Put bar below = support zone.', 'Price oscillates between call bars. Put bar = floor.', 'Walls present but weak.', '—');
+        strat = e('Long bias if 15min confirms bullish. First EMA9 touch only.', 'Fade moves to outer call bars. Put wall = buy zone.', 'Wait for strong 15min signal before entering.', '—');
+        warn = 'Calls both sides = price recently broke above a call wall. Confirm 15min is genuinely bullish before committing.';
+        cls = e('go', 'wait', 'wait', 'idle');
 
-  } else if(p==='both'&&c==='none'){
-    title='Puts both sides + minimal calls';
-    body=e('Negative GEX: maximum downside fuel. Both put bars amplify every leg down. No call ceiling — bounces get sold immediately.','Positive GEX: put bar above = strong resistance. Put bar below = floor. Bearish range with no call ceiling above.','Near zero: puts both sides, no calls. Bearish lean but weak amplification.','Set GEX for full read.');
-    bias=e('Strong bearish — maximum downside structure','Bearish range — hard ceiling, defined floor','Bearish lean — limited conviction','—');
-    walls_txt=e('Put bar above caps bounces immediately. Put bar below = further acceleration downward.','Put bar above = ceiling. Put bar below = floor.','Walls present, hedging minimal.','—');
-    strat=e('Strategy A short. Very high conviction. Gap down days with this structure = sharpest moves of the month.','Short into put bar above resistance. Cover at put bar floor.','Short bias but require clean 15min signal before entering.','—');
-    warn='No call bars = no upside target. Avoid all long trades in this structure.';
-    cls=e('go','wait','wait','idle');
+      } else if (c === 'both' && p === 'none') {
+        title = 'Calls both sides + minimal puts';
+        body = e('Negative GEX: call fuel above and below. No put floor — if bears take control, freefall with nothing to catch price.', 'Positive GEX: tight range between call bars. No put floor — if lower call bar fails, drop is fast and uncaught.', 'Near zero: calls both sides, no puts. Directional bias unclear. Volatile.', 'Set GEX for full read.');
+        bias = e('Bullish if trend confirms — bearish = freefall risk', 'Tight range — bear risk if lower call fails', 'Volatile — no structural floor', '—');
+        walls_txt = e('Both call bars fuel rally. No puts = no structural support on drops.', 'Upper call = ceiling. Lower call = soft support only.', 'No put floor anywhere.', '—');
+        strat = e('Long bias only if 15min confirms bullish. No short trades — no floor target.', 'Fade upper call bar only. Do not hold longs through lower call.', 'Only A-grade signal. Consider skipping.', '—');
+        warn = 'No put bars = no structural support below. Bear scenario could be sharp and uncontrolled.';
+        cls = 'wait';
 
-  } else if(p==='both'&&c==='both'){
-    // Same as c=both p=both — handle gracefully
-    title='Calls and puts both sides — complex structure';
-    body=e('Negative GEX: competing bar clusters. Whichever direction breaks first gets amplified strongly.','Positive GEX: maximum pinning force. Price trapped between multiple walls.','Near zero: bars everywhere but no reliable direction.','Set GEX for full read.');
-    bias=e('Explosive when direction commits','Tight pin — hard to move far','Random — skip','—');
-    walls_txt=e('All bars accelerate once direction commits.','All bars bounce price back — very tight range.','Bars unreliable.','—');
-    strat=e('Wait for 15min break — then first EMA9 touch only.','Only trade at outermost walls.','Skip day.','—');
-    warn='Highest complexity scenario. Very high whipsaw risk. Consider skipping.';
-    cls='wait';
+      } else if (c === 'both' && p === 'both') {
+        title = 'Calls and puts both sides — complex structure';
+        body = e('Negative GEX: price inside a cluster of competing bars. Whichever direction breaks first gets amplified by all surrounding bars.', 'Positive GEX: strong magnetic field from all sides. Very tight pin. Price unlikely to travel far in any direction.', 'Near zero: multiple bars but weak hedging. Could drift or chop randomly.', 'Set GEX for full read.');
+        bias = e('Explosive when direction commits — wait for break', 'Strong pin — very tight range', 'Random chop likely', '—');
+        walls_txt = e('All bars accelerate moves away from them once direction commits.', 'All bars magnetic — price bounces between them.', 'Bars present but not reliable.', '—');
+        strat = e('Do not guess direction. Wait for clear 15min break then enter on first EMA9 touch.', 'Strategy B at outermost walls only. Do not trade mid-cluster.', 'Skip day — too complex with no structural edge.', '—');
+        warn = 'Most complex scenario. Highest whipsaw risk. Only A-grade setups. Consider skipping entirely.';
+        cls = 'wait';
 
-  // CLASSIC
-  } else if(c==='above'&&p==='below'){
-    title='Classic — calls above, puts below';
-    body=e('Negative GEX: textbook trending structure. Whichever direction 15min confirms has fuel to run all the way to the opposite wall.','Positive GEX: textbook pinning. Both walls are real and defended by MMs. Price oscillates between them.','Near zero: walls exist but hedging force is weak. Could trend or pin. Wait for direction.','Set GEX for full read.');
-    bias=e('Directional — whichever way 15min confirms','Range bound between walls','Unclear — wait for 10:15am','—');
-    walls_txt=e('Walls are acceleration zones not bounce levels. Run through them.','Walls are real bounce levels — MMs defend both mechanically.','Walls softer than normal.','—');
-    strat=e('Strategy A. Best trending structure. First EMA9 touch only. Target opposite wall minus 5pts.','Strategy B. Wait for price to enter wall zone. Rejection candle. Enter on 2min close away from wall.','Near-zero protocol. Clear trend by 10:15am or skip.','—');
-    warn=e('Enter early — move exhausts building toward wall. First touch only or you enter exhausted.','Only enter AT wall zones. Mid-range has no edge on pinning day.','Wait for 10:15am clarity before committing.','—');
-    cls=e('go','go','wait','idle');
+        // PUTS BOTH SIDES
+      } else if (p === 'both' && c === 'above') {
+        title = 'Puts both sides + calls above — highest short conviction';
+        body = e('Negative GEX: put bars both sides = strong downside fuel. MMs sell into every dip. Call bar above caps any bounce. Best short setup structure available.', 'Positive GEX: put bar above price acts as resistance. Put bar below = floor. Bearish range — rallies get sold hard.', 'Near zero: puts both sides with weak hedging. Bearish lean but unreliable fuel.', 'Set GEX for full read.');
+        bias = e('Bearish — highest conviction short setup', 'Bearish range — hard resistance above, floor below', 'Bearish lean — weak conviction', '—');
+        walls_txt = e('Put bar above = resistance on any bounce. Put bar below = acceleration zone downward. Call bar = hard ceiling.', 'Put bar above = ceiling. Put bar below = floor. Range well defined.', 'Walls present but hedging force weak.', '—');
+        strat = e('Strategy A short. High conviction. Enter on first 15min bearish EMA9 touch only.', 'Strategy B — short into put bar above resistance. Cover near put bar below.', 'Strategy A short at reduced conviction. Require very clean 15min signal.', '—');
+        warn = 'This is the structure behind the slow grind down days you observed. Bounces are weak and short-lived. Hold the short.';
+        cls = e('go', 'wait', 'wait', 'idle');
 
-  // LARGE CALLS, NO PUTS
-  } else if(c==='above'&&p==='none'){
-    title='Large calls above + minimal puts';
-    body=e('Negative GEX: hard ceiling above from call bars. Open air below — no structural floor. If bulls push: call bars add fuel. If bears win: freefall with nothing to stop price.','Positive GEX: call wall is a real hard ceiling. No put floor — any drop is uncaught by MM buying.','Near zero: call ceiling but no floor. Asymmetric structure.','Set GEX for full read.');
-    bias=e('Wait for 15min — explosive either way. Downside has no floor.','Hard ceiling above. Bearish asymmetry — drops uncaught.','Asymmetric — call ceiling, open below','—');
-    walls_txt=e('Call bars above = ceiling or upside acceleration. No put bars = no downside target.','Call wall = real ceiling. No put floor — drops run freely.','Call ceiling present. No floor.','—');
-    strat=e('Wait for 15min direction. Bull: long toward call wall. Bear: short with no floor target — use trailing stop.','Avoid longs — ceiling is hard. Bear: short from call wall with trailing stop.','Wait for strong signal. Trailing stop on all trades — no floor target.','—');
-    warn='No put bars = no structural support below. All short trades need tight stops with trailing exit — no fixed floor target.';
-    cls='wait';
+      } else if (p === 'both' && c === 'none') {
+        title = 'Puts both sides + minimal calls';
+        body = e('Negative GEX: maximum downside fuel. Both put bars amplify every leg down. No call ceiling — bounces get sold immediately.', 'Positive GEX: put bar above = strong resistance. Put bar below = floor. Bearish range with no call ceiling above.', 'Near zero: puts both sides, no calls. Bearish lean but weak amplification.', 'Set GEX for full read.');
+        bias = e('Strong bearish — maximum downside structure', 'Bearish range — hard ceiling, defined floor', 'Bearish lean — limited conviction', '—');
+        walls_txt = e('Put bar above caps bounces immediately. Put bar below = further acceleration downward.', 'Put bar above = ceiling. Put bar below = floor.', 'Walls present, hedging minimal.', '—');
+        strat = e('Strategy A short. Very high conviction. Gap down days with this structure = sharpest moves of the month.', 'Short into put bar above resistance. Cover at put bar floor.', 'Short bias but require clean 15min signal before entering.', '—');
+        warn = 'No call bars = no upside target. Avoid all long trades in this structure.';
+        cls = e('go', 'wait', 'wait', 'idle');
 
-  // LARGE PUTS, NO CALLS
-  } else if(p==='below'&&c==='none'){
-    title='Large puts below + minimal calls';
-    body=e('Negative GEX: downside fuel from put bars. Open sky above — no call ceiling. Bears: put bars accelerate drop. Bulls: rally has nothing overhead to stop it.','Positive GEX: strong put floor from MM buying. No call ceiling — if floor holds, rally can run freely upward.','Near zero: put floor but no ceiling. Asymmetric structure.','Set GEX for full read.');
-    bias=e('Wait for 15min — downside has fuel, upside has open sky','Strong floor. Bullish asymmetry — rallies uncapped.','Asymmetric — put floor, open above','—');
-    walls_txt=e('Put bars below = downside acceleration OR buying support if bulls win. No call bars = no upside target.','Put wall = real floor defended by MMs. No call ceiling — rallies run far.','Put floor present. No ceiling.','—');
-    strat=e('Wait for 15min direction. Bear: short toward put wall. Bull: long with trailing stop — no ceiling target.','Buy at put wall floor. No call ceiling so hold longer on long targets — trail stop.','Wait for strong signal. Trailing stop on all trades — no ceiling target.','—');
-    warn='No call bars = no upside target. Trail stop on all long trades rather than fixed profit target.';
-    cls='wait';
+      } else if (p === 'both' && c === 'both') {
+        // Same as c=both p=both — handle gracefully
+        title = 'Calls and puts both sides — complex structure';
+        body = e('Negative GEX: competing bar clusters. Whichever direction breaks first gets amplified strongly.', 'Positive GEX: maximum pinning force. Price trapped between multiple walls.', 'Near zero: bars everywhere but no reliable direction.', 'Set GEX for full read.');
+        bias = e('Explosive when direction commits', 'Tight pin — hard to move far', 'Random — skip', '—');
+        walls_txt = e('All bars accelerate once direction commits.', 'All bars bounce price back — very tight range.', 'Bars unreliable.', '—');
+        strat = e('Wait for 15min break — then first EMA9 touch only.', 'Only trade at outermost walls.', 'Skip day.', '—');
+        warn = 'Highest complexity scenario. Very high whipsaw risk. Consider skipping.';
+        cls = 'wait';
 
-  // MINIMAL BOTH SIDES
-  } else if(c==='none'&&p==='none'){
-    title='Minimal bars both sides — skip day';
-    body='Thin GEX across all strikes. MM hedging is minimal. Neither pinning nor amplification is reliable regardless of net GEX sign today.';
-    bias='No structural edge — pure order flow day';
-    walls_txt='No meaningful walls. Price can move freely in any direction without MM flow acting as brake or fuel.';
-    strat='Treat as near-zero protocol regardless of net GEX sign. Require exceptional A-grade signal quality or skip the day entirely.';
-    warn='Highest whipsaw risk environment. No structure = no predictable behavior. Strong recommendation to skip.';
-    cls='no';
+        // CLASSIC
+      } else if (c === 'above' && p === 'below') {
+        title = 'Classic — calls above, puts below';
+        body = e('Negative GEX: textbook trending structure. Whichever direction 15min confirms has fuel to run all the way to the opposite wall.', 'Positive GEX: textbook pinning. Both walls are real and defended by MMs. Price oscillates between them.', 'Near zero: walls exist but hedging force is weak. Could trend or pin. Wait for direction.', 'Set GEX for full read.');
+        bias = e('Directional — whichever way 15min confirms', 'Range bound between walls', 'Unclear — wait for 10:15am', '—');
+        walls_txt = e('Walls are acceleration zones not bounce levels. Run through them.', 'Walls are real bounce levels — MMs defend both mechanically.', 'Walls softer than normal.', '—');
+        strat = e('Strategy A. Best trending structure. First EMA9 touch only. Target opposite wall minus 5pts.', 'Strategy B. Wait for price to enter wall zone. Rejection candle. Enter on 2min close away from wall.', 'Near-zero protocol. Clear trend by 10:15am or skip.', '—');
+        warn = e('Enter early — move exhausts building toward wall. First touch only or you enter exhausted.', 'Only enter AT wall zones. Mid-range has no edge on pinning day.', 'Wait for 10:15am clarity before committing.', '—');
+        cls = e('go', 'go', 'wait', 'idle');
 
-  // PUTS ONLY — NO CALLS (calls=none, puts=below — already caught above. Handle puts=above/both without calls)
-  } else if(c==='none'&&p==='above'){
-    title='Puts above price + minimal calls';
-    body=e('Negative GEX: price has broken below a put wall. Put bar now above acts as resistance. Bearish structure — put bar accelerates further downside.','Positive GEX: price broke below put wall. Put bar above = resistance. Strong bearish signal — MMs now sell into any bounce toward that level.','Near zero: price below put bar with weak hedging. Bearish lean.','Set GEX for full read.');
-    bias=e('Bearish — price already below put wall','Bearish — put bar above as hard resistance','Bearish lean — weak conviction','—');
-    walls_txt=e('Put bar above = resistance cap on bounces. No call bars = no ceiling above that. Downside open.','Put bar above = resistance defended by MMs. No call ceiling above.','Put bar above = soft resistance.','—');
-    strat=e('Short bias. Put bar above is your stop invalidation level. Enter on 15min bearish confirmation.','Short from put bar above resistance. No upside call ceiling so be cautious with longs.','Bearish lean only with very strong 15min signal.','—');
-    warn='Price already broke through a put wall — significant bearish signal. Next put wall below is your target.';
-    cls=e('go','wait','wait','idle');
+        // LARGE CALLS, NO PUTS
+      } else if (c === 'above' && p === 'none') {
+        title = 'Large calls above + minimal puts';
+        body = e('Negative GEX: hard ceiling above from call bars. Open air below — no structural floor. If bulls push: call bars add fuel. If bears win: freefall with nothing to stop price.', 'Positive GEX: call wall is a real hard ceiling. No put floor — any drop is uncaught by MM buying.', 'Near zero: call ceiling but no floor. Asymmetric structure.', 'Set GEX for full read.');
+        bias = e('Wait for 15min — explosive either way. Downside has no floor.', 'Hard ceiling above. Bearish asymmetry — drops uncaught.', 'Asymmetric — call ceiling, open below', '—');
+        walls_txt = e('Call bars above = ceiling or upside acceleration. No put bars = no downside target.', 'Call wall = real ceiling. No put floor — drops run freely.', 'Call ceiling present. No floor.', '—');
+        strat = e('Wait for 15min direction. Bull: long toward call wall. Bear: short with no floor target — use trailing stop.', 'Avoid longs — ceiling is hard. Bear: short from call wall with trailing stop.', 'Wait for strong signal. Trailing stop on all trades — no floor target.', '—');
+        warn = 'No put bars = no structural support below. All short trades need tight stops with trailing exit — no fixed floor target.';
+        cls = 'wait';
 
-  // CALLS ONLY — ABOVE (calls=above already handled, handle calls=both without puts handled above)
-  // Remaining: calls=none, puts=both — already handled. Any other combo gets a safe default.
-  } else {
-    // Safe fallback for any unlisted combo — always gives a useful read
-    title='Mixed structure — read GEX first';
-    body=e(
-      'Negative GEX: trending conditions. Use 15min VWAP + EMA9 to determine direction. Enter on first EMA9 touch only.',
-      'Positive GEX: pinning conditions. Wait for price to reach a wall zone before entering. Fade the wall.',
-      'Near zero: unclear structure. Wait for 10:15am 15min direction or skip.',
-      'Set GEX environment above to get a full interpretation of this bar layout.'
-    );
-    bias=e('Directional — confirm on 15min','Range — trade at walls only','Unclear — wait','Set GEX first');
-    walls_txt=e('Walls are acceleration zones.','Walls are bounce levels.','Walls are weak.','Set GEX for wall behavior.');
-    strat=e('Strategy A — first EMA9 touch in confirmed direction.','Strategy B — wait for wall zone entry.','Near-zero protocol or skip.','Set GEX first.');
-    warn='Complex bar layout. Require clear 15min signal before entering. If signal is ambiguous — no trade today.';
-    cls=e('wait','wait','wait','idle');
-  }
+        // LARGE PUTS, NO CALLS
+      } else if (p === 'below' && c === 'none') {
+        title = 'Large puts below + minimal calls';
+        body = e('Negative GEX: downside fuel from put bars. Open sky above — no call ceiling. Bears: put bars accelerate drop. Bulls: rally has nothing overhead to stop it.', 'Positive GEX: strong put floor from MM buying. No call ceiling — if floor holds, rally can run freely upward.', 'Near zero: put floor but no ceiling. Asymmetric structure.', 'Set GEX for full read.');
+        bias = e('Wait for 15min — downside has fuel, upside has open sky', 'Strong floor. Bullish asymmetry — rallies uncapped.', 'Asymmetric — put floor, open above', '—');
+        walls_txt = e('Put bars below = downside acceleration OR buying support if bulls win. No call bars = no upside target.', 'Put wall = real floor defended by MMs. No call ceiling — rallies run far.', 'Put floor present. No ceiling.', '—');
+        strat = e('Wait for 15min direction. Bear: short toward put wall. Bull: long with trailing stop — no ceiling target.', 'Buy at put wall floor. No call ceiling so hold longer on long targets — trail stop.', 'Wait for strong signal. Trailing stop on all trades — no ceiling target.', '—');
+        warn = 'No call bars = no upside target. Trail stop on all long trades rather than fixed profit target.';
+        cls = 'wait';
 
-  if(d&&d!=='equal'&&body){
-    body+=d==='calls'?' Call bars are the dominant force today.':' Put bars are the dominant force today.';
-  }
-  var resEl=document.getElementById('scn-result'),detEl=document.getElementById('scn-detail');
-  resEl.style.display='block';resEl.className='sig '+cls;
-  document.getElementById('scn-title').textContent=title;
-  document.getElementById('scn-body').textContent=body;
-  detEl.style.display='block';
-  var biasEl=document.getElementById('scn-bias');
-  biasEl.textContent=bias||'—';
-  var bl=bias.toLowerCase();
-  biasEl.className='rv'+(bl.includes('bull')||bl.includes('upside')||bl.includes('sky')?'g':bl.includes('bear')||bl.includes('down')||bl.includes('short')?'r':'o');
-  document.getElementById('scn-walls').textContent=walls_txt||'—';
-  document.getElementById('scn-strat').textContent=strat||'—';
-  document.getElementById('scn-warn').textContent=warn||'—';
-}
+        // MINIMAL BOTH SIDES
+      } else if (c === 'none' && p === 'none') {
+        title = 'Minimal bars both sides — skip day';
+        body = 'Thin GEX across all strikes. MM hedging is minimal. Neither pinning nor amplification is reliable regardless of net GEX sign today.';
+        bias = 'No structural edge — pure order flow day';
+        walls_txt = 'No meaningful walls. Price can move freely in any direction without MM flow acting as brake or fuel.';
+        strat = 'Treat as near-zero protocol regardless of net GEX sign. Require exceptional A-grade signal quality or skip the day entirely.';
+        warn = 'Highest whipsaw risk environment. No structure = no predictable behavior. Strong recommendation to skip.';
+        cls = 'no';
 
-// ENTRY SUMMARY
-function updateEntrySummary(){
-  var eg=document.getElementById('es-gex');
-  if(gexEnv==='trend'){eg.textContent='Negative — Trending ✓';eg.className='rv g';}
-  else if(gexEnv==='pin'){eg.textContent='Positive — Pinning';eg.className='rv r';}
-  else if(gexEnv==='zero'){eg.textContent='Near zero — stricter signal needed';eg.className='rv o';}
-  else{eg.textContent='Not set — go to Setup tab';eg.className='rv';}
-  document.getElementById('es-cwall').textContent=walls.callWall>0?walls.callWall+(walls.ptsToCall>0?' ('+Math.round(walls.ptsToCall)+'pts away)':''):'—';
-  document.getElementById('es-pwall').textContent=walls.putWall>0?walls.putWall+(walls.ptsToPut>0?' ('+Math.round(walls.ptsToPut)+'pts away)':''):'—';
-  var gapEl=document.getElementById('es-gap');
-  if(!gapSize){gapEl.textContent='Not entered';gapEl.className='rv';}
-  else if(gapSize<10){gapEl.textContent=gapSize.toFixed(0)+' pts — Normal';gapEl.className='rv g';}
-  else if(gapSize<25){gapEl.textContent=gapSize.toFixed(0)+' pts — Caution';gapEl.className='rv o';}
-  else{gapEl.textContent=gapSize.toFixed(0)+' pts — High caution';gapEl.className='rv r';}
-}
+        // PUTS ONLY — NO CALLS (calls=none, puts=below — already caught above. Handle puts=above/both without calls)
+      } else if (c === 'none' && p === 'above') {
+        title = 'Puts above price + minimal calls';
+        body = e('Negative GEX: price has broken below a put wall. Put bar now above acts as resistance. Bearish structure — put bar accelerates further downside.', 'Positive GEX: price broke below put wall. Put bar above = resistance. Strong bearish signal — MMs now sell into any bounce toward that level.', 'Near zero: price below put bar with weak hedging. Bearish lean.', 'Set GEX for full read.');
+        bias = e('Bearish — price already below put wall', 'Bearish — put bar above as hard resistance', 'Bearish lean — weak conviction', '—');
+        walls_txt = e('Put bar above = resistance cap on bounces. No call bars = no ceiling above that. Downside open.', 'Put bar above = resistance defended by MMs. No call ceiling above.', 'Put bar above = soft resistance.', '—');
+        strat = e('Short bias. Put bar above is your stop invalidation level. Enter on 15min bearish confirmation.', 'Short from put bar above resistance. No upside call ceiling so be cautious with longs.', 'Bearish lean only with very strong 15min signal.', '—');
+        warn = 'Price already broke through a put wall — significant bearish signal. Next put wall below is your target.';
+        cls = e('go', 'wait', 'wait', 'idle');
 
-// ENTRY CHECKS (6 checks now)
-function ct(i){
-  if(i===0&&checks[1]){checks[1]=false;document.getElementById('cb1').classList.remove('on');}
-  if(i===1&&checks[0]){checks[0]=false;document.getElementById('cb0').classList.remove('on');}
-  checks[i]=!checks[i];
-  var b=document.getElementById('cb'+i);
-  if(checks[i])b.classList.add('on');else b.classList.remove('on');
-  refreshVerdict();
-}
+        // CALLS ONLY — ABOVE (calls=above already handled, handle calls=both without puts handled above)
+        // Remaining: calls=none, puts=both — already handled. Any other combo gets a safe default.
+      } else {
+        // Safe fallback for any unlisted combo — always gives a useful read
+        title = 'Mixed structure — read GEX first';
+        body = e(
+          'Negative GEX: trending conditions. Use 15min VWAP + EMA9 to determine direction. Enter on first EMA9 touch only.',
+          'Positive GEX: pinning conditions. Wait for price to reach a wall zone before entering. Fade the wall.',
+          'Near zero: unclear structure. Wait for 10:15am 15min direction or skip.',
+          'Set GEX environment above to get a full interpretation of this bar layout.'
+        );
+        bias = e('Directional — confirm on 15min', 'Range — trade at walls only', 'Unclear — wait', 'Set GEX first');
+        walls_txt = e('Walls are acceleration zones.', 'Walls are bounce levels.', 'Walls are weak.', 'Set GEX for wall behavior.');
+        strat = e('Strategy A — first EMA9 touch in confirmed direction.', 'Strategy B — wait for wall zone entry.', 'Near-zero protocol or skip.', 'Set GEX first.');
+        warn = 'Complex bar layout. Require clear 15min signal before entering. If signal is ambiguous — no trade today.';
+        cls = e('wait', 'wait', 'wait', 'idle');
+      }
 
-function refreshVerdict(){
-  var total=checks.filter(Boolean).length;
-  var fill=document.getElementById('e-fill');
-  fill.style.width=((total/6)*100)+'%';
-  var isBull=checks[0],isBear=checks[1],hasTrend=isBull||isBear;
-  var setupOk=checks[2]&&checks[3];
-  var entryOk=checks[4]&&checks[5];
-  var allOk=hasTrend&&setupOk&&entryOk;
-  fill.style.background=allOk?'#34c759':total>=3?'#ff9500':'#ff3b30';
-  document.getElementById('e-score').textContent=total+' of 6 checks';
-  var vd=document.getElementById('e-verdict'),tb=document.getElementById('e-trade');
-  if(allOk){
-    var now=new Date(),h=now.getHours(),m=now.getMinutes();
-    var ts=(h%12||12)+':'+(m<10?'0':'')+m+(h>=12?'pm':'am');
-    var warn='';
-    if(isBull&&walls.ptsToCall>0&&walls.ptsToCall<15)warn=' ⚠ Within 15pts of call wall — skip';
-    if(isBear&&walls.ptsToPut>0&&walls.ptsToPut<15)warn=' ⚠ Within 15pts of put wall — skip';
-    if(gapSize>=25)warn+=' ⚠ Large gap — move may be mature';
-    vd.className=warn?'sig wait':'sig go';
-    vd.innerHTML='<div class="sigt">'+(warn?'Caution':'Enter now ✓')+' — '+ts+'</div><div class="ss">'+(isBull?'Buy calls ▲':'Buy puts ▼')+(gexEnv==='pin'?' · Pinning — use smaller targets':gexEnv==='trend'?' · Trending — let it run':'')+warn+'</div>';
-    tb.style.display='block';
+      if (d && d !== 'equal' && body) {
+        body += d === 'calls' ? ' Call bars are the dominant force today.' : ' Put bars are the dominant force today.';
+      }
+      var resEl = document.getElementById('scn-result'), detEl = document.getElementById('scn-detail');
+      resEl.style.display = 'block'; resEl.className = 'sig ' + cls;
+      document.getElementById('scn-title').textContent = title;
+      document.getElementById('scn-body').textContent = body;
+      detEl.style.display = 'block';
+      var biasEl = document.getElementById('scn-bias');
+      biasEl.textContent = bias || '—';
+      var bl = bias.toLowerCase();
+      biasEl.className = 'rv' + (bl.includes('bull') || bl.includes('upside') || bl.includes('sky') ? 'g' : bl.includes('bear') || bl.includes('down') || bl.includes('short') ? 'r' : 'o');
+      document.getElementById('scn-walls').textContent = walls_txt || '—';
+      document.getElementById('scn-strat').textContent = strat || '—';
+      document.getElementById('scn-warn').textContent = warn || '—';
+    }
+
+    // ENTRY SUMMARY
+    function updateEntrySummary() {
+      var eg = document.getElementById('es-gex');
+      if (gexEnv === 'trend') { eg.textContent = 'Negative — Trending ✓'; eg.className = 'rv g'; }
+      else if (gexEnv === 'pin') { eg.textContent = 'Positive — Pinning'; eg.className = 'rv r'; }
+      else if (gexEnv === 'zero') { eg.textContent = 'Near zero — stricter signal needed'; eg.className = 'rv o'; }
+      else { eg.textContent = 'Not set — go to Setup tab'; eg.className = 'rv'; }
+      document.getElementById('es-cwall').textContent = walls.callWall > 0 ? walls.callWall + (walls.ptsToCall > 0 ? ' (' + Math.round(walls.ptsToCall) + 'pts away)' : '') : '—';
+      document.getElementById('es-pwall').textContent = walls.putWall > 0 ? walls.putWall + (walls.ptsToPut > 0 ? ' (' + Math.round(walls.ptsToPut) + 'pts away)' : '') : '—';
+      var gapEl = document.getElementById('es-gap');
+      if (!gapSize) { gapEl.textContent = 'Not entered'; gapEl.className = 'rv'; }
+      else if (gapSize < 10) { gapEl.textContent = gapSize.toFixed(0) + ' pts — Normal'; gapEl.className = 'rv g'; }
+      else if (gapSize < 25) { gapEl.textContent = gapSize.toFixed(0) + ' pts — Caution'; gapEl.className = 'rv o'; }
+      else { gapEl.textContent = gapSize.toFixed(0) + ' pts — High caution'; gapEl.className = 'rv r'; }
+    }
+
+    // ENTRY CHECKS (6 checks now)
+    function ct(i) {
+      if (i === 0 && checks[1]) { checks[1] = false; document.getElementById('cb1').classList.remove('on'); }
+      if (i === 1 && checks[0]) { checks[0] = false; document.getElementById('cb0').classList.remove('on'); }
+      checks[i] = !checks[i];
+      var b = document.getElementById('cb' + i);
+      if (checks[i]) b.classList.add('on'); else b.classList.remove('on');
+      refreshVerdict();
+    }
+
+    function refreshVerdict() {
+      var total = checks.filter(Boolean).length;
+      var fill = document.getElementById('e-fill');
+      fill.style.width = ((total / 6) * 100) + '%';
+      var isBull = checks[0], isBear = checks[1], hasTrend = isBull || isBear;
+      var setupOk = checks[2] && checks[3];
+      var entryOk = checks[4] && checks[5];
+      var allOk = hasTrend && setupOk && entryOk;
+      fill.style.background = allOk ? '#34c759' : total >= 3 ? '#ff9500' : '#ff3b30';
+      document.getElementById('e-score').textContent = total + ' of 6 checks';
+      var vd = document.getElementById('e-verdict'), tb = document.getElementById('e-trade');
+      if (allOk) {
+        var now = new Date(), h = now.getHours(), m = now.getMinutes();
+        var ts = (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + (h >= 12 ? 'pm' : 'am');
+        var warn = '';
+        if (isBull && walls.ptsToCall > 0 && walls.ptsToCall < 15) warn = ' ⚠ Within 15pts of call wall — skip';
+        if (isBear && walls.ptsToPut > 0 && walls.ptsToPut < 15) warn = ' ⚠ Within 15pts of put wall — skip';
+        if (gapSize >= 25) warn += ' ⚠ Large gap — move may be mature';
+        vd.className = warn ? 'sig wait' : 'sig go';
+        vd.innerHTML = '<div class="sigt">' + (warn ? 'Caution' : 'Enter now ✓') + ' — ' + ts + '</div><div class="ss">' + (isBull ? 'Buy calls ▲' : 'Buy puts ▼') + (gexEnv === 'pin' ? ' · Pinning — use smaller targets' : gexEnv === 'trend' ? ' · Trending — let it run' : '') + warn + '</div>';
+        tb.style.display = 'block';
+        updateTargetDisplay();
+        document.getElementById('et-dir').textContent = isBull ? 'Bullish — buy calls ▲' : 'Bearish — buy puts ▼';
+        document.getElementById('et-dir').className = isBull ? 'rv g' : 'rv r';
+      } else if (hasTrend && setupOk && checks[4] && !checks[5]) {
+        vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Price at EMA9 — watch</div><div class="ss">Wait for bounce candle to close fully away from EMA9. Do not enter yet.</div>'; tb.style.display = 'none';
+      } else if (hasTrend && setupOk && !checks[4]) {
+        vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Setup confirmed — switch to 2min</div><div class="ss">5min confirmed. Watch 2min for first EMA9 touch.</div>'; tb.style.display = 'none';
+      } else if (hasTrend && !setupOk) {
+        vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Trend confirmed — check 5min</div><div class="ss">VWAP + EMA9 confirming? Price pulling back toward EMA9? Not extended 25+pts?</div>'; tb.style.display = 'none';
+      } else {
+        if (gexEnv === 'pin') { vd.className = 'sig no'; vd.innerHTML = '<div class="sigt">Pinning day — consider skipping</div><div class="ss">Positive GEX suppresses moves. Targets are small. Chop risk high.</div>'; }
+        else if (gexEnv === 'zero') { vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Near zero — stricter read</div><div class="ss">Clear VWAP slope + outside zone + EMA9 aligned by 10:15am. If unclear → skip.</div>'; }
+        else { vd.className = 'sig idle'; vd.innerHTML = '<div class="sigt">Start with 15min chart</div><div class="ss">VWAP sloping? Price 10–15pts clear (SPX) / 5pts (QQQ)? EMA9 aligned?</div>'; }
+        tb.style.display = 'none';
+      }
+    }
+
+    // FILL CALC
+    function calcFill() {
+      var f = nv('fill-p');
+      if (!f) { document.getElementById('calc-res').style.display = 'none'; return; }
+      var sl = Math.round(f * 0.70 * 100) / 100;
+      var el30 = Math.round(f * 0.30 * 100) / 100;
+      var pct = ((el30 * 100) / 3000 * 100).toFixed(1);
+      document.getElementById('cr-sl').textContent = '$' + (f - sl).toFixed(2) + ' per share (-70%)';
+      document.getElementById('cr-el').textContent = '-$' + Math.round(el30 * 100) + ' per contract at 30% stop';
+      var acctEl = document.getElementById('cr-acct');
+      acctEl.textContent = pct + '% of $3,000' + (parseFloat(pct) > 2 ? ' ⚠ over 2% limit' : '');
+      acctEl.className = 'rv' + (parseFloat(pct) > 2 ? ' r' : ' g');
+      var isBull = checks[0];
+      var wt = isBull ? walls.bullTgt : walls.bearTgt;
+      document.getElementById('cr-wall').textContent = wt > 0 ? 'Exit near ' + wt + ' (wall override)' : 'Enter walls in Setup tab';
+      document.getElementById('calc-res').style.display = 'block';
+    }
+
+    function resetEntry() {
+      checks = [false, false, false, false, false, false];
+      for (var i = 0; i < 6; i++) { var el = document.getElementById('cb' + i); if (el) el.classList.remove('on'); }
+      document.getElementById('e-fill').style.width = '0%';
+      document.getElementById('e-fill').style.background = '#ff3b30';
+      document.getElementById('e-score').textContent = '0 of 6 checks';
+      document.getElementById('e-trade').style.display = 'none';
+      document.getElementById('fill-p').value = '';
+      document.getElementById('calc-res').style.display = 'none';
+      document.getElementById('e-verdict').className = 'sig idle';
+      document.getElementById('e-verdict').innerHTML = '<div class="sigt">Tick the checks above</div><div class="ss">Start with 15min — VWAP sloping + price clearly outside zone?</div>';
+    }
+
+    function resetSetup() {
+      gexEnv = ''; gapSize = 0; scnState = { calls: '', puts: '', dom: '' };
+      ['trend', 'zero', 'pin'].forEach(function (e) { document.getElementById('gb-' + e).className = 'gex-btn'; });
+      document.getElementById('gex-env-box').className = 'sig idle';
+      document.getElementById('gex-env-t').textContent = 'Select net GEX above';
+      document.getElementById('gex-env-s').textContent = 'Tap the environment from optioncharts.io';
+      ['wspx-call', 'wspx-put', 'wspx', 'g-close', 'g-pm'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      Object.values(scnMap).forEach(function (g) { Object.values(g).forEach(function (id) { var el = document.getElementById(id); if (el) el.classList.remove('sel'); }); });
+      document.getElementById('wall-card').style.display = 'none';
+      document.getElementById('gap-result').style.display = 'none';
+      document.getElementById('scn-result').style.display = 'none';
+      document.getElementById('scn-detail').style.display = 'none';
+      walls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0 };
+      updateEntrySummary();
+    }
+
+    // JOURNAL
+    async function addTrade() {
+      var date = document.getElementById('j-date').value;
+      var type = document.getElementById('j-type').value;
+      var entry = nv('j-entry'), exit = nv('j-exit');
+      var result = document.getElementById('j-result').value;
+      var gex = document.getElementById('j-gex').value;
+      var touch = document.getElementById('j-touch').value;
+      var rules = document.getElementById('j-rules').value;
+      var note = document.getElementById('j-note').value;
+      if (!date || !result) { alert('Date and outcome required'); return; }
+      var pnl = 0;
+      if (entry > 0 && exit > 0) { pnl = Math.round((exit - entry) * 100 * 100) / 100; }
+      else if (result === 'WIN' && entry > 0) { pnl = Math.round(entry * 0.75 * 100 * 100) / 100; }
+      else if (result && result.startsWith('LOSS') && entry > 0) { pnl = -Math.round(entry * 0.30 * 100 * 100) / 100; }
+      var trade = { date, type, entry, exit, result, gex, touch, rules, pnl, note, createdAt: Date.now() };
+      // Optimistic local update
+      trades.unshift(trade);
+      try { localStorage.setItem('qqq_v8', JSON.stringify(trades)); } catch (e) { }
+      ['j-type', 'j-entry', 'j-exit', 'j-result', 'j-gex', 'j-touch', 'j-rules', 'j-note'].forEach(function (id) { document.getElementById(id).value = ''; });
+      renderJ();
+      if (!auth.currentUser) {
+        alert('Sign in with email/password to sync this entry to Firebase.');
+        return;
+      }
+      try {
+        await addDoc(tradesCol, { ...trade, uid: auth.currentUser.uid });
+      } catch (e) {
+        console.error('Firestore write failed', e);
+        alert('Saved locally. Cloud sync failed — check Firestore rules / network.');
+      }
+    }
+
+    function renderJ() {
+      var active = trades.filter(function (t) { return t.result !== 'SKIP' && t.result !== 'OBS'; });
+      var wins = trades.filter(function (t) { return t.result === 'WIN'; });
+      var losses = trades.filter(function (t) { return t.result && t.result.startsWith('LOSS'); });
+      var wr = active.length ? Math.round(wins.length / active.length * 100) : 0;
+      var total = trades.reduce(function (s, t) { return s + (t.pnl || 0); }, 0);
+      function fmt(v) { return (v >= 0 ? '+' : '') + '$' + Math.abs(Math.round(v)); }
+      var pe = document.getElementById('j-pnl');
+      pe.textContent = fmt(total); pe.className = 'sn' + (total > 0 ? ' pos' : total < 0 ? ' neg' : '');
+      document.getElementById('j-wr').textContent = wr + '%';
+      document.getElementById('j-n').textContent = active.length;
+      document.getElementById('j-wins').textContent = wins.length;
+      document.getElementById('j-losses').textContent = losses.length;
+      var list = document.getElementById('j-list');
+      if (!trades.length) { list.innerHTML = '<div class="empty">No entries yet — start logging</div>'; return; }
+      list.innerHTML = trades.map(function (t) {
+        var b = t.result === 'WIN' ? '<span class="bdg win">Win</span>' :
+          t.result && t.result.startsWith('LOSS') ? '<span class="bdg loss">Loss</span>' :
+            t.result === 'SKIP' ? '<span class="bdg skip">Skip</span>' :
+              t.result === 'OBS' ? '<span class="bdg skip">Obs</span>' : '<span class="bdg man">Exit</span>';
+        var gm = t.gex === 'NEG' ? '<span style="font-size:10px;color:#34c759"> ↓</span>' : t.gex === 'POS' ? '<span style="font-size:10px;color:#ff3b30"> +</span>' : t.gex === 'ZERO' ? '<span style="font-size:10px;color:#ff9500"> ~</span>' : '';
+        var tm = t.touch && t.touch !== 'NA' ? '<span style="font-size:10px;color:#8e8e93"> T' + t.touch + '</span>' : '';
+        var rm = t.rules === 'YES' ? '<span style="font-size:10px;color:#34c759">✓</span>' : t.rules === 'NO' ? '<span style="font-size:10px;color:#ff3b30">✗</span>' : '';
+        var p = t.pnl ? '<span class="tp ' + (t.pnl > 0 ? 'pos' : 'neg') + '">' + (t.pnl > 0 ? '+' : '') + '$' + Math.abs(Math.round(t.pnl)) + '</span>' : '<span class="tp">—</span>';
+        var notes = t.note ? '<div class="tl">' + t.note + '</div>' : '';
+        return '<div class="tl"><span class="td">' + (t.date ? t.date.slice(5) : '—') + '</span><span class="tt">' + (t.type || '—') + gm + tm + rm + '</span>' + b + p + '</div>' + notes;
+      }).join('');
+    }
+
+    async function clearAll() {
+      if (!auth.currentUser) {
+        alert('Sign in with email/password before clearing cloud history.');
+        return;
+      }
+      if (!confirm('Clear all history? This deletes from cloud too.')) return;
+      trades = [];
+      try { localStorage.removeItem('qqq_v8'); } catch (e) { }
+      renderJ();
+      try {
+        const snap = await getDocs(tradesCol);
+        const batch = writeBatch(db);
+        snap.docs.forEach(d => {
+          if (d.data().uid === auth.currentUser.uid) batch.delete(d.ref);
+        });
+        await batch.commit();
+      } catch (e) {
+        console.error('Firestore clear failed', e);
+        alert('Cleared locally. Cloud clear failed — check Firestore rules.');
+      }
+    }
+
+    // SWING CHECKS
+    var swingChecks = [false, false, false, false, false, false, false];
+    function sct(i) {
+      swingChecks[i] = !swingChecks[i];
+      var b = document.getElementById('scb' + i);
+      if (swingChecks[i]) b.classList.add('on'); else b.classList.remove('on');
+      refreshSwingVerdict();
+    }
+    function refreshSwingVerdict() {
+      var weeklyOk = swingChecks[0] && swingChecks[1];
+      var dailyOk = swingChecks[2] && swingChecks[3] && swingChecks[4];
+      var entryOk = swingChecks[5] && swingChecks[6];
+      var vd = document.getElementById('sw-verdict');
+      if (weeklyOk && dailyOk && entryOk) {
+        vd.className = 'sig go';
+        vd.innerHTML = '<div class="sigt">Swing entry confirmed ✓</div><div class="ss">All 3 timeframes aligned. Buy 45–60DTE QQQ puts/calls ATM or 1 OTM. At $3k: paper trade only.</div>';
+      } else if (weeklyOk && dailyOk) {
+        vd.className = 'sig wait';
+        vd.innerHTML = '<div class="sigt">Daily confirmed — wait for 4hr</div><div class="ss">Check again this afternoon. Need 4hr EMA9 pullback and rejection candle before entering.</div>';
+      } else if (weeklyOk) {
+        vd.className = 'sig wait';
+        vd.innerHTML = '<div class="sigt">Weekly confirmed — check daily</div><div class="ss">Daily VWAP + EMA9 must align with weekly direction. Check again tomorrow morning.</div>';
+      } else {
+        vd.className = 'sig idle';
+        vd.innerHTML = '<div class="sigt">Start with weekly chart</div><div class="ss">2+ consecutive weeks of same VWAP slope? Weekly candle closed outside VWAP zone?</div>';
+      }
+    }
+    function resetSwing() {
+      swingChecks = [false, false, false, false, false, false, false];
+      for (var i = 0; i < 7; i++) { var el = document.getElementById('scb' + i); if (el) el.classList.remove('on'); }
+      var vd = document.getElementById('sw-verdict');
+      vd.className = 'sig idle';
+      vd.innerHTML = '<div class="sigt">Tick swing checks above</div><div class="ss">Start with weekly — 2+ weeks of same VWAP slope?</div>';
+    }
+
+    // Expose functions for inline onclick/oninput (module scope is not global)
+    Object.assign(window, {
+      setGexEnv, setScn, resetSetup, ct, resetEntry, addTrade, clearAll,
+      sct, resetSwing, sp, calcWalls, calcGap, calcFill,
+      signUpWithEmailPassword, signInWithEmailPassword, signOutCurrentUser
+    });
+
+    // INIT
+    document.body.classList.remove('auth-ready');
+    document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
+    renderJ();
+    updateEntrySummary();
     updateTargetDisplay();
-    document.getElementById('et-dir').textContent=isBull?'Bullish — buy calls ▲':'Bearish — buy puts ▼';
-    document.getElementById('et-dir').className=isBull?'rv g':'rv r';
-  } else if(hasTrend&&setupOk&&checks[4]&&!checks[5]){
-    vd.className='sig wait';vd.innerHTML='<div class="sigt">Price at EMA9 — watch</div><div class="ss">Wait for bounce candle to close fully away from EMA9. Do not enter yet.</div>';tb.style.display='none';
-  } else if(hasTrend&&setupOk&&!checks[4]){
-    vd.className='sig wait';vd.innerHTML='<div class="sigt">Setup confirmed — switch to 2min</div><div class="ss">5min confirmed. Watch 2min for first EMA9 touch.</div>';tb.style.display='none';
-  } else if(hasTrend&&!setupOk){
-    vd.className='sig wait';vd.innerHTML='<div class="sigt">Trend confirmed — check 5min</div><div class="ss">VWAP + EMA9 confirming? Price pulling back toward EMA9? Not extended 25+pts?</div>';tb.style.display='none';
-  } else{
-    if(gexEnv==='pin'){vd.className='sig no';vd.innerHTML='<div class="sigt">Pinning day — consider skipping</div><div class="ss">Positive GEX suppresses moves. Targets are small. Chop risk high.</div>';}
-    else if(gexEnv==='zero'){vd.className='sig wait';vd.innerHTML='<div class="sigt">Near zero — stricter read</div><div class="ss">Clear VWAP slope + outside zone + EMA9 aligned by 10:15am. If unclear → skip.</div>';}
-    else{vd.className='sig idle';vd.innerHTML='<div class="sigt">Start with 15min chart</div><div class="ss">VWAP sloping? Price 10–15pts clear (SPX) / 5pts (QQQ)? EMA9 aligned?</div>';}
-    tb.style.display='none';
-  }
-}
-
-// FILL CALC
-function calcFill(){
-  var f=nv('fill-p');
-  if(!f){document.getElementById('calc-res').style.display='none';return;}
-  var sl=Math.round(f*0.70*100)/100;
-  var el30=Math.round(f*0.30*100)/100;
-  var pct=((el30*100)/3000*100).toFixed(1);
-  document.getElementById('cr-sl').textContent='$'+(f-sl).toFixed(2)+' per share (-70%)';
-  document.getElementById('cr-el').textContent='-$'+Math.round(el30*100)+' per contract at 30% stop';
-  var acctEl=document.getElementById('cr-acct');
-  acctEl.textContent=pct+'% of $3,000'+(parseFloat(pct)>2?' ⚠ over 2% limit':'');
-  acctEl.className='rv'+(parseFloat(pct)>2?' r':' g');
-  var isBull=checks[0];
-  var wt=isBull?walls.bullTgt:walls.bearTgt;
-  document.getElementById('cr-wall').textContent=wt>0?'Exit near '+wt+' (wall override)':'Enter walls in Setup tab';
-  document.getElementById('calc-res').style.display='block';
-}
-
-function resetEntry(){
-  checks=[false,false,false,false,false,false];
-  for(var i=0;i<6;i++){var el=document.getElementById('cb'+i);if(el)el.classList.remove('on');}
-  document.getElementById('e-fill').style.width='0%';
-  document.getElementById('e-fill').style.background='#ff3b30';
-  document.getElementById('e-score').textContent='0 of 6 checks';
-  document.getElementById('e-trade').style.display='none';
-  document.getElementById('fill-p').value='';
-  document.getElementById('calc-res').style.display='none';
-  document.getElementById('e-verdict').className='sig idle';
-  document.getElementById('e-verdict').innerHTML='<div class="sigt">Tick the checks above</div><div class="ss">Start with 15min — VWAP sloping + price clearly outside zone?</div>';
-}
-
-function resetSetup(){
-  gexEnv='';gapSize=0;scnState={calls:'',puts:'',dom:''};
-  ['trend','zero','pin'].forEach(function(e){document.getElementById('gb-'+e).className='gex-btn';});
-  document.getElementById('gex-env-box').className='sig idle';
-  document.getElementById('gex-env-t').textContent='Select net GEX above';
-  document.getElementById('gex-env-s').textContent='Tap the environment from optioncharts.io';
-  ['wspx-call','wspx-put','wspx','g-close','g-pm'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  Object.values(scnMap).forEach(function(g){Object.values(g).forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('sel');});});
-  document.getElementById('wall-card').style.display='none';
-  document.getElementById('gap-result').style.display='none';
-  document.getElementById('scn-result').style.display='none';
-  document.getElementById('scn-detail').style.display='none';
-  walls={callWall:0,putWall:0,ptsToCall:0,ptsToPut:0,bullTgt:0,bearTgt:0};
-  updateEntrySummary();
-}
-
-// JOURNAL
-async function addTrade(){
-  var date=document.getElementById('j-date').value;
-  var type=document.getElementById('j-type').value;
-  var entry=nv('j-entry'),exit=nv('j-exit');
-  var result=document.getElementById('j-result').value;
-  var gex=document.getElementById('j-gex').value;
-  var touch=document.getElementById('j-touch').value;
-  var rules=document.getElementById('j-rules').value;
-  var note=document.getElementById('j-note').value;
-  if(!date||!result){alert('Date and outcome required');return;}
-  var pnl=0;
-  if(entry>0&&exit>0){pnl=Math.round((exit-entry)*100*100)/100;}
-  else if(result==='WIN'&&entry>0){pnl=Math.round(entry*0.75*100*100)/100;}
-  else if(result&&result.startsWith('LOSS')&&entry>0){pnl=-Math.round(entry*0.30*100*100)/100;}
-  var trade={date,type,entry,exit,result,gex,touch,rules,pnl,note,createdAt:Date.now()};
-  // Optimistic local update
-  trades.unshift(trade);
-  try{localStorage.setItem('qqq_v8',JSON.stringify(trades));}catch(e){}
-  ['j-type','j-entry','j-exit','j-result','j-gex','j-touch','j-rules','j-note'].forEach(function(id){document.getElementById(id).value='';});
-  renderJ();
-  try {
-    await addDoc(tradesCol, trade);
-  } catch(e) {
-    console.error('Firestore write failed', e);
-    alert('Saved locally. Cloud sync failed — check Firestore rules / network.');
-  }
-}
-
-function renderJ(){
-  var active=trades.filter(function(t){return t.result!=='SKIP'&&t.result!=='OBS';});
-  var wins=trades.filter(function(t){return t.result==='WIN';});
-  var losses=trades.filter(function(t){return t.result&&t.result.startsWith('LOSS');});
-  var wr=active.length?Math.round(wins.length/active.length*100):0;
-  var total=trades.reduce(function(s,t){return s+(t.pnl||0);},0);
-  function fmt(v){return(v>=0?'+':'')+'$'+Math.abs(Math.round(v));}
-  var pe=document.getElementById('j-pnl');
-  pe.textContent=fmt(total);pe.className='sn'+(total>0?' pos':total<0?' neg':'');
-  document.getElementById('j-wr').textContent=wr+'%';
-  document.getElementById('j-n').textContent=active.length;
-  document.getElementById('j-wins').textContent=wins.length;
-  document.getElementById('j-losses').textContent=losses.length;
-  var list=document.getElementById('j-list');
-  if(!trades.length){list.innerHTML='<div class="empty">No entries yet — start logging</div>';return;}
-  list.innerHTML=trades.map(function(t){
-    var b=t.result==='WIN'?'<span class="bdg win">Win</span>':
-      t.result&&t.result.startsWith('LOSS')?'<span class="bdg loss">Loss</span>':
-      t.result==='SKIP'?'<span class="bdg skip">Skip</span>':
-      t.result==='OBS'?'<span class="bdg skip">Obs</span>':'<span class="bdg man">Exit</span>';
-    var gm=t.gex==='NEG'?'<span style="font-size:10px;color:#34c759"> ↓</span>':t.gex==='POS'?'<span style="font-size:10px;color:#ff3b30"> +</span>':t.gex==='ZERO'?'<span style="font-size:10px;color:#ff9500"> ~</span>':'';
-    var tm=t.touch&&t.touch!=='NA'?'<span style="font-size:10px;color:#8e8e93"> T'+t.touch+'</span>':'';
-    var rm=t.rules==='YES'?'<span style="font-size:10px;color:#34c759">✓</span>':t.rules==='NO'?'<span style="font-size:10px;color:#ff3b30">✗</span>':'';
-    var p=t.pnl?'<span class="tp '+(t.pnl>0?'pos':'neg')+'">'+(t.pnl>0?'+':'')+'$'+Math.abs(Math.round(t.pnl))+'</span>':'<span class="tp">—</span>';
-    return '<div class="tl"><span class="td">'+(t.date?t.date.slice(5):'—')+'</span><span class="tt">'+(t.type||'—')+gm+tm+rm+'</span>'+b+p+'</div>';
-  }).join('');
-}
-
-async function clearAll(){
-  if(!confirm('Clear all history? This deletes from cloud too.')) return;
-  trades=[];
-  try{localStorage.removeItem('qqq_v8');}catch(e){}
-  renderJ();
-  try {
-    const snap = await getDocs(tradesCol);
-    const batch = writeBatch(db);
-    snap.docs.forEach(d => batch.delete(d.ref));
-    await batch.commit();
-  } catch(e) {
-    console.error('Firestore clear failed', e);
-    alert('Cleared locally. Cloud clear failed — check Firestore rules.');
-  }
-}
-
-// SWING CHECKS
-var swingChecks=[false,false,false,false,false,false,false];
-function sct(i){
-  swingChecks[i]=!swingChecks[i];
-  var b=document.getElementById('scb'+i);
-  if(swingChecks[i])b.classList.add('on');else b.classList.remove('on');
-  refreshSwingVerdict();
-}
-function refreshSwingVerdict(){
-  var weeklyOk=swingChecks[0]&&swingChecks[1];
-  var dailyOk=swingChecks[2]&&swingChecks[3]&&swingChecks[4];
-  var entryOk=swingChecks[5]&&swingChecks[6];
-  var vd=document.getElementById('sw-verdict');
-  if(weeklyOk&&dailyOk&&entryOk){
-    vd.className='sig go';
-    vd.innerHTML='<div class="sigt">Swing entry confirmed ✓</div><div class="ss">All 3 timeframes aligned. Buy 45–60DTE QQQ puts/calls ATM or 1 OTM. At $3k: paper trade only.</div>';
-  } else if(weeklyOk&&dailyOk){
-    vd.className='sig wait';
-    vd.innerHTML='<div class="sigt">Daily confirmed — wait for 4hr</div><div class="ss">Check again this afternoon. Need 4hr EMA9 pullback and rejection candle before entering.</div>';
-  } else if(weeklyOk){
-    vd.className='sig wait';
-    vd.innerHTML='<div class="sigt">Weekly confirmed — check daily</div><div class="ss">Daily VWAP + EMA9 must align with weekly direction. Check again tomorrow morning.</div>';
-  } else {
-    vd.className='sig idle';
-    vd.innerHTML='<div class="sigt">Start with weekly chart</div><div class="ss">2+ consecutive weeks of same VWAP slope? Weekly candle closed outside VWAP zone?</div>';
-  }
-}
-function resetSwing(){
-  swingChecks=[false,false,false,false,false,false,false];
-  for(var i=0;i<7;i++){var el=document.getElementById('scb'+i);if(el)el.classList.remove('on');}
-  var vd=document.getElementById('sw-verdict');
-  vd.className='sig idle';
-  vd.innerHTML='<div class="sigt">Tick swing checks above</div><div class="ss">Start with weekly — 2+ weeks of same VWAP slope?</div>';
-}
-
-// Expose functions for inline onclick/oninput (module scope is not global)
-Object.assign(window, {
-  setGexEnv, setScn, resetSetup, ct, resetEntry, addTrade, clearAll,
-  sct, resetSwing, sp, calcWalls, calcGap, calcFill
-});
-
-// INIT
-document.getElementById('j-date').value=new Date().toISOString().split('T')[0];
-renderJ();
-updateEntrySummary();
-updateTargetDisplay();
-</script>
+  </script>
+  </div>
 </body>
+
 </html>
