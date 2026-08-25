@@ -1694,7 +1694,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy, writeBatch } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, where, orderBy, writeBatch } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyC1MDGdqERfh91IXRBQlSKYm1g3-63V0kg",
@@ -1765,9 +1765,16 @@
         document.body.classList.add('auth-ready');
         document.getElementById('auth-email').value = user.email || '';
         setAuthStatus('Signed in as ' + user.email, 'go');
+        syncUserTrades(user.uid);
       } else {
+        if (userTradeListener) {
+          userTradeListener();
+          userTradeListener = null;
+        }
         document.body.classList.remove('auth-ready');
         document.getElementById('auth-email').value = '';
+        trades = [];
+        renderJ();
         setAuthStatus('Not signed in', 'idle');
       }
     });
@@ -1777,17 +1784,39 @@
     var gapSize = 0;
     var scnState = { calls: '', puts: '', dom: '' };
     var scnMap = { calls: { above: 'sc-ca', both: 'sc-cb', none: 'sc-cn', on: 'sc-co' }, puts: { below: 'sc-pb', both: 'sc-pp', none: 'sc-pn', on: 'sc-po' }, dom: { calls: 'sc-dc', equal: 'sc-de', puts: 'sc-dp' } };
+    var userTradeListener = null;
 
-    // Live sync from Firestore (falls back to localStorage if offline / rules block)
-    onSnapshot(query(tradesCol, orderBy('date', 'desc')), (snap) => {
-      trades = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      try { localStorage.setItem('qqq_v8', JSON.stringify(trades)); } catch (e) { }
-      renderJ();
-    }, (err) => {
-      console.warn('Firestore listen failed, using localStorage', err);
-      try { var sv = localStorage.getItem('qqq_v8'); if (sv) trades = JSON.parse(sv); } catch (e) { }
-      renderJ();
-    });
+    function getUserStorageKey(uid) {
+      return 'qqq_v8_' + (uid || 'guest');
+    }
+
+    function syncUserTrades(uid) {
+      if (userTradeListener) {
+        userTradeListener();
+        userTradeListener = null;
+      }
+
+      if (!uid) {
+        trades = [];
+        renderJ();
+        return;
+      }
+
+      const userTradesQuery = query(tradesCol, where('uid', '==', uid), orderBy('createdAt', 'desc'));
+      userTradeListener = onSnapshot(userTradesQuery, (snap) => {
+        trades = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        try { localStorage.setItem(getUserStorageKey(uid), JSON.stringify(trades)); } catch (e) { }
+        renderJ();
+      }, (err) => {
+        console.warn('Firestore listen failed, using localStorage', err);
+        try {
+          var sv = localStorage.getItem(getUserStorageKey(uid));
+          if (sv) trades = JSON.parse(sv);
+          else trades = [];
+        } catch (e) { trades = []; }
+        renderJ();
+      });
+    }
 
     // CLOCK
     function tick() {
@@ -2191,7 +2220,9 @@
       var trade = { date, type, entry, exit, result, gex, touch, rules, pnl, note, createdAt: Date.now() };
       // Optimistic local update
       trades.unshift(trade);
-      try { localStorage.setItem('qqq_v8', JSON.stringify(trades)); } catch (e) { }
+      if (auth.currentUser) {
+        try { localStorage.setItem(getUserStorageKey(auth.currentUser.uid), JSON.stringify(trades)); } catch (e) { }
+      }
       ['j-type', 'j-entry', 'j-exit', 'j-result', 'j-gex', 'j-touch', 'j-rules', 'j-note'].forEach(function (id) { document.getElementById(id).value = ''; });
       renderJ();
       if (!auth.currentUser) {
@@ -2242,14 +2273,12 @@
       }
       if (!confirm('Clear all history? This deletes from cloud too.')) return;
       trades = [];
-      try { localStorage.removeItem('qqq_v8'); } catch (e) { }
+      try { localStorage.removeItem(getUserStorageKey(auth.currentUser.uid)); } catch (e) { }
       renderJ();
       try {
-        const snap = await getDocs(tradesCol);
+        const snap = await getDocs(query(tradesCol, where('uid', '==', auth.currentUser.uid)));
         const batch = writeBatch(db);
-        snap.docs.forEach(d => {
-          if (d.data().uid === auth.currentUser.uid) batch.delete(d.ref);
-        });
+        snap.docs.forEach(d => batch.delete(d.ref));
         await batch.commit();
       } catch (e) {
         console.error('Firestore clear failed', e);
