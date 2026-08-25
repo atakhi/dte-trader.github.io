@@ -1707,8 +1707,10 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const tradesCol = collection(db, 'trades');
 
+function getUserTradesCol() {
+  return collection(db, 'users', auth.currentUser.uid, 'trades');
+}
     function setAuthStatus(message, kind) {
       var box = document.getElementById('auth-status');
       if (!box) return;
@@ -1802,7 +1804,7 @@
         return;
       }
 
-      const userTradesQuery = query(tradesCol, where('uid', '==', uid), orderBy('createdAt', 'desc'));
+const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('createdAt', 'desc'));
       userTradeListener = onSnapshot(userTradesQuery, (snap) => {
         trades = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         try { localStorage.setItem(getUserStorageKey(uid), JSON.stringify(trades)); } catch (e) { }
@@ -2230,7 +2232,7 @@
         return;
       }
       try {
-        await addDoc(tradesCol, { ...trade, uid: auth.currentUser.uid });
+        await addDoc(getUserTradesCol(), trade);
       } catch (e) {
         console.error('Firestore write failed', e);
         alert('Saved locally. Cloud sync failed — check Firestore rules / network.');
@@ -2276,7 +2278,7 @@
       try { localStorage.removeItem(getUserStorageKey(auth.currentUser.uid)); } catch (e) { }
       renderJ();
       try {
-        const snap = await getDocs(query(tradesCol, where('uid', '==', auth.currentUser.uid)));
+const snap = await getDocs(collection(db, 'users', auth.currentUser.uid, 'trades'));
         const batch = writeBatch(db);
         snap.docs.forEach(d => batch.delete(d.ref));
         await batch.commit();
