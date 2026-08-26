@@ -770,7 +770,10 @@
   <div id="app-shell" class="app-shell">
     <div class="hdr">
       <h1>0DTE Trader</h1>
-      <span class="wb off" id="wb">—</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="wb off" id="wb">—</span>
+        <button id="signout-btn" onclick="signOutCurrentUser()" style="display:none;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#fff1f0;color:#c0392b;cursor:pointer">Sign out</button>
+      </div>
     </div>
 
   <!-- ══ SETUP PAGE ══ -->
@@ -1732,6 +1735,7 @@ function getUserTradesCol() {
         var cred = await createUserWithEmailAndPassword(auth, email, password);
         setAuthStatus('Signed up as ' + cred.user.email, 'go');
         document.getElementById('auth-password').value = '';
+        saveFormState();
       } catch (err) {
         console.error('Firebase sign-up failed', err);
         alert(err.message || 'Could not create account.');
@@ -1745,6 +1749,7 @@ function getUserTradesCol() {
         var cred = await signInWithEmailAndPassword(auth, email, password);
         setAuthStatus('Signed in as ' + cred.user.email, 'go');
         document.getElementById('auth-password').value = '';
+        saveFormState();
       } catch (err) {
         console.error('Firebase sign-in failed', err);
         alert(err.message || 'Could not sign in.');
@@ -1756,6 +1761,7 @@ function getUserTradesCol() {
         await signOut(auth);
         setAuthStatus('Not signed in', 'idle');
         document.getElementById('auth-password').value = '';
+        saveFormState();
       } catch (err) {
         console.error('Firebase sign-out failed', err);
         alert(err.message || 'Could not sign out.');
@@ -1763,21 +1769,23 @@ function getUserTradesCol() {
     }
 
     onAuthStateChanged(auth, function (user) {
-      if (user) {
-        document.body.classList.add('auth-ready');
-        document.getElementById('auth-email').value = user.email || '';
-        setAuthStatus('Signed in as ' + user.email, 'go');
-        syncUserTrades(user.uid);
-      } else {
-        if (userTradeListener) {
-          userTradeListener();
-          userTradeListener = null;
-        }
-        document.body.classList.remove('auth-ready');
-        document.getElementById('auth-email').value = '';
-        trades = [];
-        renderJ();
-        setAuthStatus('Not signed in', 'idle');
+        if (user) {
+          document.body.classList.add('auth-ready');
+          document.getElementById('signout-btn').style.display = 'block';
+          document.getElementById('auth-email').value = user.email || '';
+          setAuthStatus('Signed in as ' + user.email, 'go');
+          syncUserTrades(user.uid);
+        } else {
+          document.getElementById('signout-btn').style.display = 'none';
+          if (userTradeListener) {
+            userTradeListener();
+            userTradeListener = null;
+          }
+          document.body.classList.remove('auth-ready');
+          document.getElementById('auth-email').value = '';
+          trades = [];
+          renderJ();
+          setAuthStatus('Not signed in', 'idle');
       }
     });
 
@@ -1787,6 +1795,90 @@ function getUserTradesCol() {
     var scnState = { calls: '', puts: '', dom: '' };
     var scnMap = { calls: { above: 'sc-ca', both: 'sc-cb', none: 'sc-cn', on: 'sc-co' }, puts: { below: 'sc-pb', both: 'sc-pp', none: 'sc-pn', on: 'sc-po' }, dom: { calls: 'sc-dc', equal: 'sc-de', puts: 'sc-dp' } };
     var userTradeListener = null;
+    var formStorageKey = 'dte_trader_form_state_v1';
+
+    function saveFormState() {
+      var state = {
+        form: {},
+        app: {
+          gexEnv: gexEnv,
+          scnState: scnState,
+          checks: checks,
+          swingChecks: swingChecks,
+          activeTab: document.querySelector('.tab.on') ? document.querySelector('.tab.on').textContent.trim() : 'setup'
+        }
+      };
+
+      document.querySelectorAll('input, select').forEach(function (el) {
+        if (!el.id || el.id === 'auth-password') return;
+        state.form[el.id] = el.type === 'checkbox' ? !!el.checked : el.value;
+      });
+
+      try { localStorage.setItem(formStorageKey, JSON.stringify(state)); } catch (e) { }
+    }
+
+    function restoreFormState() {
+      try {
+        var raw = localStorage.getItem(formStorageKey);
+        if (!raw) return;
+        var state = JSON.parse(raw);
+        if (state.form) {
+          Object.keys(state.form).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el || id === 'auth-password') return;
+            if (el.type === 'checkbox') { el.checked = !!state.form[id]; }
+            else { el.value = state.form[id] || ''; }
+          });
+        }
+
+        if (state.app) {
+          if (state.app.gexEnv) {
+            gexEnv = state.app.gexEnv;
+            setGexEnv(gexEnv);
+          }
+          if (state.app.scnState) {
+            scnState = { calls: '', puts: '', dom: '' };
+            Object.keys(state.app.scnState).forEach(function (group) {
+              if (state.app.scnState[group]) {
+                scnState[group] = state.app.scnState[group];
+                var el = document.getElementById(scnMap[group][state.app.scnState[group]]);
+                if (el) el.classList.add('sel');
+              }
+            });
+          }
+          if (Array.isArray(state.app.checks)) {
+            checks = [false, false, false, false, false, false];
+            state.app.checks.forEach(function (on, i) {
+              if (on) {
+                checks[i] = true;
+                var b = document.getElementById('cb' + i);
+                if (b) b.classList.add('on');
+              }
+            });
+            refreshVerdict();
+          }
+          if (Array.isArray(state.app.swingChecks)) {
+            swingChecks = [false, false, false, false, false, false, false];
+            state.app.swingChecks.forEach(function (on, i) {
+              if (on) {
+                swingChecks[i] = true;
+                var b = document.getElementById('scb' + i);
+                if (b) b.classList.add('on');
+              }
+            });
+            refreshSwingVerdict();
+          }
+        }
+      } catch (e) { }
+    }
+
+    function bindFormPersistence() {
+      document.querySelectorAll('input, select').forEach(function (el) {
+        if (!el.id || el.id === 'auth-password') return;
+        el.addEventListener('input', saveFormState);
+        el.addEventListener('change', saveFormState);
+      });
+    }
 
     function getUserStorageKey(uid) {
       return 'qqq_v8_' + (uid || 'guest');
@@ -1876,6 +1968,7 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       if (walls.callWall > 0 || walls.putWall > 0) calcWalls();
       if (scnState.calls || scnState.puts) interpretScenario();
       updateEntrySummary();
+      saveFormState();
     }
 
     // TARGET DISPLAY
@@ -1931,6 +2024,7 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       if (scnState[group] === val) { scnState[group] = ''; }
       else { scnState[group] = val; var el = document.getElementById(scnMap[group][val]); if (el) el.classList.add('sel'); }
       interpretScenario();
+      saveFormState();
     }
 
     function interpretScenario() {
@@ -2117,6 +2211,7 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       var b = document.getElementById('cb' + i);
       if (checks[i]) b.classList.add('on'); else b.classList.remove('on');
       refreshVerdict();
+      saveFormState();
     }
 
     function refreshVerdict() {
@@ -2186,6 +2281,7 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       document.getElementById('calc-res').style.display = 'none';
       document.getElementById('e-verdict').className = 'sig idle';
       document.getElementById('e-verdict').innerHTML = '<div class="sigt">Tick the checks above</div><div class="ss">Start with 15min — VWAP sloping + price clearly outside zone?</div>';
+      saveFormState();
     }
 
     function resetSetup() {
@@ -2202,6 +2298,7 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       document.getElementById('scn-detail').style.display = 'none';
       walls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0 };
       updateEntrySummary();
+      saveFormState();
     }
 
     // JOURNAL
@@ -2226,6 +2323,7 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
         try { localStorage.setItem(getUserStorageKey(auth.currentUser.uid), JSON.stringify(trades)); } catch (e) { }
       }
       ['j-type', 'j-entry', 'j-exit', 'j-result', 'j-gex', 'j-touch', 'j-rules', 'j-note'].forEach(function (id) { document.getElementById(id).value = ''; });
+      saveFormState();
       renderJ();
       if (!auth.currentUser) {
         alert('Sign in with email/password to sync this entry to Firebase.');
@@ -2295,6 +2393,7 @@ const snap = await getDocs(collection(db, 'users', auth.currentUser.uid, 'trades
       var b = document.getElementById('scb' + i);
       if (swingChecks[i]) b.classList.add('on'); else b.classList.remove('on');
       refreshSwingVerdict();
+      saveFormState();
     }
     function refreshSwingVerdict() {
       var weeklyOk = swingChecks[0] && swingChecks[1];
@@ -2332,7 +2431,12 @@ const snap = await getDocs(collection(db, 'users', auth.currentUser.uid, 'trades
 
     // INIT
     document.body.classList.remove('auth-ready');
-    document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
+    bindFormPersistence();
+    restoreFormState();
+    if (!document.getElementById('j-date').value) {
+      document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
+    }
+    saveFormState();
     renderJ();
     updateEntrySummary();
     updateTargetDisplay();
