@@ -770,10 +770,7 @@
   <div id="app-shell" class="app-shell">
     <div class="hdr">
       <h1>0DTE Trader</h1>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span class="wb off" id="wb">—</span>
-        <button id="signout-btn" onclick="signOutCurrentUser()" style="display:none;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#fff1f0;color:#c0392b;cursor:pointer">Sign out</button>
-      </div>
+      <span class="wb off" id="wb">—</span>
     </div>
 
   <!-- ══ SETUP PAGE ══ -->
@@ -795,30 +792,66 @@
       <div class="ss" id="gex-env-s">Tap the environment from optioncharts.io</div>
     </div>
 
-    <div class="lbl">GEX walls + current price</div>
+    <div class="lbl">Fair value adjustment <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:#aaa">bridges optioncharts (ES futures) → SPX cash</span></div>
+    <div class="card" style="padding:12px">
+      <div style="font-size:12px;color:#636366;margin-bottom:8px;line-height:1.5">optioncharts uses ES futures prices which run <strong>15–25pts above</strong> SPX cash. Enter both prices to auto-adjust all wall strikes.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div>
+          <div style="font-size:11px;color:#636366;font-weight:500;margin-bottom:5px">ES futures (optioncharts)</div>
+          <input class="inp" id="fv-es" type="number" placeholder="e.g. 7695" inputmode="numeric" oninput="calcFV()">
+        </div>
+        <div>
+          <div style="font-size:11px;color:#636366;font-weight:500;margin-bottom:5px">SPX cash (Yahoo/broker)</div>
+          <input class="inp" id="fv-spx" type="number" placeholder="e.g. 7675" inputmode="numeric" oninput="calcFV()">
+        </div>
+      </div>
+      <div id="fv-result" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div style="background:#f0f4ff;border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:#8e8e93;margin-bottom:3px">Adjustment</div>
+            <div style="font-size:16px;font-weight:700;color:#007aff" id="fv-adj">—</div>
+          </div>
+          <div style="background:#f0fff4;border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:#8e8e93;margin-bottom:3px">SPX cash</div>
+            <div style="font-size:16px;font-weight:700;color:#34c759" id="fv-cash">—</div>
+          </div>
+          <div style="background:#f5f4ff;border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:#8e8e93;margin-bottom:3px">SPY equiv</div>
+            <div style="font-size:16px;font-weight:700;color:#5856d6" id="fv-spy">—</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#8e8e93;margin-top:7px;text-align:center" id="fv-note">—</div>
+      </div>
+    </div>
+
+    <div class="lbl">GEX walls <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:#aaa">enter optioncharts strikes — auto-converts to SPX cash</span></div>
     <div class="card" style="padding:12px">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
         <div>
-          <div style="font-size:11px;color:#007aff;font-weight:500;margin-bottom:5px">Call wall</div>
+          <div style="font-size:11px;color:#007aff;font-weight:500;margin-bottom:5px">Call wall (ES)</div>
           <input class="inp" id="wspx-call" type="number" placeholder="e.g. 5800" inputmode="numeric"
             oninput="calcWalls()">
         </div>
         <div>
-          <div style="font-size:11px;color:#ff3b30;font-weight:500;margin-bottom:5px">Put wall</div>
+          <div style="font-size:11px;color:#ff3b30;font-weight:500;margin-bottom:5px">Put wall (ES)</div>
           <input class="inp" id="wspx-put" type="number" placeholder="e.g. 5700" inputmode="numeric"
             oninput="calcWalls()">
         </div>
         <div>
-          <div style="font-size:11px;color:#636366;font-weight:500;margin-bottom:5px">Price now</div>
+          <div style="font-size:11px;color:#636366;font-weight:500;margin-bottom:5px">Price now (SPX)</div>
           <input class="inp" id="wspx" type="number" placeholder="e.g. 5757" inputmode="numeric" oninput="calcWalls()">
         </div>
       </div>
     </div>
     <div class="card" id="wall-card" style="display:none">
+      <div class="row"><span class="rk">Call wall — SPX cash</span><span class="rv r" id="wd-cwall-cash">—</span></div>
+      <div class="row"><span class="rk">Put wall — SPX cash</span><span class="rv g" id="wd-pwall-cash">—</span></div>
+      <div class="row"><span class="rk">Call wall — SPY equiv</span><span class="rv r" id="wd-cwall-spy">—</span></div>
+      <div class="row"><span class="rk">Put wall — SPY equiv</span><span class="rv g" id="wd-pwall-spy">—</span></div>
       <div class="row"><span class="rk">Pts to call wall</span><span class="rv" id="wd-ptsc">—</span></div>
       <div class="row"><span class="rk">Pts to put wall</span><span class="rv" id="wd-ptsp">—</span></div>
-      <div class="row"><span class="rk">Bull exit target</span><span class="rv g" id="wd-bt">—</span></div>
-      <div class="row"><span class="rk">Bear exit target</span><span class="rv r" id="wd-bert">—</span></div>
+      <div class="row"><span class="rk">Bull exit target (SPX cash)</span><span class="rv g" id="wd-bt">—</span></div>
+      <div class="row"><span class="rk">Bear exit target (SPX cash)</span><span class="rv r" id="wd-bert">—</span></div>
       <div class="row"><span class="rk">Wall behavior</span><span class="rv" id="wd-behavior">—</span></div>
     </div>
 
@@ -1710,10 +1743,8 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const tradesCol = collection(db, 'trades');
 
-function getUserTradesCol() {
-  return collection(db, 'users', auth.currentUser.uid, 'trades');
-}
     function setAuthStatus(message, kind) {
       var box = document.getElementById('auth-status');
       if (!box) return;
@@ -1735,7 +1766,6 @@ function getUserTradesCol() {
         var cred = await createUserWithEmailAndPassword(auth, email, password);
         setAuthStatus('Signed up as ' + cred.user.email, 'go');
         document.getElementById('auth-password').value = '';
-        saveFormState();
       } catch (err) {
         console.error('Firebase sign-up failed', err);
         alert(err.message || 'Could not create account.');
@@ -1749,7 +1779,6 @@ function getUserTradesCol() {
         var cred = await signInWithEmailAndPassword(auth, email, password);
         setAuthStatus('Signed in as ' + cred.user.email, 'go');
         document.getElementById('auth-password').value = '';
-        saveFormState();
       } catch (err) {
         console.error('Firebase sign-in failed', err);
         alert(err.message || 'Could not sign in.');
@@ -1761,7 +1790,6 @@ function getUserTradesCol() {
         await signOut(auth);
         setAuthStatus('Not signed in', 'idle');
         document.getElementById('auth-password').value = '';
-        saveFormState();
       } catch (err) {
         console.error('Firebase sign-out failed', err);
         alert(err.message || 'Could not sign out.');
@@ -1769,116 +1797,30 @@ function getUserTradesCol() {
     }
 
     onAuthStateChanged(auth, function (user) {
-        if (user) {
-          document.body.classList.add('auth-ready');
-          document.getElementById('signout-btn').style.display = 'block';
-          document.getElementById('auth-email').value = user.email || '';
-          setAuthStatus('Signed in as ' + user.email, 'go');
-          syncUserTrades(user.uid);
-        } else {
-          document.getElementById('signout-btn').style.display = 'none';
-          if (userTradeListener) {
-            userTradeListener();
-            userTradeListener = null;
-          }
-          document.body.classList.remove('auth-ready');
-          document.getElementById('auth-email').value = '';
-          trades = [];
-          renderJ();
-          setAuthStatus('Not signed in', 'idle');
+      if (user) {
+        document.body.classList.add('auth-ready');
+        document.getElementById('auth-email').value = user.email || '';
+        setAuthStatus('Signed in as ' + user.email, 'go');
+        syncUserTrades(user.uid);
+      } else {
+        if (userTradeListener) {
+          userTradeListener();
+          userTradeListener = null;
+        }
+        document.body.classList.remove('auth-ready');
+        document.getElementById('auth-email').value = '';
+        trades = [];
+        renderJ();
+        setAuthStatus('Not signed in', 'idle');
       }
     });
 
     var trades = [], checks = [false, false, false, false, false, false];
     var gexEnv = '', walls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0 };
-    var gapSize = 0;
+    var gapSize = 0, fvAdj = 0;
     var scnState = { calls: '', puts: '', dom: '' };
     var scnMap = { calls: { above: 'sc-ca', both: 'sc-cb', none: 'sc-cn', on: 'sc-co' }, puts: { below: 'sc-pb', both: 'sc-pp', none: 'sc-pn', on: 'sc-po' }, dom: { calls: 'sc-dc', equal: 'sc-de', puts: 'sc-dp' } };
     var userTradeListener = null;
-    var formStorageKey = 'dte_trader_form_state_v1';
-
-    function saveFormState() {
-      var state = {
-        form: {},
-        app: {
-          gexEnv: gexEnv,
-          scnState: scnState,
-          checks: checks,
-          swingChecks: swingChecks,
-          activeTab: document.querySelector('.tab.on') ? document.querySelector('.tab.on').textContent.trim() : 'setup'
-        }
-      };
-
-      document.querySelectorAll('input, select').forEach(function (el) {
-        if (!el.id || el.id === 'auth-password') return;
-        state.form[el.id] = el.type === 'checkbox' ? !!el.checked : el.value;
-      });
-
-      try { localStorage.setItem(formStorageKey, JSON.stringify(state)); } catch (e) { }
-    }
-
-    function restoreFormState() {
-      try {
-        var raw = localStorage.getItem(formStorageKey);
-        if (!raw) return;
-        var state = JSON.parse(raw);
-        if (state.form) {
-          Object.keys(state.form).forEach(function (id) {
-            var el = document.getElementById(id);
-            if (!el || id === 'auth-password') return;
-            if (el.type === 'checkbox') { el.checked = !!state.form[id]; }
-            else { el.value = state.form[id] || ''; }
-          });
-        }
-
-        if (state.app) {
-          if (state.app.gexEnv) {
-            gexEnv = state.app.gexEnv;
-            setGexEnv(gexEnv);
-          }
-          if (state.app.scnState) {
-            scnState = { calls: '', puts: '', dom: '' };
-            Object.keys(state.app.scnState).forEach(function (group) {
-              if (state.app.scnState[group]) {
-                scnState[group] = state.app.scnState[group];
-                var el = document.getElementById(scnMap[group][state.app.scnState[group]]);
-                if (el) el.classList.add('sel');
-              }
-            });
-          }
-          if (Array.isArray(state.app.checks)) {
-            checks = [false, false, false, false, false, false];
-            state.app.checks.forEach(function (on, i) {
-              if (on) {
-                checks[i] = true;
-                var b = document.getElementById('cb' + i);
-                if (b) b.classList.add('on');
-              }
-            });
-            refreshVerdict();
-          }
-          if (Array.isArray(state.app.swingChecks)) {
-            swingChecks = [false, false, false, false, false, false, false];
-            state.app.swingChecks.forEach(function (on, i) {
-              if (on) {
-                swingChecks[i] = true;
-                var b = document.getElementById('scb' + i);
-                if (b) b.classList.add('on');
-              }
-            });
-            refreshSwingVerdict();
-          }
-        }
-      } catch (e) { }
-    }
-
-    function bindFormPersistence() {
-      document.querySelectorAll('input, select').forEach(function (el) {
-        if (!el.id || el.id === 'auth-password') return;
-        el.addEventListener('input', saveFormState);
-        el.addEventListener('change', saveFormState);
-      });
-    }
 
     function getUserStorageKey(uid) {
       return 'qqq_v8_' + (uid || 'guest');
@@ -1896,7 +1838,7 @@ function getUserTradesCol() {
         return;
       }
 
-const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('createdAt', 'desc'));
+      const userTradesQuery = query(tradesCol, where('uid', '==', uid), orderBy('createdAt', 'desc'));
       userTradeListener = onSnapshot(userTradesQuery, (snap) => {
         trades = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         try { localStorage.setItem(getUserStorageKey(uid), JSON.stringify(trades)); } catch (e) { }
@@ -1939,6 +1881,35 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
 
     function nv(id) { var el = document.getElementById(id); return el ? parseFloat(el.value) || 0 : 0; }
 
+    // FAIR VALUE ADJUSTMENT
+    function calcFV() {
+      var es = nv('fv-es'), spx = nv('fv-spx');
+      if (!es || !spx) {
+        fvAdj = 0;
+        document.getElementById('fv-result').style.display = 'none';
+        calcWalls(); return;
+      }
+      fvAdj = Math.round((es - spx) * 10) / 10;
+      var spy = (spx / 10).toFixed(1);
+      document.getElementById('fv-adj').textContent = (fvAdj >= 0 ? '+' : '') + fvAdj + ' pts';
+      document.getElementById('fv-cash').textContent = spx;
+      document.getElementById('fv-spy').textContent = spy;
+      var noteEl = document.getElementById('fv-note');
+      if (Math.abs(fvAdj) < 5) {
+        noteEl.textContent = 'Adjustment small — near futures expiration. Walls need minimal correction.';
+        noteEl.style.color = '#34c759';
+      } else if (Math.abs(fvAdj) <= 25) {
+        noteEl.textContent = 'Normal adjustment — all wall strikes reduced by ' + fvAdj.toFixed(0) + 'pts to get SPX cash equivalent.';
+        noteEl.style.color = '#007aff';
+      } else {
+        noteEl.textContent = 'Large adjustment — double-check ES and SPX prices are both current.';
+        noteEl.style.color = '#ff9500';
+      }
+      document.getElementById('fv-result').style.display = 'block';
+      calcWalls();
+      saveFormState();
+    }
+
     // GAP
     function calcGap() {
       var cl = nv('g-close'), pm = nv('g-pm');
@@ -1968,7 +1939,6 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       if (walls.callWall > 0 || walls.putWall > 0) calcWalls();
       if (scnState.calls || scnState.puts) interpretScenario();
       updateEntrySummary();
-      saveFormState();
     }
 
     // TARGET DISPLAY
@@ -1981,31 +1951,47 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
 
     // WALLS
     function calcWalls() {
-      var spx = nv('wspx'), cw = nv('wspx-call'), pw = nv('wspx-put');
-      if (!cw && !pw) { document.getElementById('wall-card').style.display = 'none'; walls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0 }; updateEntrySummary(); return; }
+      var spx = nv('wspx'), cwRaw = nv('wspx-call'), pwRaw = nv('wspx-put');
+      if (!cwRaw && !pwRaw) {
+        document.getElementById('wall-card').style.display = 'none';
+        walls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0 };
+        updateEntrySummary(); return;
+      }
+      // Convert ES optioncharts strikes to SPX cash by subtracting fair value adjustment
+      var cw = cwRaw > 0 ? Math.round((cwRaw - fvAdj) * 10) / 10 : 0;
+      var pw = pwRaw > 0 ? Math.round((pwRaw - fvAdj) * 10) / 10 : 0;
+      // SPY equivalents (SPX / 10, rounded to 2dp)
+      var cwSpy = cw > 0 ? (cw / 10).toFixed(1) : 0;
+      var pwSpy = pw > 0 ? (pw / 10).toFixed(1) : 0;
       // Always use absolute distance — wall can be above OR below price
       var ptc = spx > 0 && cw > 0 ? Math.abs(cw - spx) : 0;
       var ptp = spx > 0 && pw > 0 ? Math.abs(pw - spx) : 0;
       // Direction: is wall above or below current price?
       var callAbove = spx > 0 && cw > 0 && cw > spx;
-      var putAbove = spx > 0 && pw > 0 && pw > spx; // price broke below put wall — put wall now above
-      var callBelow = spx > 0 && cw > 0 && cw < spx; // price broke above call wall — call wall now below
+      var putAbove = spx > 0 && pw > 0 && pw > spx;
+      var callBelow = spx > 0 && cw > 0 && cw < spx;
       walls = { callWall: cw, putWall: pw, ptsToCall: ptc, ptsToPut: ptp, bullTgt: cw > 0 ? cw - 5 : 0, bearTgt: pw > 0 ? pw + 5 : 0 };
       document.getElementById('wall-card').style.display = 'block';
-      // Call wall display
+      // Show converted SPX cash and SPY values
+      var adjLabel = fvAdj > 0 ? ' (−' + fvAdj + ' adj)' : '';
+      document.getElementById('wd-cwall-cash').textContent = cw > 0 ? cw + adjLabel : '—';
+      document.getElementById('wd-pwall-cash').textContent = pw > 0 ? pw + adjLabel : '—';
+      document.getElementById('wd-cwall-spy').textContent = cwSpy > 0 ? cwSpy : '—';
+      document.getElementById('wd-pwall-spy').textContent = pwSpy > 0 ? pwSpy : '—';
+      // Call wall distance display
       var ptcEl = document.getElementById('wd-ptsc');
-      var callLabel = ptc > 0 ? ptc.toFixed(0) + ' pts ' + (callAbove ? 'above' : '⚠ BELOW price — price above call wall') + (ptc < 15 && callAbove ? ' ⚠ too close' : '') : '—';
-      ptcEl.textContent = callLabel;
+      var callLabel2 = ptc > 0 ? ptc.toFixed(0) + ' pts ' + (callAbove ? 'above' : '⚠ BELOW price — price above call wall') + (ptc < 15 && callAbove ? ' ⚠ too close' : '') : '—';
+      ptcEl.textContent = callLabel2;
       ptcEl.className = 'rv' + (callBelow ? ' o' : ptc > 0 && ptc < 15 && callAbove ? ' r' : '');
-      // Put wall display
+      // Put wall distance display
       var ptpEl = document.getElementById('wd-ptsp');
-      var putLabel = ptp > 0 ? ptp.toFixed(0) + ' pts ' + (putAbove ? '⚠ ABOVE price — price below put wall' : 'below') + (ptp < 15 && !putAbove ? ' ⚠ too close' : '') : '—';
-      ptpEl.textContent = putLabel;
+      var putLabel2 = ptp > 0 ? ptp.toFixed(0) + ' pts ' + (putAbove ? '⚠ ABOVE price — price below put wall' : 'below') + (ptp < 15 && !putAbove ? ' ⚠ too close' : '') : '—';
+      ptpEl.textContent = putLabel2;
       ptpEl.className = 'rv' + (putAbove ? ' o' : ptp > 0 && ptp < 15 ? ' r' : '');
-      // Exit targets
-      document.getElementById('wd-bt').textContent = cw > 0 ? 'Exit near ' + (cw - 5) + ' (5pts before ' + cw + ' call wall)' : '—';
-      document.getElementById('wd-bert').textContent = pw > 0 ? 'Exit near ' + (pw + 5) + ' (5pts before ' + pw + ' put wall)' : '—';
-      // Special situation alerts
+      // Exit targets using converted SPX cash prices
+      document.getElementById('wd-bt').textContent = cw > 0 ? 'Exit near ' + (cw - 5).toFixed(0) + ' SPX / ' + ((cw - 5) / 10).toFixed(1) + ' SPY (5pts before ' + cw + ')' : '—';
+      document.getElementById('wd-bert').textContent = pw > 0 ? 'Exit near ' + (pw + 5).toFixed(0) + ' SPX / ' + ((pw + 5) / 10).toFixed(1) + ' SPY (5pts before ' + pw + ')' : '—';
+      // Wall behavior
       var beh = document.getElementById('wd-behavior');
       if (putAbove && gexEnv === 'trend') { beh.textContent = 'Price broke below put wall — negative GEX accelerates further downside. Put wall now resistance above.'; beh.className = 'rv r'; }
       else if (callBelow && gexEnv === 'trend') { beh.textContent = 'Price broke above call wall — negative GEX accelerates further upside. Call wall now support below.'; beh.className = 'rv g'; }
@@ -2024,7 +2010,6 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       if (scnState[group] === val) { scnState[group] = ''; }
       else { scnState[group] = val; var el = document.getElementById(scnMap[group][val]); if (el) el.classList.add('sel'); }
       interpretScenario();
-      saveFormState();
     }
 
     function interpretScenario() {
@@ -2211,7 +2196,6 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       var b = document.getElementById('cb' + i);
       if (checks[i]) b.classList.add('on'); else b.classList.remove('on');
       refreshVerdict();
-      saveFormState();
     }
 
     function refreshVerdict() {
@@ -2281,19 +2265,19 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       document.getElementById('calc-res').style.display = 'none';
       document.getElementById('e-verdict').className = 'sig idle';
       document.getElementById('e-verdict').innerHTML = '<div class="sigt">Tick the checks above</div><div class="ss">Start with 15min — VWAP sloping + price clearly outside zone?</div>';
-      saveFormState();
     }
 
     function resetSetup() {
-      gexEnv = ''; gapSize = 0; scnState = { calls: '', puts: '', dom: '' };
+      gexEnv = ''; gapSize = 0; fvAdj = 0; scnState = { calls: '', puts: '', dom: '' };
       ['trend', 'zero', 'pin'].forEach(function (e) { document.getElementById('gb-' + e).className = 'gex-btn'; });
       document.getElementById('gex-env-box').className = 'sig idle';
       document.getElementById('gex-env-t').textContent = 'Select net GEX above';
       document.getElementById('gex-env-s').textContent = 'Tap the environment from optioncharts.io';
-      ['wspx-call', 'wspx-put', 'wspx', 'g-close', 'g-pm'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      ['wspx-call', 'wspx-put', 'wspx', 'g-close', 'g-pm', 'fv-es', 'fv-spx'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
       Object.values(scnMap).forEach(function (g) { Object.values(g).forEach(function (id) { var el = document.getElementById(id); if (el) el.classList.remove('sel'); }); });
       document.getElementById('wall-card').style.display = 'none';
       document.getElementById('gap-result').style.display = 'none';
+      document.getElementById('fv-result').style.display = 'none';
       document.getElementById('scn-result').style.display = 'none';
       document.getElementById('scn-detail').style.display = 'none';
       walls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0 };
@@ -2323,14 +2307,13 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
         try { localStorage.setItem(getUserStorageKey(auth.currentUser.uid), JSON.stringify(trades)); } catch (e) { }
       }
       ['j-type', 'j-entry', 'j-exit', 'j-result', 'j-gex', 'j-touch', 'j-rules', 'j-note'].forEach(function (id) { document.getElementById(id).value = ''; });
-      saveFormState();
       renderJ();
       if (!auth.currentUser) {
         alert('Sign in with email/password to sync this entry to Firebase.');
         return;
       }
       try {
-        await addDoc(getUserTradesCol(), trade);
+        await addDoc(tradesCol, { ...trade, uid: auth.currentUser.uid });
       } catch (e) {
         console.error('Firestore write failed', e);
         alert('Saved locally. Cloud sync failed — check Firestore rules / network.');
@@ -2376,7 +2359,7 @@ const userTradesQuery = query(collection(db, 'users', uid, 'trades'), orderBy('c
       try { localStorage.removeItem(getUserStorageKey(auth.currentUser.uid)); } catch (e) { }
       renderJ();
       try {
-const snap = await getDocs(collection(db, 'users', auth.currentUser.uid, 'trades'));
+        const snap = await getDocs(query(tradesCol, where('uid', '==', auth.currentUser.uid)));
         const batch = writeBatch(db);
         snap.docs.forEach(d => batch.delete(d.ref));
         await batch.commit();
@@ -2393,7 +2376,6 @@ const snap = await getDocs(collection(db, 'users', auth.currentUser.uid, 'trades
       var b = document.getElementById('scb' + i);
       if (swingChecks[i]) b.classList.add('on'); else b.classList.remove('on');
       refreshSwingVerdict();
-      saveFormState();
     }
     function refreshSwingVerdict() {
       var weeklyOk = swingChecks[0] && swingChecks[1];
@@ -2425,18 +2407,13 @@ const snap = await getDocs(collection(db, 'users', auth.currentUser.uid, 'trades
     // Expose functions for inline onclick/oninput (module scope is not global)
     Object.assign(window, {
       setGexEnv, setScn, resetSetup, ct, resetEntry, addTrade, clearAll,
-      sct, resetSwing, sp, calcWalls, calcGap, calcFill,
+      sct, resetSwing, sp, calcWalls, calcGap, calcFill, calcFV,
       signUpWithEmailPassword, signInWithEmailPassword, signOutCurrentUser
     });
 
     // INIT
     document.body.classList.remove('auth-ready');
-    bindFormPersistence();
-    restoreFormState();
-    if (!document.getElementById('j-date').value) {
-      document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
-    }
-    saveFormState();
+    document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
     renderJ();
     updateEntrySummary();
     updateTargetDisplay();
