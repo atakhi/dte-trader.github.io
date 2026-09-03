@@ -842,13 +842,18 @@
       <button class="btn prim" onclick="signInWithEmailPassword()">Sign in</button>
       <button class="btn sec" onclick="signUpWithEmailPassword()">Create account</button>
     </div>
-    <button id="signout-btn" class="btn sec" onclick="signOutCurrentUser()" style="display:none">Sign out</button>
+    <button class="btn sec" onclick="signOutCurrentUser()">Sign out</button>
   </div>
 
   <div id="app-shell" class="app-shell">
     <div class="hdr">
       <h1>0DTE Trader</h1>
-      <span class="wb off" id="wb">—</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="wb off" id="wb">—</span>
+        <button id="signout-btn" onclick="signOutCurrentUser()"
+          style="display:none;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#fff1f0;color:#c0392b;cursor:pointer">Sign
+          out</button>
+      </div>
     </div>
 
     <!-- ══ SETUP PAGE ══ -->
@@ -1014,16 +1019,26 @@
       </div>
 
       <div class="lbl">Checklist — top down, in order</div>
+
+      <div class="card" style="padding:12px;background:#f0f4ff;border:1px solid #c5d3f5;margin-bottom:10px">
+        <div style="font-size:12px;color:#2c5aaa;line-height:1.6">
+          <strong>Pre-market bias (do this before open):</strong> Check 15min chart from yesterday's close — is macro
+          structure bullish or bearish? Combined with today's GEX this sets your directional bias before the open. Do
+          not trade against this bias without a strong reason.
+        </div>
+      </div>
+
       <div class="card" style="padding:0">
-        <div class="shdr blue">Step 1 — 15min · Trend by 10:15am</div>
+        <div class="shdr blue">Step 1 — 5min · Trend confirm by 9:55am</div>
         <div class="ch" onclick="ct(0)">
           <div class="cb" id="cb0"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
               stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
               <polyline points="2,6 5,9 10,3" />
             </svg></div>
           <div>
-            <div class="cl">Bullish — VWAP sloping up</div>
-            <div class="cs">VWAP up + price 10–15pts above (SPX) / 5pts (QQQ) + EMA9 up. All three aligned.</div>
+            <div class="cl">Bullish — 5min VWAP sloping up</div>
+            <div class="cs">VWAP up + price 10–15pts above (SPX) / 5pts (QQQ) + EMA9 sloping up. All three. Read from
+              9:45am — first 3 candles after open.</div>
           </div>
         </div>
         <div class="ch" onclick="ct(1)">
@@ -1032,23 +1047,24 @@
               <polyline points="2,6 5,9 10,3" />
             </svg></div>
           <div>
-            <div class="cl">Bearish — VWAP sloping down</div>
-            <div class="cs">VWAP down + price 10–15pts below (SPX) / 5pts (QQQ) + EMA9 down. All three aligned.</div>
+            <div class="cl">Bearish — 5min VWAP sloping down</div>
+            <div class="cs">VWAP down + price 10–15pts below (SPX) / 5pts (QQQ) + EMA9 sloping down. All three. Read
+              from 9:45am.</div>
           </div>
         </div>
-        <div style="padding:7px 14px;font-size:11px;color:#8e8e93;border-bottom:0.5px solid #f2f2f7">Within 5pts of VWAP
-          =
-          no trade. Near-zero GEX: clear by 10:15am or skip day.</div>
+        <div style="padding:7px 14px;font-size:11px;color:#8e8e93;border-bottom:0.5px solid #f2f2f7">9:30–9:45am = watch
+          only. Gap 20pts+: skip — overnight move already done. Near-zero GEX: require clear signal by 9:55am or skip.
+        </div>
 
-        <div class="shdr orange">Step 2 — 5min · Setup</div>
+        <div class="shdr orange">Step 2 — 2min · Setup building</div>
         <div class="ch" onclick="ct(2)">
           <div class="cb" id="cb2"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
               stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
               <polyline points="2,6 5,9 10,3" />
             </svg></div>
           <div>
-            <div class="cl">VWAP + EMA9 both confirm direction</div>
-            <div class="cs">5min candle on correct side of VWAP. EMA9 sloping same way. Not extended 25+pts from VWAP.
+            <div class="cl">2min VWAP + EMA9 confirm direction</div>
+            <div class="cs">2min candle on correct side of VWAP. EMA9 sloping same way. Not extended 25+pts from VWAP.
             </div>
           </div>
         </div>
@@ -1058,20 +1074,22 @@
               <polyline points="2,6 5,9 10,3" />
             </svg></div>
           <div>
-            <div class="cl">Price pulling back toward EMA9</div>
-            <div class="cs">Candles drifting toward orange EMA9. Not within 15pts (SPX) / 5pts (QQQ) of a wall.</div>
+            <div class="cl">Price pulling back toward 2min EMA9</div>
+            <div class="cs">Candles drifting toward orange EMA9. Not within 15pts (SPX) / 5pts (QQQ) of a wall. Not
+              chasing.</div>
           </div>
         </div>
 
-        <div class="shdr green">Step 3 — 2min · First EMA9 touch only</div>
+        <div class="shdr green">Step 3 — 1min · First EMA9 touch only</div>
         <div class="ch" onclick="ct(4)">
           <div class="cb" id="cb4"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
               stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
               <polyline points="2,6 5,9 10,3" />
             </svg></div>
           <div>
-            <div class="cl">Wick touched EMA9 — first touch of the day</div>
-            <div class="cs">Candle wick reached EMA9. This is the FIRST touch today — not 2nd or 3rd.</div>
+            <div class="cl">1min wick touched EMA9 — FIRST touch only</div>
+            <div class="cs">Candle wick reached EMA9 on 1min chart. Count your touches — this must be the first one
+              today.</div>
           </div>
         </div>
         <div class="ch" onclick="ct(5)">
@@ -1080,12 +1098,13 @@
               <polyline points="2,6 5,9 10,3" />
             </svg></div>
           <div>
-            <div class="cl">Bounce candle closed away ← enter on this close</div>
-            <div class="cs">Body closed in trend direction. If unsure — not a bounce. Wait for next touch.</div>
+            <div class="cl">1min bounce candle closed away ← enter on this close</div>
+            <div class="cs">Body closed in trend direction away from EMA9. If unsure — not a bounce. Wait for next
+              touch.</div>
           </div>
         </div>
-        <div style="padding:7px 14px;font-size:11px;color:#8e8e93">Enter on candle CLOSE only. 2nd or 3rd touch = move
-          exhausted = do not enter.</div>
+        <div style="padding:7px 14px;font-size:11px;color:#8e8e93">Enter on 1min candle CLOSE only. 2nd or 3rd touch =
+          exhausted = skip. 1min has more touches — count carefully.</div>
       </div>
 
       <div class="sbar">
@@ -1095,7 +1114,7 @@
 
       <div id="e-verdict" class="sig idle" style="margin-bottom:10px">
         <div class="sigt">Tick the checks above</div>
-        <div class="ss">Start with 15min — VWAP sloping + price clearly outside zone?</div>
+        <div class="ss">Start with 5min from 9:45am — VWAP sloping + price clearly outside zone?</div>
       </div>
 
       <div id="e-trade" style="display:none">
@@ -1119,11 +1138,11 @@
         <div id="tgt-neg" class="tgt-box tgt-neg" style="display:none">
           <div class="tgt-title" style="color:#1a7f37">Negative GEX — Trending · Let it run</div>
           <div id="tgt-neg-early" style="margin-bottom:6px">
-            <div class="tgt-row"><span>Early half exit (10:00–10:30)</span><span class="g">+$100 / contract</span></div>
+            <div class="tgt-row"><span>Early half exit (9:50–10:15)</span><span class="g">+$100 / contract</span></div>
             <div class="tgt-row"><span>Early full exit</span><span class="g">+$200 / contract</span></div>
           </div>
           <div id="tgt-neg-late">
-            <div class="tgt-row"><span>Late half exit (10:30–11:00)</span><span class="g">+$70 / contract</span></div>
+            <div class="tgt-row"><span>Late half exit (10:15–11:00)</span><span class="g">+$70 / contract</span></div>
             <div class="tgt-row"><span>Late full exit</span><span class="g">+$130 / contract</span></div>
           </div>
           <div class="tgt-row" style="margin-top:6px;border-top:0.5px solid #b7e4c7;padding-top:6px"><span>Wall
@@ -1132,11 +1151,11 @@
         <div id="tgt-pin" class="tgt-box tgt-pin" style="display:none">
           <div class="tgt-title" style="color:#c0392b">Positive GEX — Pinning · Take quickly</div>
           <div id="tgt-pin-early" style="margin-bottom:6px">
-            <div class="tgt-row"><span>Early half exit (10:00–10:30)</span><span class="r">+$50 / contract</span></div>
+            <div class="tgt-row"><span>Early half exit (9:50–10:15)</span><span class="r">+$50 / contract</span></div>
             <div class="tgt-row"><span>Early full exit</span><span class="r">+$80 / contract</span></div>
           </div>
           <div id="tgt-pin-late">
-            <div class="tgt-row"><span>Late half exit (10:30–11:00)</span><span class="r">+$30 / contract</span></div>
+            <div class="tgt-row"><span>Late half exit (10:15–11:00)</span><span class="r">+$30 / contract</span></div>
             <div class="tgt-row"><span>Late full exit</span><span class="r">+$50 / contract</span></div>
           </div>
           <div class="tgt-row" style="margin-top:6px;border-top:0.5px solid #ffb3b3;padding-top:6px"><span>Wall
@@ -1145,11 +1164,11 @@
         <div id="tgt-zero" class="tgt-box tgt-zero" style="display:none">
           <div class="tgt-title" style="color:#b7620a">Near Zero GEX — Take what you get</div>
           <div id="tgt-zero-early" style="margin-bottom:6px">
-            <div class="tgt-row"><span>Early half exit (10:00–10:30)</span><span class="o">+$40 / contract</span></div>
+            <div class="tgt-row"><span>Early half exit (9:50–10:15)</span><span class="o">+$40 / contract</span></div>
             <div class="tgt-row"><span>Early full exit</span><span class="o">+$60 / contract</span></div>
           </div>
           <div id="tgt-zero-late">
-            <div class="tgt-row"><span>Late half exit (10:30–11:00)</span><span class="o">+$25 / contract</span></div>
+            <div class="tgt-row"><span>Late half exit (10:15–11:00)</span><span class="o">+$25 / contract</span></div>
             <div class="tgt-row"><span>Late full exit</span><span class="o">+$40 / contract</span></div>
           </div>
           <div class="tgt-row" style="margin-top:6px;border-top:0.5px solid #ffe0a3;padding-top:6px"><span>Wall
@@ -1298,40 +1317,44 @@
       <div class="card" style="padding:0">
         <div class="er">
           <div class="dot" style="background:#5856d6"></div>
-          <div><strong>Pre-market:</strong> Read net GEX on optioncharts.io. Note call wall and put wall strikes. Check
-            gap vs yesterday close. Enter in Setup tab.</div>
+          <div><strong>Pre-market bias:</strong> Check 15min chart from yesterday's close — macro structure bullish or
+            bearish? Combined with today's GEX this sets directional bias before open. Do not trade against this without
+            strong reason.</div>
         </div>
         <div class="er">
           <div class="dot" style="background:#ff9500"></div>
-          <div><strong>Near-zero GEX:</strong> Need clear VWAP slope + price outside zone + EMA9 aligned by 10:15am. If
-            unclear → skip day. No exceptions.</div>
+          <div><strong>Near-zero GEX:</strong> Need clear 5min VWAP slope + price outside zone + EMA9 aligned by 9:55am.
+            If unclear → skip day. No exceptions.</div>
         </div>
         <div class="er">
           <div class="dot" style="background:#007aff"></div>
-          <div><strong>Gap rule:</strong> Under 10pts normal. 10–25pts wait for fresh leg. 25pts+ move may be mature —
-            skip or require exceptional signal.</div>
+          <div><strong>Gap rule:</strong> Under 10pts normal. 10–20pts caution — wait for fresh leg. 20pts+ skip —
+            overnight move already done, nothing left for your window.</div>
         </div>
         <div class="er">
           <div class="dot" style="background:#007aff"></div>
-          <div><strong>15min trend:</strong> VWAP sloping + price 10–15pts clear (SPX) / 5pts (QQQ) + EMA9 aligned. All
-            three. Within zone = no trade. 25pts+ extended = skip.</div>
+          <div><strong>9:30–9:45am — watch only:</strong> First 3 five-minute candles are noise. Let the open settle.
+            Read 5min trend from 9:45am onwards.</div>
+        </div>
+        <div class="er">
+          <div class="dot" style="background:#007aff"></div>
+          <div><strong>5min trend (9:45–9:55am):</strong> VWAP sloping + price 10–15pts clear (SPX) / 5pts (QQQ) + EMA9
+            aligned. All three. Within zone = no trade. 25pts+ extended = skip.</div>
         </div>
         <div class="er">
           <div class="dot" style="background:#ff9500"></div>
-          <div><strong>5min setup:</strong> VWAP + EMA9 confirm direction. Price pulling back toward EMA9. Not within
-            15pts (SPX) / 5pts (QQQ) of a wall.</div>
+          <div><strong>2min setup:</strong> VWAP + EMA9 confirm direction on 2min. Price pulling back toward EMA9. Not
+            within 15pts (SPX) / 5pts (QQQ) of a wall.</div>
         </div>
         <div class="er">
           <div class="dot" style="background:#34c759"></div>
-          <div><strong>2min entry:</strong> First EMA9 touch only. Wick touches EMA9. Body closes away in trend
-            direction.
-            Enter on candle close. 2nd or 3rd touch = exhausted = skip.</div>
+          <div><strong>1min entry:</strong> First EMA9 touch only — count carefully. Wick touches EMA9. Body closes away
+            in trend direction. Enter on 1min candle close. 2nd or 3rd touch = exhausted = skip.</div>
         </div>
         <div class="er">
           <div class="dot" style="background:#ff3b30"></div>
           <div><strong>Time rules:</strong> No entry after 11:00am. Close all by 11:30am. One trade per day. Stopped
-            trade
-            counts — no re-entry.</div>
+            trade counts — no re-entry.</div>
         </div>
       </div>
 
@@ -1985,16 +2008,15 @@
       }
 
       onAuthStateChanged(auth, function (user) {
-        var signoutBtn = document.getElementById('signout-btn');
         if (user) {
           document.body.classList.add('auth-ready');
-          if (signoutBtn) signoutBtn.style.display = 'block';
+          document.getElementById('signout-btn').style.display = 'block';
           document.getElementById('auth-email').value = user.email || '';
           setAuthStatus('Signed in as ' + user.email, 'go');
           syncUserTrades(user.uid);
           lottLoadFromFirestore(user.uid);
         } else {
-          if (signoutBtn) signoutBtn.style.display = 'none';
+          document.getElementById('signout-btn').style.display = 'none';
           if (userTradeListener) {
             userTradeListener();
             userTradeListener = null;
@@ -2014,90 +2036,6 @@
       var scnState = { calls: '', puts: '', dom: '' };
       var scnMap = { calls: { above: 'sc-ca', both: 'sc-cb', none: 'sc-cn', on: 'sc-co' }, puts: { below: 'sc-pb', both: 'sc-pp', none: 'sc-pn', on: 'sc-po' }, dom: { calls: 'sc-dc', equal: 'sc-de', puts: 'sc-dp' } };
       var userTradeListener = null;
-      var formStorageKey = 'dte_trader_form_state_v1';
-
-      function saveFormState() {
-        var state = {
-          form: {},
-          app: {
-            gexEnv: gexEnv,
-            scnState: scnState,
-            checks: checks.slice(),
-            swingChecks: swingChecks.slice(),
-            activeTab: document.querySelector('.tab.on') ? document.querySelector('.tab.on').getAttribute('onclick') : null
-          }
-        };
-
-        document.querySelectorAll('input, select').forEach(function (el) {
-          if (!el.id || el.id === 'auth-password') return;
-          state.form[el.id] = el.type === 'checkbox' ? !!el.checked : el.value;
-        });
-
-        try { localStorage.setItem(formStorageKey, JSON.stringify(state)); } catch (e) { }
-      }
-
-      function restoreFormState() {
-        try {
-          var raw = localStorage.getItem(formStorageKey);
-          if (!raw) return;
-          var state = JSON.parse(raw);
-
-          if (state.form) {
-            Object.keys(state.form).forEach(function (id) {
-              var el = document.getElementById(id);
-              if (!el || id === 'auth-password') return;
-              if (el.type === 'checkbox') { el.checked = !!state.form[id]; }
-              else { el.value = state.form[id] || ''; }
-            });
-          }
-
-          if (state.app) {
-            if (state.app.gexEnv) {
-              gexEnv = state.app.gexEnv;
-              setGexEnv(gexEnv);
-            }
-            if (state.app.scnState) {
-              scnState = { calls: '', puts: '', dom: '' };
-              Object.keys(state.app.scnState).forEach(function (group) {
-                var val = state.app.scnState[group];
-                if (!val) return;
-                scnState[group] = val;
-                var el = document.getElementById(scnMap[group][val]);
-                if (el) el.classList.add('sel');
-              });
-              interpretScenario();
-            }
-            if (Array.isArray(state.app.checks)) {
-              checks = [false, false, false, false, false, false];
-              state.app.checks.forEach(function (on, i) {
-                if (!on) return;
-                checks[i] = true;
-                var b = document.getElementById('cb' + i);
-                if (b) b.classList.add('on');
-              });
-              refreshVerdict();
-            }
-            if (Array.isArray(state.app.swingChecks)) {
-              swingChecks = [false, false, false, false, false, false, false];
-              state.app.swingChecks.forEach(function (on, i) {
-                if (!on) return;
-                swingChecks[i] = true;
-                var b = document.getElementById('scb' + i);
-                if (b) b.classList.add('on');
-              });
-              refreshSwingVerdict();
-            }
-          }
-        } catch (e) { }
-      }
-
-      function bindFormPersistence() {
-        document.querySelectorAll('input, select').forEach(function (el) {
-          if (!el.id || el.id === 'auth-password') return;
-          el.addEventListener('input', saveFormState);
-          el.addEventListener('change', saveFormState);
-        });
-      }
 
       function getUserStorageKey(uid) {
         return 'qqq_v8_' + (uid || 'guest');
@@ -2115,6 +2053,70 @@
           console.warn('Firestore listen failed, using localStorage', err);
           try { var sv = localStorage.getItem(getUserStorageKey(uid)); if (sv) trades = JSON.parse(sv); else trades = []; } catch (e) { trades = []; }
           renderJ();
+        });
+      }
+
+      var formStorageKey = 'dte_trader_form_state_v1';
+
+      function saveFormState() {
+        var state = { form: {}, app: { gexEnv, scnState, checks, swingChecks, activeTab: document.querySelector('.tab.on') ? document.querySelector('.tab.on').textContent.trim() : 'Setup' } };
+        document.querySelectorAll('input, select').forEach(function (el) {
+          if (!el.id || el.id === 'auth-password') return;
+          state.form[el.id] = el.type === 'checkbox' ? !!el.checked : el.value;
+        });
+        try { localStorage.setItem(formStorageKey, JSON.stringify(state)); } catch (e) { }
+      }
+
+      function restoreFormState() {
+        try {
+          var raw = localStorage.getItem(formStorageKey);
+          if (!raw) return;
+          var state = JSON.parse(raw);
+          if (state.form) {
+            Object.keys(state.form).forEach(function (id) {
+              var el = document.getElementById(id);
+              if (!el || id === 'auth-password') return;
+              if (el.type === 'checkbox') el.checked = !!state.form[id];
+              else el.value = state.form[id] || '';
+            });
+          }
+          if (state.app) {
+            if (state.app.gexEnv) { gexEnv = state.app.gexEnv; setGexEnv(gexEnv); }
+            if (state.app.scnState) {
+              scnState = { calls: '', puts: '', dom: '' };
+              Object.keys(state.app.scnState).forEach(function (group) {
+                if (state.app.scnState[group]) {
+                  scnState[group] = state.app.scnState[group];
+                  var el = document.getElementById(scnMap[group][state.app.scnState[group]]);
+                  if (el) el.classList.add('sel');
+                }
+              });
+              if (scnState.calls || scnState.puts) interpretScenario();
+            }
+            if (Array.isArray(state.app.checks)) {
+              checks = [false, false, false, false, false, false];
+              state.app.checks.forEach(function (on, i) {
+                if (on) { checks[i] = true; var b = document.getElementById('cb' + i); if (b) b.classList.add('on'); }
+              });
+              refreshVerdict();
+            }
+            if (Array.isArray(state.app.swingChecks)) {
+              swingChecks = [false, false, false, false, false, false, false];
+              state.app.swingChecks.forEach(function (on, i) {
+                if (on) { swingChecks[i] = true; var b = document.getElementById('scb' + i); if (b) b.classList.add('on'); }
+              });
+              refreshSwingVerdict();
+            }
+            calcGap(); calcWalls(); calcFV();
+          }
+        } catch (e) { console.warn('restoreFormState failed', e); }
+      }
+
+      function bindFormPersistence() {
+        document.querySelectorAll('input, select').forEach(function (el) {
+          if (!el.id || el.id === 'auth-password') return;
+          el.addEventListener('input', saveFormState);
+          el.addEventListener('change', saveFormState);
         });
       }
 
@@ -2203,7 +2205,6 @@
         if (walls.callWall > 0 || walls.putWall > 0) calcWalls();
         if (scnState.calls || scnState.puts) interpretScenario();
         updateEntrySummary();
-        saveFormState();
       }
 
       // TARGET DISPLAY
@@ -2275,7 +2276,6 @@
         if (scnState[group] === val) { scnState[group] = ''; }
         else { scnState[group] = val; var el = document.getElementById(scnMap[group][val]); if (el) el.classList.add('sel'); }
         interpretScenario();
-        saveFormState();
       }
 
       function interpretScenario() {
@@ -2462,7 +2462,6 @@
         var b = document.getElementById('cb' + i);
         if (checks[i]) b.classList.add('on'); else b.classList.remove('on');
         refreshVerdict();
-        saveFormState();
       }
 
       function refreshVerdict() {
@@ -2484,21 +2483,21 @@
           if (isBear && walls.ptsToPut > 0 && walls.ptsToPut < 15) warn = ' ⚠ Within 15pts of put wall — skip';
           if (gapSize >= 25) warn += ' ⚠ Large gap — move may be mature';
           vd.className = warn ? 'sig wait' : 'sig go';
-          vd.innerHTML = '<div class="sigt">' + (warn ? 'Caution' : 'Enter now ✓') + ' — ' + ts + '</div><div class="ss">' + (isBull ? 'Buy calls ▲' : 'Buy puts ▼') + (gexEnv === 'pin' ? ' · Pinning — use smaller targets' : gexEnv === 'trend' ? ' · Trending — let it run' : '') + warn + '</div>';
+          vd.innerHTML = '<div class="sigt">' + (warn ? 'Caution' : 'Enter now ✓') + ' — ' + ts + '</div><div class="ss">' + (isBull ? 'Buy calls ▲' : 'Buy puts ▼') + (gexEnv === 'pin' ? ' · Pinning — use smaller targets' : gexEnv === 'trend' ? ' · Trending — let it run' : '') + ' · 1min first touch confirmed' + warn + '</div>';
           tb.style.display = 'block';
           updateTargetDisplay();
           document.getElementById('et-dir').textContent = isBull ? 'Bullish — buy calls ▲' : 'Bearish — buy puts ▼';
           document.getElementById('et-dir').className = isBull ? 'rv g' : 'rv r';
         } else if (hasTrend && setupOk && checks[4] && !checks[5]) {
-          vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Price at EMA9 — watch</div><div class="ss">Wait for bounce candle to close fully away from EMA9. Do not enter yet.</div>'; tb.style.display = 'none';
+          vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Price at 1min EMA9 — watch</div><div class="ss">Wait for bounce candle to close fully away from EMA9 on 1min. Do not enter yet.</div>'; tb.style.display = 'none';
         } else if (hasTrend && setupOk && !checks[4]) {
-          vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Setup confirmed — switch to 2min</div><div class="ss">5min confirmed. Watch 2min for first EMA9 touch.</div>'; tb.style.display = 'none';
+          vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">2min confirmed — switch to 1min</div><div class="ss">2min setup confirmed. Watch 1min for first EMA9 touch. Count touches — first only.</div>'; tb.style.display = 'none';
         } else if (hasTrend && !setupOk) {
-          vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Trend confirmed — check 5min</div><div class="ss">VWAP + EMA9 confirming? Price pulling back toward EMA9? Not extended 25+pts?</div>'; tb.style.display = 'none';
+          vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">5min trend confirmed — check 2min</div><div class="ss">Switch to 2min. VWAP + EMA9 confirming? Price pulling back toward EMA9? Not extended 25+pts?</div>'; tb.style.display = 'none';
         } else {
-          if (gexEnv === 'pin') { vd.className = 'sig no'; vd.innerHTML = '<div class="sigt">Pinning day — consider skipping</div><div class="ss">Positive GEX suppresses moves. Targets are small. Chop risk high.</div>'; }
-          else if (gexEnv === 'zero') { vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Near zero — stricter read</div><div class="ss">Clear VWAP slope + outside zone + EMA9 aligned by 10:15am. If unclear → skip.</div>'; }
-          else { vd.className = 'sig idle'; vd.innerHTML = '<div class="sigt">Start with 15min chart</div><div class="ss">VWAP sloping? Price 10–15pts clear (SPX) / 5pts (QQQ)? EMA9 aligned?</div>'; }
+          if (gexEnv === 'pin') { vd.className = 'sig no'; vd.innerHTML = '<div class="sigt">Pinning day — consider skipping</div><div class="ss">Positive GEX suppresses moves. Targets are small. Chop risk high on lower timeframes.</div>'; }
+          else if (gexEnv === 'zero') { vd.className = 'sig wait'; vd.innerHTML = '<div class="sigt">Near zero — stricter read</div><div class="ss">Clear 5min VWAP slope + outside zone + EMA9 aligned by 9:55am. If unclear → skip.</div>'; }
+          else { vd.className = 'sig idle'; vd.innerHTML = '<div class="sigt">Start with 5min chart at 9:45am</div><div class="ss">VWAP sloping? Price 10–15pts clear (SPX) / 5pts (QQQ)? EMA9 aligned? 9:30–9:45am = watch only.</div>'; }
           tb.style.display = 'none';
         }
       }
@@ -2643,7 +2642,6 @@
         var b = document.getElementById('scb' + i);
         if (swingChecks[i]) b.classList.add('on'); else b.classList.remove('on');
         refreshSwingVerdict();
-        saveFormState();
       }
       function refreshSwingVerdict() {
         var weeklyOk = swingChecks[0] && swingChecks[1];
