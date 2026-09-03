@@ -850,6 +850,8 @@
       <h1>0DTE Trader</h1>
       <div style="display:flex;gap:8px;align-items:center">
         <span class="wb off" id="wb">—</span>
+        <button type="button" onclick="openLotteryFromHeader()"
+          style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#f0f4ff;color:#3a56c0;cursor:pointer">Lottery</button>
         <button id="signout-btn" onclick="signOutCurrentUser()"
           style="display:none;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#fff1f0;color:#c0392b;cursor:pointer">Sign
           out</button>
@@ -859,7 +861,7 @@
     <!-- ══ SETUP PAGE ══ -->
     <div id="pg-setup" class="pg on">
 
-      <div class="lbl">Net GEX <span
+      <div class="lbl">0DTE Setup · Net GEX <span
           style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:#aaa">optioncharts.io · set
           this first</span></div>
       <div class="gex-dir">
@@ -1637,39 +1639,87 @@
       </div>
     </div>
 
-    <!-- ══ SWING PAGE ══ -->
-    <div id="pg-swing" class="pg">
 
+    <!-- ══ SWING SETUP PAGE ══ -->
+    <div id="pg-swsetup" class="pg">
       <div class="sig info" style="margin-bottom:10px">
-        <div class="sigt">Swing / Monthly</div>
-        <div class="ss">Weekly → Daily → 4hr cascade. Same GEX logic, longer timeframe. Paper trade now. Go live at $5k+
-          account.</div>
+        <div class="sigt">Swing Setup</div>
+        <div class="ss">Saved separately from 0DTE. Fill weekly GEX + walls here. Swing Entry uses this data for dates
+          and targets.</div>
       </div>
 
       <div class="lbl">Weekly GEX regime <span
-          style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">check
-          Sunday evening</span></div>
-      <div class="card" style="padding:0">
-        <div class="er">
-          <div class="dot" style="background:#34c759"></div>
-          <div><strong>Negative GEX week:</strong> Trending. Walls accelerate moves through them. Directional bias
-            valid.
-            Confirm daily aligns before entry.</div>
+          style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">check Sunday evening</span></div>
+      <div class="gex-dir">
+        <div class="gex-btn" id="sw-gb-trend" onclick="setSwingGex('trend')">Negative<br><span
+            style="font-size:11px;font-weight:400">Trending</span></div>
+        <div class="gex-btn" id="sw-gb-zero" onclick="setSwingGex('zero')">Near Zero<br><span
+            style="font-size:11px;font-weight:400">Skip week</span></div>
+        <div class="gex-btn" id="sw-gb-pin" onclick="setSwingGex('pin')">Positive<br><span
+            style="font-size:11px;font-weight:400">Pinning</span></div>
+      </div>
+      <div id="sw-gex-env-box" class="sig idle">
+        <div class="sigt" id="sw-gex-env-t">Select weekly net GEX</div>
+        <div class="ss" id="sw-gex-env-s">From optioncharts.io — weekly / all-expiry view</div>
+      </div>
+
+      <div class="lbl">Swing walls + QQQ price</div>
+      <div class="card" style="padding:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div>
+            <div style="font-size:11px;color:#007aff;font-weight:500;margin-bottom:5px">Call wall</div>
+            <input class="inp" id="sw-wcall" type="number" placeholder="e.g. 580" inputmode="numeric"
+              oninput="calcSwingWalls()">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#ff3b30;font-weight:500;margin-bottom:5px">Put wall</div>
+            <input class="inp" id="sw-wput" type="number" placeholder="e.g. 540" inputmode="numeric"
+              oninput="calcSwingWalls()">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#636366;font-weight:500;margin-bottom:5px">QQQ now</div>
+            <input class="inp" id="sw-wprice" type="number" placeholder="e.g. 560" inputmode="numeric"
+              oninput="calcSwingWalls()">
+          </div>
         </div>
-        <div class="er">
-          <div class="dot" style="background:#ff3b30"></div>
-          <div><strong>Positive GEX week:</strong> Pinning. Walls are real bounce levels — use as targets. Tighter
-            moves,
-            may reverse at walls.</div>
+      </div>
+      <div class="card" id="sw-wall-card" style="display:none">
+        <div class="row"><span class="rk">Pts to call wall</span><span class="rv" id="sw-ptsc">—</span></div>
+        <div class="row"><span class="rk">Pts to put wall</span><span class="rv" id="sw-ptsp">—</span></div>
+        <div class="row"><span class="rk">Bull exit (before call wall)</span><span class="rv g" id="sw-bt">—</span>
         </div>
-        <div class="er">
-          <div class="dot" style="background:#ff9500"></div>
-          <div><strong>Near-zero GEX week:</strong> No reliable edge. Wait for regime to clarify. No swing entry this
-            week.</div>
+        <div class="row"><span class="rk">Bear exit (before put wall)</span><span class="rv r" id="sw-bert">—</span>
+        </div>
+        <div class="row"><span class="rk">Wall behavior</span><span class="rv" id="sw-behavior">—</span></div>
+      </div>
+
+      <div class="lbl">Week notes</div>
+      <div class="card" style="padding:12px">
+        <input class="inp" id="sw-setup-note" type="text" placeholder="Bias, events, key levels…">
+      </div>
+      <button class="btn sec" onclick="resetSwingSetup()">Clear swing setup</button>
+    </div>
+
+    <!-- ══ SWING PAGE ══ -->
+    <div id="pg-swin" class="pg">
+
+      <div class="sig info" style="margin-bottom:10px">
+        <div class="sigt">Swing Entry</div>
+        <div class="ss">Uses data from Swing Setup. Long QQQ calls/puts only. Checklist → plan dates/targets → enter.
         </div>
       </div>
 
-      <div class="lbl">Swing entry cascade — tap to check off</div>
+      <div class="lbl">This week's read <span style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">from
+          Swing Setup</span></div>
+      <div class="card">
+        <div class="row"><span class="rk">Weekly GEX</span><span class="rv" id="ses-gex">— set in Swing Setup</span>
+        </div>
+        <div class="row"><span class="rk">Call wall</span><span class="rv r" id="ses-cwall">—</span></div>
+        <div class="row"><span class="rk">Put wall</span><span class="rv g" id="ses-pwall">—</span></div>
+        <div class="row"><span class="rk">QQQ now</span><span class="rv" id="ses-price">—</span></div>
+      </div>
+
+      <div class="lbl">Checklist — weekly → daily → 4hr</div>
       <div class="card" style="padding:0">
         <div class="shdr purple">Level 1 — Weekly · Big trend</div>
         <div class="sw-ch" onclick="sct(0)">
@@ -1760,22 +1810,77 @@
         <div class="ss">Start with weekly — 2+ weeks of same VWAP slope?</div>
       </div>
 
-      <div class="lbl">Swing trade structure</div>
-      <div class="card" style="padding:0">
-        <div class="row"><span class="rk">Instrument</span><span class="rv b">QQQ puts or calls</span></div>
-        <div class="row"><span class="rk">Expiry</span><span class="rv">Buy 45–60 DTE. Close at 30 DTE or target
-            hit.</span></div>
-        <div class="row"><span class="rk">Strike</span><span class="rv">ATM or 1 strike OTM maximum</span></div>
-        <div class="row"><span class="rk">Stop</span><span class="rv r">Daily candle body closes through EMA9 → exit
-            next
-            open</span></div>
-        <div class="row"><span class="rk">Target 1</span><span class="rv o">Nearest GEX wall → close half</span></div>
-        <div class="row"><span class="rk">Target 2</span><span class="rv g">Next GEX wall or 40% gain → close
-            rest</span>
+      <div id="sw-trade" style="display:none">
+        <div class="lbl">Plan this option (long only)</div>
+        <div class="card" style="padding:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Direction</div>
+              <select class="fi" id="sw-plan-dir" onchange="updateSwingPlan()">
+                <option value="">Select</option>
+                <option value="call">Call (bullish)</option>
+                <option value="put">Put (bearish)</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Buy DTE</div>
+              <select class="fi" id="sw-plan-dte" onchange="updateSwingPlan()">
+                <option value="45">45 DTE</option>
+                <option value="50" selected>50 DTE</option>
+                <option value="55">55 DTE</option>
+                <option value="60">60 DTE</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Planned strike</div>
+              <input class="inp" id="sw-plan-strike" type="number" placeholder="ATM or 1 OTM" inputmode="numeric"
+                oninput="updateSwingPlan()">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Fill / est. premium $</div>
+              <input class="inp" id="sw-plan-prem" type="number" step="0.01" placeholder="e.g. 4.50" inputmode="decimal"
+                oninput="updateSwingPlan()">
+            </div>
+          </div>
         </div>
-        <div class="row"><span class="rk">Check schedule</span><span class="rv">Morning + afternoon only. Not all
-            day.</span></div>
+
+        <div class="card" id="sw-plan-result" style="display:none;padding:0">
+          <div class="row"><span class="rk">Target expiration (~buy DTE)</span><span class="rv b"
+              id="sw-exp-date">—</span></div>
+          <div class="row"><span class="rk">Hard exit (~30 DTE left)</span><span class="rv r" id="sw-exit-date">—</span>
+          </div>
+          <div class="row"><span class="rk">Underlying wall target</span><span class="rv" id="sw-plan-wall">—</span>
+          </div>
+          <div class="row"><span class="rk">Suggested half / full</span><span class="rv g" id="sw-plan-tgts">—</span>
+          </div>
+          <div class="row"><span class="rk">Premium risk (1 contract)</span><span class="rv" id="sw-plan-risk">—</span>
+          </div>
+          <div class="row"><span class="rk">% of $3k account</span><span class="rv" id="sw-plan-acct">—</span></div>
+        </div>
+        <div style="font-size:11px;color:#8e8e93;margin:-4px 0 10px;line-height:1.4">Dates snap to the next Friday
+          (typical QQQ weekly expiry). Always confirm the listed expiration and quote on your broker. Live option prices
+          are not fetched here.</div>
+
+        <div class="lbl">Trade structure (long options only)</div>
+        <div class="card" style="padding:0">
+          <div class="row"><span class="rk">Vehicle</span><span class="rv b">QQQ Call or Put (long only)</span></div>
+          <div class="row"><span class="rk">Expiry</span><span class="rv">Buy 45–60 DTE. Close by 30 DTE remaining or
+              target</span></div>
+          <div class="row"><span class="rk">Strike</span><span class="rv">ATM or 1 strike OTM maximum</span></div>
+          <div class="row"><span class="rk">Size</span><span class="rv r">Risk ≤ 0.5–1% of account on premium. Usually 1
+              contract.</span></div>
+          <div class="row"><span class="rk">Stop</span><span class="rv r">Daily body through EMA9 → exit next
+              open</span></div>
+          <div class="row"><span class="rk">Time stop</span><span class="rv r">Still underwater after 5–7 sessions +
+              structure weakens → exit</span></div>
+          <div class="row"><span class="rk">Target 1</span><span class="rv o">Nearest GEX wall → close half</span></div>
+          <div class="row"><span class="rk">Target 2</span><span class="rv g">Trail rest (daily EMA9 / 2× ATR) or +40%
+              of premium</span></div>
+          <div class="row"><span class="rk">Hard rule</span><span class="rv r">Never average down. Never add to a
+              loser.</span></div>
+        </div>
       </div>
+
 
       <div class="lbl">GEX wall behavior on swings</div>
       <div class="card" style="padding:0">
@@ -1796,9 +1901,8 @@
       <div class="lbl">Account size reality</div>
       <div class="card" style="padding:12px;background:#fffbf0;border:1px solid #f5d78e">
         <div style="font-size:13px;color:#7a5200;line-height:1.6"><strong>At $3,000:</strong> ATM QQQ 45–60DTE options
-          cost $400–700 per contract — too large for proper sizing. Deep OTM at $2–3 premium fits the 2% rule but needs
-          a
-          big move to profit. Use this tab for paper trading only until account reaches $5,000–$8,000.</div>
+          cost $400–700 per contract — too large for proper 0.5–1% risk. Use paper or 1 contract only if premium stays
+          inside that limit. Scale live size only after a proven sample.</div>
       </div>
 
       <div class="lbl">Distance reference</div>
@@ -1900,19 +2004,26 @@
       <button class="tab on" onclick="sp('setup',this)">
         <svg viewBox="0 0 24 24">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-        </svg>Setup
+        </svg>0DTE
       </button>
       <button class="tab" onclick="sp('entry',this)">
         <svg viewBox="0 0 24 24">
           <polyline points="9 11 12 14 22 4" />
           <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-        </svg>Entry
+        </svg>Enter
       </button>
-      <button class="tab" onclick="sp('swing',this)">
+      <button class="tab" onclick="sp('swsetup',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 20V10" />
+          <path d="M18 20V4" />
+          <path d="M6 20v-4" />
+        </svg>SwSet
+      </button>
+      <button class="tab" onclick="sp('swin',this)">
         <svg viewBox="0 0 24 24">
           <polyline points="3 17 9 11 13 15 21 7" />
           <polyline points="14 7 21 7 21 14" />
-        </svg>Swing
+        </svg>SwIn
       </button>
       <button class="tab" onclick="sp('journal',this)">
         <svg viewBox="0 0 24 24">
@@ -1928,13 +2039,6 @@
           <line x1="12" y1="8" x2="12" y2="12" />
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>Rules
-      </button>
-      <button class="tab" onclick="sp('lottery',this)">
-        <svg viewBox="0 0 24 24">
-          <rect x="2" y="3" width="20" height="14" rx="2" />
-          <line x1="8" y1="21" x2="16" y2="21" />
-          <line x1="12" y1="17" x2="12" y2="21" />
-        </svg>CDR
       </button>
     </div>
 
@@ -2059,7 +2163,7 @@
       var formStorageKey = 'dte_trader_form_state_v1';
 
       function saveFormState() {
-        var state = { form: {}, app: { gexEnv, scnState, checks, swingChecks, activeTab: document.querySelector('.tab.on') ? document.querySelector('.tab.on').textContent.trim() : 'Setup' } };
+        var state = { form: {}, app: { gexEnv, scnState, checks, swingChecks, swingGexEnv, activeTab: document.querySelector('.tab.on') ? document.querySelector('.tab.on').textContent.trim() : 'Setup' } };
         document.querySelectorAll('input, select').forEach(function (el) {
           if (!el.id || el.id === 'auth-password') return;
           state.form[el.id] = el.type === 'checkbox' ? !!el.checked : el.value;
@@ -2082,6 +2186,7 @@
           }
           if (state.app) {
             if (state.app.gexEnv) { gexEnv = state.app.gexEnv; setGexEnv(gexEnv); }
+            if (state.app.swingGexEnv) { swingGexEnv = state.app.swingGexEnv; setSwingGex(swingGexEnv); }
             if (state.app.scnState) {
               scnState = { calls: '', puts: '', dom: '' };
               Object.keys(state.app.scnState).forEach(function (group) {
@@ -2107,7 +2212,7 @@
               });
               refreshSwingVerdict();
             }
-            calcGap(); calcWalls(); calcFV();
+            calcGap(); calcWalls(); calcFV(); calcSwingWalls(); updateSwingSummary();
           }
         } catch (e) { console.warn('restoreFormState failed', e); }
       }
@@ -2138,10 +2243,19 @@
       function sp(id, btn) {
         document.querySelectorAll('.pg').forEach(function (p) { p.classList.remove('on'); });
         document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('on'); });
-        document.getElementById('pg-' + id).classList.add('on');
-        btn.classList.add('on');
+        var pg = document.getElementById('pg-' + id);
+        if (pg) pg.classList.add('on');
+        if (btn) btn.classList.add('on');
         if (id === 'journal') renderJ();
         if (id === 'entry') updateEntrySummary();
+        if (id === 'swin') { updateSwingSummary(); updateSwingPlan(); refreshSwingVerdict(); }
+        window.scrollTo(0, 0);
+      }
+      function openLotteryFromHeader() {
+        document.querySelectorAll('.pg').forEach(function (p) { p.classList.remove('on'); });
+        document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('on'); });
+        var pg = document.getElementById('pg-lottery');
+        if (pg) pg.classList.add('on');
         window.scrollTo(0, 0);
       }
 
@@ -2635,6 +2749,164 @@
         }
       }
 
+
+      var swingGexEnv = '';
+      var swingWalls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0, price: 0 };
+
+      function setSwingGex(env) {
+        swingGexEnv = env;
+        ['trend', 'zero', 'pin'].forEach(function (e) {
+          var el = document.getElementById('sw-gb-' + e);
+          if (el) el.className = 'gex-btn' + (env === e ? ' sel-' + env : '');
+        });
+        var box = document.getElementById('sw-gex-env-box');
+        var t = document.getElementById('sw-gex-env-t');
+        var s = document.getElementById('sw-gex-env-s');
+        if (env === 'trend') { box.className = 'sig go'; t.textContent = 'Negative GEX week — Trending'; s.textContent = 'Walls accelerate. Directional bias valid if daily aligns.'; }
+        else if (env === 'pin') { box.className = 'sig no'; t.textContent = 'Positive GEX week — Pinning'; s.textContent = 'Walls are real targets/stops. Tighter moves expected.'; }
+        else { box.className = 'sig wait'; t.textContent = 'Near Zero — skip swing entries'; s.textContent = 'No reliable edge this week.'; }
+        if (swingWalls.callWall || swingWalls.putWall) calcSwingWalls();
+        updateSwingSummary();
+        updateSwingPlan();
+        if (typeof saveFormState === 'function') saveFormState();
+      }
+
+      function calcSwingWalls() {
+        var price = nv('sw-wprice'), cw = nv('sw-wcall'), pw = nv('sw-wput');
+        if (!cw && !pw) {
+          var card = document.getElementById('sw-wall-card');
+          if (card) card.style.display = 'none';
+          swingWalls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0, price: price };
+          updateSwingSummary(); updateSwingPlan();
+          return;
+        }
+        var ptc = price > 0 && cw > 0 ? Math.abs(cw - price) : 0;
+        var ptp = price > 0 && pw > 0 ? Math.abs(pw - price) : 0;
+        swingWalls = {
+          callWall: cw, putWall: pw, ptsToCall: ptc, ptsToPut: ptp, price: price,
+          bullTgt: cw > 0 ? Math.round((cw - 2) * 10) / 10 : 0,
+          bearTgt: pw > 0 ? Math.round((pw + 2) * 10) / 10 : 0
+        };
+        var card = document.getElementById('sw-wall-card');
+        if (card) card.style.display = 'block';
+        var ptcEl = document.getElementById('sw-ptsc');
+        if (ptcEl) ptcEl.textContent = ptc ? ptc.toFixed(1) + ' pts' : '—';
+        var ptpEl = document.getElementById('sw-ptsp');
+        if (ptpEl) ptpEl.textContent = ptp ? ptp.toFixed(1) + ' pts' : '—';
+        var bt = document.getElementById('sw-bt');
+        if (bt) bt.textContent = cw ? 'Near ' + swingWalls.bullTgt : '—';
+        var bert = document.getElementById('sw-bert');
+        if (bert) bert.textContent = pw ? 'Near ' + swingWalls.bearTgt : '—';
+        var beh = document.getElementById('sw-behavior');
+        if (beh) {
+          if (swingGexEnv === 'trend') { beh.textContent = 'Negative — walls accelerate through'; beh.className = 'rv r'; }
+          else if (swingGexEnv === 'pin') { beh.textContent = 'Positive — walls bounce'; beh.className = 'rv g'; }
+          else { beh.textContent = 'Set weekly GEX above'; beh.className = 'rv'; }
+        }
+        updateSwingSummary();
+        updateSwingPlan();
+      }
+
+      function updateSwingSummary() {
+        var eg = document.getElementById('ses-gex');
+        if (!eg) return;
+        if (swingGexEnv === 'trend') { eg.textContent = 'Negative — Trending'; eg.className = 'rv g'; }
+        else if (swingGexEnv === 'pin') { eg.textContent = 'Positive — Pinning'; eg.className = 'rv r'; }
+        else if (swingGexEnv === 'zero') { eg.textContent = 'Near zero — skip week'; eg.className = 'rv o'; }
+        else { eg.textContent = 'Not set — go to SwSet tab'; eg.className = 'rv'; }
+        var c = document.getElementById('ses-cwall');
+        var p = document.getElementById('ses-pwall');
+        var pr = document.getElementById('ses-price');
+        if (c) c.textContent = swingWalls.callWall ? swingWalls.callWall + (swingWalls.ptsToCall ? ' (' + Math.round(swingWalls.ptsToCall) + ' pts)' : '') : '—';
+        if (p) p.textContent = swingWalls.putWall ? swingWalls.putWall + (swingWalls.ptsToPut ? ' (' + Math.round(swingWalls.ptsToPut) + ' pts)' : '') : '—';
+        if (pr) pr.textContent = swingWalls.price ? swingWalls.price : (nv('sw-wprice') || '—');
+      }
+
+      function addBusinessDays(start, days) {
+        var d = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+        var added = 0;
+        while (added < days) {
+          d.setDate(d.getDate() + 1);
+          if (d.getDay() !== 0 && d.getDay() !== 6) added++;
+        }
+        return d;
+      }
+      function nextFriday(d) {
+        var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        var add = (5 - x.getDay() + 7) % 7;
+        if (add === 0 && x.getDay() !== 5) add = 5;
+        x.setDate(x.getDate() + add);
+        return x;
+      }
+      function fmtDate(d) {
+        return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      }
+
+      function updateSwingPlan() {
+        var res = document.getElementById('sw-plan-result');
+        if (!res) return;
+        var dir = (document.getElementById('sw-plan-dir') || {}).value || '';
+        var dte = parseInt((document.getElementById('sw-plan-dte') || {}).value || '50', 10);
+        var strike = nv('sw-plan-strike');
+        var prem = nv('sw-plan-prem');
+        if (!dir && !strike && !prem) { res.style.display = 'none'; return; }
+        res.style.display = 'block';
+        var today = new Date();
+        var exp = nextFriday(addBusinessDays(today, dte));
+        var exitBy = nextFriday(addBusinessDays(today, Math.max(dte - 30, 5)));
+        var expEl = document.getElementById('sw-exp-date');
+        var exitEl = document.getElementById('sw-exit-date');
+        if (expEl) expEl.textContent = fmtDate(exp);
+        if (exitEl) exitEl.textContent = fmtDate(exitBy);
+        var wallEl = document.getElementById('sw-plan-wall');
+        if (wallEl) {
+          if (dir === 'call' && swingWalls.bullTgt) wallEl.textContent = 'QQQ ~' + swingWalls.bullTgt + (swingWalls.callWall ? ' (call wall ' + swingWalls.callWall + ')' : '');
+          else if (dir === 'put' && swingWalls.bearTgt) wallEl.textContent = 'QQQ ~' + swingWalls.bearTgt + (swingWalls.putWall ? ' (put wall ' + swingWalls.putWall + ')' : '');
+          else wallEl.textContent = 'Set direction + walls in SwSet';
+        }
+        var tgtEl = document.getElementById('sw-plan-tgts');
+        if (tgtEl) {
+          if (prem > 0) {
+            var half = (prem * 1.40).toFixed(2);
+            var full = (prem * 1.80).toFixed(2);
+            tgtEl.textContent = 'Half ~$' + half + '  ·  Full ~$' + full + ' (exit prices)';
+          } else tgtEl.textContent = 'Enter premium for $ targets';
+        }
+        var riskEl = document.getElementById('sw-plan-risk');
+        var acctEl = document.getElementById('sw-plan-acct');
+        if (prem > 0) {
+          var dollars = Math.round(prem * 100);
+          if (riskEl) { riskEl.textContent = '~$' + dollars + ' max (premium × 100)'; riskEl.className = 'rv' + (dollars > 60 ? ' o' : ' g'); }
+          if (acctEl) {
+            var pct = ((dollars / 3000) * 100).toFixed(1);
+            acctEl.textContent = pct + '% of $3,000' + (parseFloat(pct) > 2 ? '  ⚠ over 2%' : '');
+            acctEl.className = 'rv' + (parseFloat(pct) > 2 ? ' r' : ' g');
+          }
+        } else {
+          if (riskEl) riskEl.textContent = 'Enter estimated premium';
+          if (acctEl) acctEl.textContent = '—';
+        }
+      }
+
+      function resetSwingSetup() {
+        swingGexEnv = '';
+        swingWalls = { callWall: 0, putWall: 0, ptsToCall: 0, ptsToPut: 0, bullTgt: 0, bearTgt: 0, price: 0 };
+        ['trend', 'zero', 'pin'].forEach(function (e) {
+          var el = document.getElementById('sw-gb-' + e);
+          if (el) el.className = 'gex-btn';
+        });
+        var box = document.getElementById('sw-gex-env-box');
+        if (box) box.className = 'sig idle';
+        var t = document.getElementById('sw-gex-env-t'); if (t) t.textContent = 'Select weekly net GEX';
+        var s = document.getElementById('sw-gex-env-s'); if (s) s.textContent = 'From optioncharts.io — weekly / all-expiry view';
+        ['sw-wcall', 'sw-wput', 'sw-wprice', 'sw-setup-note'].forEach(function (id) {
+          var el = document.getElementById(id); if (el) el.value = '';
+        });
+        var card = document.getElementById('sw-wall-card'); if (card) card.style.display = 'none';
+        updateSwingSummary();
+        if (typeof saveFormState === 'function') saveFormState();
+      }
+
       // SWING CHECKS
       var swingChecks = [false, false, false, false, false, false, false];
       function sct(i) {
@@ -2648,18 +2920,26 @@
         var dailyOk = swingChecks[2] && swingChecks[3] && swingChecks[4];
         var entryOk = swingChecks[5] && swingChecks[6];
         var vd = document.getElementById('sw-verdict');
+        var tb = document.getElementById('sw-trade');
         if (weeklyOk && dailyOk && entryOk) {
-          vd.className = 'sig go';
-          vd.innerHTML = '<div class="sigt">Swing entry confirmed ✓</div><div class="ss">All 3 timeframes aligned. Buy 45–60DTE QQQ puts/calls ATM or 1 OTM. At $3k: paper trade only.</div>';
-        } else if (weeklyOk && dailyOk) {
-          vd.className = 'sig wait';
-          vd.innerHTML = '<div class="sigt">Daily confirmed — wait for 4hr</div><div class="ss">Check again this afternoon. Need 4hr EMA9 pullback and rejection candle before entering.</div>';
-        } else if (weeklyOk) {
-          vd.className = 'sig wait';
-          vd.innerHTML = '<div class="sigt">Weekly confirmed — check daily</div><div class="ss">Daily VWAP + EMA9 must align with weekly direction. Check again tomorrow morning.</div>';
+          vd.className = swingGexEnv === 'zero' ? 'sig wait' : 'sig go';
+          vd.innerHTML = swingGexEnv === 'zero'
+            ? '<div class="sigt">Cascade OK — but near-zero GEX</div><div class="ss">Skip this week unless exceptional. Set GEX in Swing Setup.</div>'
+            : '<div class="sigt">Swing entry confirmed ✓</div><div class="ss">All 3 timeframes aligned. Plan the option below (45–60 DTE, close by 30 DTE remaining). Long only.</div>';
+          if (tb) tb.style.display = 'block';
+          updateSwingPlan();
         } else {
-          vd.className = 'sig idle';
-          vd.innerHTML = '<div class="sigt">Start with weekly chart</div><div class="ss">2+ consecutive weeks of same VWAP slope? Weekly candle closed outside VWAP zone?</div>';
+          if (tb) tb.style.display = 'none';
+          if (weeklyOk && dailyOk) {
+            vd.className = 'sig wait';
+            vd.innerHTML = '<div class="sigt">Daily confirmed — wait for 4hr</div><div class="ss">Need 4hr EMA9 pullback and rejection candle before entering.</div>';
+          } else if (weeklyOk) {
+            vd.className = 'sig wait';
+            vd.innerHTML = '<div class="sigt">Weekly confirmed — check daily</div><div class="ss">Daily VWAP + EMA9 must align with weekly. Check again tomorrow morning.</div>';
+          } else {
+            vd.className = 'sig idle';
+            vd.innerHTML = '<div class="sigt">Start with weekly chart</div><div class="ss">2+ consecutive weeks of same VWAP slope? Fill Swing Setup first.</div>';
+          }
         }
       }
       function resetSwing() {
@@ -2989,6 +3269,7 @@
       Object.assign(window, {
         setGexEnv, setScn, resetSetup, ct, resetEntry, addTrade, clearAll,
         sct, resetSwing, sp, calcWalls, calcGap, calcFill, calcFV,
+        setSwingGex, calcSwingWalls, updateSwingPlan, resetSwingSetup, openLotteryFromHeader,
         lottSpin, lottReset, lottUpdateExcluded,
         signUpWithEmailPassword, signInWithEmailPassword, signOutCurrentUser
       });
@@ -3005,6 +3286,7 @@
       updateEntrySummary();
       updateTargetDisplay();
       lottInit();
+      updateSwingSummary();
     </script>
   </div>
 </body>
