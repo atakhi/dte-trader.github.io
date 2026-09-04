@@ -747,6 +747,28 @@
       border-color: #5856d6
     }
 
+    .bdg.open {
+      background: #f5f4ff;
+      color: #5856d6
+    }
+
+    .bdg.sw {
+      background: #eef0ff;
+      color: #3a3aff;
+      border: 1px solid #c5c5ff
+    }
+
+    .sw-edit-btn {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1.5px solid #5856d6;
+      background: #f5f4ff;
+      color: #5856d6;
+      cursor: pointer;
+      flex-shrink: 0
+    }
+
     .lott-pill {
       font-size: 12px;
       padding: 5px 12px;
@@ -1252,7 +1274,17 @@
         </div>
       </div>
 
-      <div class="lbl">Log trade or observation</div>
+      <div class="lbl" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Log trade or observation</span>
+        <div style="display:flex;gap:6px">
+          <button id="j-filter-all" onclick="setJournalFilter('all',this)"
+            style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#007aff;color:#fff;cursor:pointer">All</button>
+          <button id="j-filter-0dte" onclick="setJournalFilter('0dte',this)"
+            style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#f2f2f7;color:#636366;cursor:pointer">0DTE</button>
+          <button id="j-filter-swing" onclick="setJournalFilter('swing',this)"
+            style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#f2f2f7;color:#636366;cursor:pointer">Swing</button>
+        </div>
+      </div>
       <div class="fg">
         <input class="fi" id="j-date" type="date">
         <select class="fi" id="j-type">
@@ -1272,13 +1304,15 @@
           <option value="Observation">Observation</option>
         </select>
         <input class="fi" id="j-entry" type="number" placeholder="Fill price" step="0.01" inputmode="decimal">
-        <input class="fi" id="j-exit" type="number" placeholder="Exit price" step="0.01" inputmode="decimal">
+        <input class="fi" id="j-exit" type="number" placeholder="Exit price (leave blank if open)" step="0.01"
+          inputmode="decimal">
         <select class="fi" id="j-result">
           <option value="">Outcome</option>
           <option value="WIN">Win — target hit</option>
           <option value="LOSS-EMA">Loss — EMA9 stop</option>
-          <option value="LOSS-TIME">Loss — 11:30am exit</option>
-          <option value="MANUAL">Manual exit</option>
+          <option value="LOSS-TIME">Loss — time exit</option>
+          <option value="MANUAL">Manual / early exit</option>
+          <option value="OPEN">Still open (swing)</option>
           <option value="SKIP">Skipped — no setup</option>
           <option value="OBS">Observation only</option>
         </select>
@@ -1310,6 +1344,45 @@
       </div>
       <br>
       <button class="btn dng" onclick="clearAll()">Clear all history</button>
+    </div>
+
+    <!-- ══ SWING EDIT MODAL ══ -->
+    <div id="sw-edit-modal"
+      style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9999;display:none;align-items:flex-end;justify-content:center">
+      <div
+        style="background:#fff;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:20px 18px 36px;box-shadow:0 -4px 30px rgba(0,0,0,0.15)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:16px;font-weight:700;color:#5856d6">Edit swing trade</div>
+          <button onclick="closeSwingEdit()"
+            style="font-size:18px;border:none;background:none;color:#8e8e93;cursor:pointer;padding:4px 8px">✕</button>
+        </div>
+        <div style="font-size:12px;color:#8e8e93;margin-bottom:10px" id="sw-edit-meta">—</div>
+        <div class="fg">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="font-size:11px;color:#636366;font-weight:500">Exit premium $</div>
+            <input class="fi full" id="sw-edit-exit" type="number" step="0.01" placeholder="e.g. 7.20"
+              inputmode="decimal">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="font-size:11px;color:#636366;font-weight:500">Outcome</div>
+            <select class="fi full" id="sw-edit-result">
+              <option value="WIN">Win — target hit</option>
+              <option value="LOSS-EMA">Loss — EMA9 stop</option>
+              <option value="MANUAL">Manual / early exit</option>
+              <option value="OPEN">Still open</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1">
+            <div style="font-size:11px;color:#636366;font-weight:500">Notes / exit reason</div>
+            <input class="fi full" id="sw-edit-note" type="text" placeholder="Why you exited, what you learned…">
+          </div>
+        </div>
+        <div id="sw-edit-pnl-preview"
+          style="background:#f5f4ff;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13px;color:#5856d6;font-weight:500;display:none">
+        </div>
+        <button class="btn prim" onclick="saveSwingEdit()" style="background:#5856d6;margin-top:4px">Save
+          changes</button>
+      </div>
     </div>
 
     <!-- ══ RULES PAGE ══ -->
@@ -1693,6 +1766,26 @@
         <div class="row"><span class="rk">Wall behavior</span><span class="rv" id="sw-behavior">—</span></div>
       </div>
 
+      <div class="lbl">Weekly GEX interpretation <span
+          style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">what the regime means for swing
+          trades</span></div>
+      <div class="card" id="sw-gex-interp" style="display:none;padding:0">
+        <div class="row" id="sw-interp-regime"
+          style="flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px">
+          <span id="sw-interp-title" style="font-size:13px;font-weight:600"></span>
+          <span id="sw-interp-body" style="font-size:12px;color:#636366;line-height:1.5"></span>
+        </div>
+        <div class="row"><span class="rk">Wall behavior</span><span class="rv" id="sw-interp-walls">—</span></div>
+        <div class="row"><span class="rk">Entry bias</span><span class="rv" id="sw-interp-bias">—</span></div>
+        <div class="row"><span class="rk">Target style</span><span class="rv" id="sw-interp-tgt">—</span></div>
+        <div class="row"><span class="rk">Caution</span><span class="rv o" id="sw-interp-warn">—</span></div>
+      </div>
+      <div id="sw-gex-interp-idle" class="sig idle" style="margin-bottom:10px">
+        <div class="sigt">Select weekly GEX above</div>
+        <div class="ss">The interpretation panel shows what the GEX regime means specifically for multi-day swing
+          options — wall behavior, target style, and cautions.</div>
+      </div>
+
       <div class="lbl">Week notes</div>
       <div class="card" style="padding:12px">
         <input class="inp" id="sw-setup-note" type="text" placeholder="Bias, events, key levels…">
@@ -1811,9 +1904,17 @@
       </div>
 
       <div id="sw-trade" style="display:none">
-        <div class="lbl">Plan this option (long only)</div>
+
+        <!-- ── INPUTS ── -->
+        <div class="lbl">Trade inputs <span style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">1
+            contract · any symbol</span></div>
         <div class="card" style="padding:12px">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Symbol</div>
+              <input class="inp" id="sw-sym" type="text" placeholder="QQQ, SPY, NVDA…" style="text-transform:uppercase"
+                oninput="this.value=this.value.toUpperCase();updateSwingPlan()">
+            </div>
             <div>
               <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Direction</div>
               <select class="fi" id="sw-plan-dir" onchange="updateSwingPlan()">
@@ -1832,52 +1933,129 @@
               </select>
             </div>
             <div>
-              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Planned strike</div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Strike</div>
               <input class="inp" id="sw-plan-strike" type="number" placeholder="ATM or 1 OTM" inputmode="numeric"
                 oninput="updateSwingPlan()">
             </div>
             <div>
-              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Fill / est. premium $</div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Entry premium $</div>
               <input class="inp" id="sw-plan-prem" type="number" step="0.01" placeholder="e.g. 4.50" inputmode="decimal"
                 oninput="updateSwingPlan()">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Est. delta (0.40–0.60)</div>
+              <input class="inp" id="sw-delta" type="number" step="0.01" placeholder="e.g. 0.50" inputmode="decimal"
+                oninput="updateSwingPlan()">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Underlying now $</div>
+              <input class="inp" id="sw-underlying" type="number" step="0.01" placeholder="e.g. 484.50"
+                inputmode="decimal" oninput="updateSwingPlan()">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Daily EMA9 level $</div>
+              <input class="inp" id="sw-ema9" type="number" step="0.01" placeholder="from chart" inputmode="decimal"
+                oninput="updateSwingPlan()">
+            </div>
+            <div style="grid-column:1/-1">
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Daily ATR $ <span
+                  style="font-weight:400;color:#c7c7cc">(optional — overrides wall cap if closer)</span></div>
+              <input class="inp" id="sw-atr" type="number" step="0.01" placeholder="e.g. 3.20 — from chart"
+                inputmode="decimal" oninput="updateSwingPlan()">
             </div>
           </div>
         </div>
 
+        <!-- ── PLAN RESULT ── -->
         <div class="card" id="sw-plan-result" style="display:none;padding:0">
-          <div class="row"><span class="rk">Target expiration (~buy DTE)</span><span class="rv b"
-              id="sw-exp-date">—</span></div>
-          <div class="row"><span class="rk">Hard exit (~30 DTE left)</span><span class="rv r" id="sw-exit-date">—</span>
-          </div>
-          <div class="row"><span class="rk">Underlying wall target</span><span class="rv" id="sw-plan-wall">—</span>
-          </div>
-          <div class="row"><span class="rk">Suggested half / full</span><span class="rv g" id="sw-plan-tgts">—</span>
-          </div>
-          <div class="row"><span class="rk">Premium risk (1 contract)</span><span class="rv" id="sw-plan-risk">—</span>
-          </div>
-          <div class="row"><span class="rk">% of $3k account</span><span class="rv" id="sw-plan-acct">—</span></div>
-        </div>
-        <div style="font-size:11px;color:#8e8e93;margin:-4px 0 10px;line-height:1.4">Dates snap to the next Friday
-          (typical QQQ weekly expiry). Always confirm the listed expiration and quote on your broker. Live option prices
-          are not fetched here.</div>
 
-        <div class="lbl">Trade structure (long options only)</div>
+          <!-- verdict banner -->
+          <div id="sw-rr-verdict" style="padding:14px 16px;text-align:center;border-bottom:0.5px solid #f2f2f7">
+            <div style="font-size:22px;font-weight:700" id="sw-rr-ratio">—</div>
+            <div style="font-size:12px;color:#636366;margin-top:2px" id="sw-rr-label">—</div>
+          </div>
+
+          <div class="shdr blue">Option · Dates</div>
+          <div class="row"><span class="rk">Symbol · Strike · Direction</span><span class="rv b"
+              id="sw-plan-symdir">—</span></div>
+          <div class="row"><span class="rk">Target expiry (~DTE)</span><span class="rv b" id="sw-exp-date">—</span>
+          </div>
+          <div class="row"><span class="rk">Hard date exit (~30 DTE)</span><span class="rv r" id="sw-exit-date">—</span>
+          </div>
+
+          <div class="shdr green">Exit — whichever comes first</div>
+          <div class="row"><span class="rk">GEX wall cap (underlying)</span><span class="rv g"
+              id="sw-plan-wall">—</span></div>
+          <div class="row"><span class="rk">ATR target (underlying)</span><span class="rv g" id="sw-atr-tgt">— enter ATR
+              above</span></div>
+          <div class="row"><span class="rk">Binding target used</span><span class="rv g" id="sw-binding-tgt">—</span>
+          </div>
+          <div class="row"><span class="rk">Option exit price (est.)</span><span class="rv g" id="sw-opt-exit">—</span>
+          </div>
+          <div class="row"><span class="rk">Reward (1 contract)</span><span class="rv g" id="sw-reward">—</span></div>
+          <div class="row" style="padding:8px 14px;background:#f9fffe;border-bottom:0.5px solid #f2f2f7">
+            <span class="rk" style="font-size:12px;color:#636366">Also exit if: daily body closes through EMA9 in wrong
+              direction → exit next open (same rule as stop, but used as profit protection on the way up)</span>
+          </div>
+
+          <div class="shdr red">Stop — tighter wins</div>
+          <div class="row"><span class="rk">30% premium stop price</span><span class="rv r" id="sw-stop-30">—</span>
+          </div>
+          <div class="row"><span class="rk">Dollar risk at 30% stop</span><span class="rv r" id="sw-risk-30">—</span>
+          </div>
+          <div class="row"><span class="rk">EMA9 stop price (est.)</span><span class="rv r" id="sw-stop-ema">— enter
+              EMA9 + delta</span></div>
+          <div class="row"><span class="rk">Dollar risk at EMA9 stop</span><span class="rv r" id="sw-risk-ema">—</span>
+          </div>
+          <div class="row"><span class="rk" style="font-weight:600">Tighter stop used</span><span class="rv r"
+              id="sw-stop-used" style="font-weight:700">—</span></div>
+          <div class="row"><span class="rk" style="font-weight:600">Risk (1 contract)</span><span class="rv r"
+              id="sw-risk-used" style="font-weight:700">—</span></div>
+
+          <div class="shdr orange">Account check</div>
+          <div class="row"><span class="rk">Premium outlay (1 contract)</span><span class="rv"
+              id="sw-plan-risk">—</span></div>
+          <div class="row"><span class="rk">% of $3k account at risk</span><span class="rv" id="sw-plan-acct">—</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#8e8e93;margin:-4px 0 10px;line-height:1.5">Option exit price is estimated
+          using delta × underlying move — actual price depends on IV, theta, and Greeks. Confirm on your broker before
+          placing. Dates snap to the next Friday expiry.</div>
+
+        <!-- ── SEND TO JOURNAL ── -->
+        <div class="lbl">Send to journal</div>
+        <div class="card" style="padding:12px">
+          <div style="font-size:12px;color:#636366;margin-bottom:8px;line-height:1.5">Creates an <strong>OPEN</strong>
+            swing entry with the R:R plan embedded. Edit exit price in Journal when you close.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Trade date</div>
+              <input class="fi" id="sw-entry-date" type="date">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Entry note</div>
+              <input class="fi" id="sw-entry-note" type="text" placeholder="Setup reason…">
+            </div>
+          </div>
+          <button class="btn prim" id="sw-log-btn" onclick="swingLogToJournal()"
+            style="background:#5856d6;margin-bottom:0">Log swing to Journal →</button>
+        </div>
+
+        <!-- ── RULES ── -->
+        <div class="lbl">Exit rules — 1 contract</div>
         <div class="card" style="padding:0">
-          <div class="row"><span class="rk">Vehicle</span><span class="rv b">QQQ Call or Put (long only)</span></div>
-          <div class="row"><span class="rk">Expiry</span><span class="rv">Buy 45–60 DTE. Close by 30 DTE remaining or
-              target</span></div>
-          <div class="row"><span class="rk">Strike</span><span class="rv">ATM or 1 strike OTM maximum</span></div>
-          <div class="row"><span class="rk">Size</span><span class="rv r">Risk ≤ 0.5–1% of account on premium. Usually 1
-              contract.</span></div>
-          <div class="row"><span class="rk">Stop</span><span class="rv r">Daily body through EMA9 → exit next
-              open</span></div>
-          <div class="row"><span class="rk">Time stop</span><span class="rv r">Still underwater after 5–7 sessions +
-              structure weakens → exit</span></div>
-          <div class="row"><span class="rk">Target 1</span><span class="rv o">Nearest GEX wall → close half</span></div>
-          <div class="row"><span class="rk">Target 2</span><span class="rv g">Trail rest (daily EMA9 / 2× ATR) or +40%
-              of premium</span></div>
-          <div class="row"><span class="rk">Hard rule</span><span class="rv r">Never average down. Never add to a
-              loser.</span></div>
+          <div class="row"><span class="rk">Target hit</span><span class="rv g">Wall cap OR 2× ATR reached → exit entire
+              position at market next open</span></div>
+          <div class="row"><span class="rk">EMA9 trail breach</span><span class="rv r">Daily body closes through EMA9 →
+              exit next open (applies both as stop and profit protection)</span></div>
+          <div class="row"><span class="rk">Hard dollar stop</span><span class="rv r">Option drops 30% from entry → exit
+              same session, no waiting for next open</span></div>
+          <div class="row"><span class="rk">Time stop</span><span class="rv r">Still underwater after 5–7 sessions AND
+              structure weakens → exit. Do not hold decaying theta.</span></div>
+          <div class="row"><span class="rk">Hard date</span><span class="rv r">30 DTE remaining → exit regardless of
+              P&L. Gamma and theta risk too high.</span></div>
+          <div class="row"><span class="rk">Hard rule</span><span class="rv r">Never average down. 1 contract is 1
+              contract — adding is a separate new trade decision.</span></div>
         </div>
       </div>
 
@@ -2140,6 +2318,8 @@
       var scnState = { calls: '', puts: '', dom: '' };
       var scnMap = { calls: { above: 'sc-ca', both: 'sc-cb', none: 'sc-cn', on: 'sc-co' }, puts: { below: 'sc-pb', both: 'sc-pp', none: 'sc-pn', on: 'sc-po' }, dom: { calls: 'sc-dc', equal: 'sc-de', puts: 'sc-dp' } };
       var userTradeListener = null;
+      var journalFilter = 'all';
+      var swingEditId = null;
 
       function getUserStorageKey(uid) {
         return 'qqq_v8_' + (uid || 'guest');
@@ -2675,11 +2855,33 @@
         var touch = document.getElementById('j-touch').value;
         var rules = document.getElementById('j-rules').value;
         var note = document.getElementById('j-note').value;
-        if (!date || !result) { alert('Date and outcome required'); return; }
+        if (!date) { alert('Date is required'); return; }
+
         var pnl = 0;
-        if (entry > 0 && exit > 0) { pnl = Math.round((exit - entry) * 100 * 100) / 100; }
-        else if (result === 'WIN' && entry > 0) { pnl = Math.round(entry * 0.75 * 100 * 100) / 100; }
-        else if (result && result.startsWith('LOSS') && entry > 0) { pnl = -Math.round(entry * 0.30 * 100 * 100) / 100; }
+
+        // ── Auto-derive result from prices if both filled ──────────────────────
+        if (entry > 0 && exit > 0) {
+          pnl = Math.round((exit - entry) * 100 * 100) / 100;
+          // Override result based on actual prices — user selection is secondary
+          if (!result || result === 'WIN' || result === 'LOSS-EMA' || result === 'LOSS-TIME' || result === 'MANUAL') {
+            result = pnl >= 0 ? 'WIN' : 'LOSS-EMA';
+          }
+          // OPEN/SKIP/OBS/LOSS-TIME are intentional — keep them, but still set pnl
+        } else if (entry > 0 && exit === 0 && result === 'WIN') {
+          // Win declared but no exit price — estimate from 75% premium gain
+          pnl = Math.round(entry * 0.75 * 100 * 100) / 100;
+        } else if (entry > 0 && exit === 0 && result && result.startsWith('LOSS')) {
+          // Loss declared but no exit — estimate from 30% hard stop
+          pnl = -Math.round(entry * 0.30 * 100 * 100) / 100;
+        }
+        // SKIP/OBS/OPEN → pnl stays 0
+
+        // ── Require at minimum: date + either (result) or (entry+exit) ─────────
+        if (!result && !(entry > 0 && exit > 0)) {
+          alert('Select an outcome OR fill both entry and exit prices.');
+          return;
+        }
+
         var trade = { date, type, entry, exit, result, gex, touch, rules, pnl, note, createdAt: Date.now() };
         // Optimistic local update
         trades.unshift(trade);
@@ -2701,11 +2903,31 @@
       }
 
       function renderJ() {
-        var active = trades.filter(function (t) { return t.result !== 'SKIP' && t.result !== 'OBS'; });
-        var wins = trades.filter(function (t) { return t.result === 'WIN'; });
-        var losses = trades.filter(function (t) { return t.result && t.result.startsWith('LOSS'); });
+        var filter = typeof journalFilter !== 'undefined' ? journalFilter : 'all';
+        var displayTrades = trades.filter(function (t) {
+          if (filter === '0dte') return !t.isSwing;
+          if (filter === 'swing') return !!t.isSwing;
+          return true;
+        });
+
+        // Stats always from full trades array (unfiltered)
+        // A trade counts as active if it's not SKIP / OBS / OPEN
+        var active = trades.filter(function (t) {
+          return t.result !== 'SKIP' && t.result !== 'OBS' && t.result !== 'OPEN';
+        });
+        // Win = pnl > 0 OR result explicitly WIN (covers cases where no exit price entered)
+        var wins = active.filter(function (t) {
+          return t.pnl > 0 || t.result === 'WIN';
+        });
+        // Loss = pnl < 0 OR result explicitly starts with LOSS
+        var losses = active.filter(function (t) {
+          return t.pnl < 0 || (t.result && t.result.startsWith('LOSS'));
+        });
+        // Deduplicate edge case: pnl=0 and result=WIN counts as win not loss
+        // (wins/losses may overlap on pnl=0 with result=LOSS — losses wins)
         var wr = active.length ? Math.round(wins.length / active.length * 100) : 0;
         var total = trades.reduce(function (s, t) { return s + (t.pnl || 0); }, 0);
+
         function fmt(v) { return (v >= 0 ? '+' : '') + '$' + Math.abs(Math.round(v)); }
         var pe = document.getElementById('j-pnl');
         pe.textContent = fmt(total); pe.className = 'sn' + (total > 0 ? ' pos' : total < 0 ? ' neg' : '');
@@ -2713,19 +2935,52 @@
         document.getElementById('j-n').textContent = active.length;
         document.getElementById('j-wins').textContent = wins.length;
         document.getElementById('j-losses').textContent = losses.length;
+
         var list = document.getElementById('j-list');
-        if (!trades.length) { list.innerHTML = '<div class="empty">No entries yet — start logging</div>'; return; }
-        list.innerHTML = trades.map(function (t) {
-          var b = t.result === 'WIN' ? '<span class="bdg win">Win</span>' :
-            t.result && t.result.startsWith('LOSS') ? '<span class="bdg loss">Loss</span>' :
-              t.result === 'SKIP' ? '<span class="bdg skip">Skip</span>' :
-                t.result === 'OBS' ? '<span class="bdg skip">Obs</span>' : '<span class="bdg man">Exit</span>';
+        if (!displayTrades.length) { list.innerHTML = '<div class="empty">No entries yet — start logging</div>'; return; }
+
+        // Open swings at top when showing all or swing filter
+        var openFirst = displayTrades.filter(function (t) { return t.isSwing && t.result === 'OPEN'; });
+        var rest = displayTrades.filter(function (t) { return !(t.isSwing && t.result === 'OPEN'); });
+        var ordered = openFirst.concat(rest);
+
+        list.innerHTML = ordered.map(function (t) {
+          var tradeId = t.id || (t.createdAt + '');
+          var isSwing = !!t.isSwing;
+          // Badge: derive from pnl first (ground truth), fall back to result label
+          var isWin = t.pnl > 0 || t.result === 'WIN';
+          var isLoss = t.pnl < 0 || (t.result && t.result.startsWith('LOSS'));
+          var b = t.result === 'OPEN' ? '<span class="bdg open">Open</span>' :
+            t.result === 'SKIP' ? '<span class="bdg skip">Skip</span>' :
+              t.result === 'OBS' ? '<span class="bdg skip">Obs</span>' :
+                isWin ? '<span class="bdg win">Win</span>' :
+                  isLoss ? '<span class="bdg loss">Loss</span>' :
+                    '<span class="bdg man">Exit</span>';
+          var swTag = isSwing ? '<span class="bdg sw" style="font-size:9px;padding:1px 5px;margin-left:3px">SW</span>' : '';
           var gm = t.gex === 'NEG' ? '<span style="font-size:10px;color:#34c759"> ↓</span>' : t.gex === 'POS' ? '<span style="font-size:10px;color:#ff3b30"> +</span>' : t.gex === 'ZERO' ? '<span style="font-size:10px;color:#ff9500"> ~</span>' : '';
           var tm = t.touch && t.touch !== 'NA' ? '<span style="font-size:10px;color:#8e8e93"> T' + t.touch + '</span>' : '';
           var rm = t.rules === 'YES' ? '<span style="font-size:10px;color:#34c759">✓</span>' : t.rules === 'NO' ? '<span style="font-size:10px;color:#ff3b30">✗</span>' : '';
-          var p = t.pnl ? '<span class="tp ' + (t.pnl > 0 ? 'pos' : 'neg') + '">' + (t.pnl > 0 ? '+' : '') + '$' + Math.abs(Math.round(t.pnl)) + '</span>' : '<span class="tp">—</span>';
-          var notes = t.note ? '<div class="tl">' + t.note + '</div>' : '';
-          return '<div class="tl"><span class="td">' + (t.date ? t.date.slice(5) : '—') + '</span><span class="tt">' + (t.type || '—') + gm + tm + rm + '</span>' + b + p + '</div>' + notes;
+          var p = (t.pnl && t.result !== 'OPEN') ? '<span class="tp ' + (t.pnl > 0 ? 'pos' : 'neg') + '">' + (t.pnl > 0 ? '+' : '') + '$' + Math.abs(Math.round(t.pnl)) + '</span>' : '<span class="tp" style="color:#8e8e93">—</span>';
+          var editBtn = isSwing ? '<button class="sw-edit-btn" onclick="openSwingEdit(\'' + tradeId + '\')">Edit</button>' : '';
+
+          // Swing target mini-row
+          var swingTargets = '';
+          if (isSwing && (t.stopPrice || t.riskDollars)) {
+            var rrColor = t.rr >= 2 ? '#1a7f37' : t.rr >= 1.5 ? '#b7620a' : t.rr > 0 ? '#c0392b' : '#8e8e93';
+            swingTargets = '<div style="display:flex;flex-wrap:wrap;gap:8px;padding:5px 14px 7px;font-size:11px;color:#636366;background:#f8f8ff;border-bottom:0.5px solid #eeeeff">'
+              + (t.stopPrice ? '<span>Stop: <strong style="color:#ff3b30">$' + t.stopPrice.toFixed(2) + '</strong></span>' : '')
+              + (t.riskDollars ? '<span>Risk: <strong style="color:#ff3b30">−$' + t.riskDollars + '</strong></span>' : '')
+              + (t.targetUnderlying ? '<span>Tgt: <strong style="color:#34c759">' + t.targetUnderlying + '</strong></span>' : '')
+              + (t.optExitEst ? '<span>Exit~: <strong style="color:#34c759">$' + t.optExitEst + '</strong></span>' : '')
+              + (t.rewardDollars ? '<span>Reward: <strong style="color:#34c759">+$' + t.rewardDollars + '</strong></span>' : '')
+              + (t.rr ? '<span>R:R: <strong style="color:' + rrColor + '">' + t.rr.toFixed(2) + ':1</strong></span>' : '')
+              + '</div>';
+          }
+
+          var noteRow = t.note ? '<div class="tl" style="font-size:11px;color:#636366">' + t.note + '</div>' : '';
+          return '<div class="tl"><span class="td">' + (t.date ? t.date.slice(5) : '—') + '</span>'
+            + '<span class="tt">' + (t.type || '—') + swTag + gm + tm + rm + '</span>'
+            + b + p + editBtn + '</div>' + swingTargets + noteRow;
         }).join('');
       }
 
@@ -2765,10 +3020,51 @@
         if (env === 'trend') { box.className = 'sig go'; t.textContent = 'Negative GEX week — Trending'; s.textContent = 'Walls accelerate. Directional bias valid if daily aligns.'; }
         else if (env === 'pin') { box.className = 'sig no'; t.textContent = 'Positive GEX week — Pinning'; s.textContent = 'Walls are real targets/stops. Tighter moves expected.'; }
         else { box.className = 'sig wait'; t.textContent = 'Near Zero — skip swing entries'; s.textContent = 'No reliable edge this week.'; }
+        updateSwingGexInterpretation(env);
         if (swingWalls.callWall || swingWalls.putWall) calcSwingWalls();
         updateSwingSummary();
         updateSwingPlan();
         if (typeof saveFormState === 'function') saveFormState();
+      }
+
+      function updateSwingGexInterpretation(env) {
+        var interp = document.getElementById('sw-gex-interp');
+        var idle = document.getElementById('sw-gex-interp-idle');
+        if (!env) {
+          if (interp) interp.style.display = 'none';
+          if (idle) idle.style.display = 'block';
+          return;
+        }
+        if (interp) interp.style.display = 'block';
+        if (idle) idle.style.display = 'none';
+        var title = document.getElementById('sw-interp-title');
+        var body = document.getElementById('sw-interp-body');
+        var walls = document.getElementById('sw-interp-walls');
+        var bias = document.getElementById('sw-interp-bias');
+        var tgt = document.getElementById('sw-interp-tgt');
+        var warn = document.getElementById('sw-interp-warn');
+        if (env === 'trend') {
+          if (title) { title.textContent = 'Negative GEX — Trending week'; title.style.color = '#34c759'; }
+          if (body) body.textContent = 'MMs are short gamma — they amplify price moves rather than dampen them. Multi-day trending conditions are favourable for directional swing options. Each GEX wall breached acts as an acceleration zone.';
+          if (walls) { walls.textContent = 'Walls accelerate through — use as momentum targets, not stops'; walls.className = 'rv r'; }
+          if (bias) { bias.textContent = 'High conviction — enter in direction of weekly VWAP slope'; bias.className = 'rv g'; }
+          if (tgt) { tgt.textContent = 'Let winners run — T1 at first wall, trail rest with daily EMA9'; tgt.className = 'rv g'; }
+          if (warn) warn.textContent = 'Do not buy puts into a wall on negative GEX — it accelerates through. Reverse is also true for calls.';
+        } else if (env === 'pin') {
+          if (title) { title.textContent = 'Positive GEX — Pinning week'; title.style.color = '#ff3b30'; }
+          if (body) body.textContent = 'MMs are long gamma — they buy dips and sell rips, mechanically dampening moves. Swings are harder in pinning weeks. GEX walls are genuine defended levels and act as hard caps for underlying price.';
+          if (walls) { walls.textContent = 'Walls are real defended levels — exit before, not at, the wall'; walls.className = 'rv g'; }
+          if (bias) { bias.textContent = 'Lower conviction — require very clean weekly+daily+4hr alignment'; bias.className = 'rv o'; }
+          if (tgt) { tgt.textContent = 'Take profit faster — T1 and T2 closer, MMs suppress extended moves'; tgt.className = 'rv o'; }
+          if (warn) warn.textContent = 'In strong positive GEX weeks, the underlying may not reach the wall at all — use premium % targets rather than price targets.';
+        } else {
+          if (title) { title.textContent = 'Near Zero GEX — Skip swing entries'; title.style.color = '#b7620a'; }
+          if (body) body.textContent = 'No reliable structural edge this week. MMs are neither amplifying nor dampening — price action is noisy and wall signals are unreliable. Skipping is a valid and correct decision.';
+          if (walls) { walls.textContent = 'Walls are unreliable — may bounce or accelerate unpredictably'; walls.className = 'rv o'; }
+          if (bias) { bias.textContent = 'No entry — wait for the next weekly GEX read'; bias.className = 'rv r'; }
+          if (tgt) { tgt.textContent = 'If forced: use premium % targets only, ignore wall targets'; tgt.className = 'rv o'; }
+          if (warn) warn.textContent = 'A near-zero GEX week with a strong macro catalyst can briefly produce trending conditions — but this is the exception. The rule is: skip.';
+        }
       }
 
       function calcSwingWalls() {
@@ -2834,7 +3130,7 @@
       function nextFriday(d) {
         var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
         var add = (5 - x.getDay() + 7) % 7;
-        if (add === 0 && x.getDay() !== 5) add = 5;
+        if (add === 0) add = 7; // already Friday → advance to NEXT Friday
         x.setDate(x.getDate() + add);
         return x;
       }
@@ -2845,47 +3141,198 @@
       function updateSwingPlan() {
         var res = document.getElementById('sw-plan-result');
         if (!res) return;
-        var dir = (document.getElementById('sw-plan-dir') || {}).value || '';
-        var dte = parseInt((document.getElementById('sw-plan-dte') || {}).value || '50', 10);
+
+        var sym = ((document.getElementById('sw-sym') || {}).value || '').toUpperCase().trim();
+        var dir = ((document.getElementById('sw-plan-dir') || {}).value || '');
+        var dte = parseInt(((document.getElementById('sw-plan-dte') || {}).value || '50'), 10);
         var strike = nv('sw-plan-strike');
         var prem = nv('sw-plan-prem');
-        if (!dir && !strike && !prem) { res.style.display = 'none'; return; }
+        var delta = nv('sw-delta') || 0.50;   // default ATM delta
+        var underlying = nv('sw-underlying');
+        var ema9 = nv('sw-ema9');
+        var atr = nv('sw-atr');
+
+        // Need at least direction + premium to show a plan
+        if (!dir || !prem) { res.style.display = 'none'; return; }
         res.style.display = 'block';
+
+        // ── Dates ──────────────────────────────────────────────
         var today = new Date();
         var exp = nextFriday(addBusinessDays(today, dte));
         var exitBy = nextFriday(addBusinessDays(today, Math.max(dte - 30, 5)));
-        var expEl = document.getElementById('sw-exp-date');
-        var exitEl = document.getElementById('sw-exit-date');
-        if (expEl) expEl.textContent = fmtDate(exp);
-        if (exitEl) exitEl.textContent = fmtDate(exitBy);
-        var wallEl = document.getElementById('sw-plan-wall');
-        if (wallEl) {
-          if (dir === 'call' && swingWalls.bullTgt) wallEl.textContent = 'QQQ ~' + swingWalls.bullTgt + (swingWalls.callWall ? ' (call wall ' + swingWalls.callWall + ')' : '');
-          else if (dir === 'put' && swingWalls.bearTgt) wallEl.textContent = 'QQQ ~' + swingWalls.bearTgt + (swingWalls.putWall ? ' (put wall ' + swingWalls.putWall + ')' : '');
-          else wallEl.textContent = 'Set direction + walls in SwSet';
+        function g(id) { return document.getElementById(id); }
+        if (g('sw-exp-date')) g('sw-exp-date').textContent = fmtDate(exp);
+        if (g('sw-exit-date')) g('sw-exit-date').textContent = fmtDate(exitBy);
+
+        var symLabel = (sym || '—') + (strike ? ' ' + strike : '') + ' ' + (dir === 'call' ? 'Call ▲' : 'Put ▼');
+        if (g('sw-plan-symdir')) g('sw-plan-symdir').textContent = symLabel;
+
+        // ── Wall cap ───────────────────────────────────────────
+        var wallCapUnderlying = 0;
+        var wallEl = g('sw-plan-wall');
+        if (dir === 'call' && swingWalls.bullTgt) {
+          wallCapUnderlying = swingWalls.bullTgt;
+          if (wallEl) wallEl.textContent = (sym || 'Underlying') + ' ~' + wallCapUnderlying + '  (before call wall ' + swingWalls.callWall + ')';
+        } else if (dir === 'put' && swingWalls.bearTgt) {
+          wallCapUnderlying = swingWalls.bearTgt;
+          if (wallEl) wallEl.textContent = (sym || 'Underlying') + ' ~' + wallCapUnderlying + '  (before put wall ' + swingWalls.putWall + ')';
+        } else {
+          if (wallEl) { wallEl.textContent = 'Set walls in Swing Setup'; wallEl.className = 'rv o'; }
         }
-        var tgtEl = document.getElementById('sw-plan-tgts');
-        if (tgtEl) {
-          if (prem > 0) {
-            var half = (prem * 1.40).toFixed(2);
-            var full = (prem * 1.80).toFixed(2);
-            tgtEl.textContent = 'Half ~$' + half + '  ·  Full ~$' + full + ' (exit prices)';
-          } else tgtEl.textContent = 'Enter premium for $ targets';
+
+        // ── ATR target ─────────────────────────────────────────
+        var atrTgtUnderlying = 0;
+        var atrEl = g('sw-atr-tgt');
+        if (atr > 0 && underlying > 0) {
+          atrTgtUnderlying = dir === 'call'
+            ? Math.round((underlying + 2 * atr) * 100) / 100
+            : Math.round((underlying - 2 * atr) * 100) / 100;
+          if (atrEl) atrEl.textContent = (sym || 'Underlying') + ' ~' + atrTgtUnderlying + '  (entry ' + underlying + ' ± 2×ATR ' + atr + ')';
+        } else {
+          if (atrEl) atrEl.textContent = 'Enter ATR above (optional)';
         }
-        var riskEl = document.getElementById('sw-plan-risk');
-        var acctEl = document.getElementById('sw-plan-acct');
-        if (prem > 0) {
-          var dollars = Math.round(prem * 100);
-          if (riskEl) { riskEl.textContent = '~$' + dollars + ' max (premium × 100)'; riskEl.className = 'rv' + (dollars > 60 ? ' o' : ' g'); }
-          if (acctEl) {
-            var pct = ((dollars / 3000) * 100).toFixed(1);
-            acctEl.textContent = pct + '% of $3,000' + (parseFloat(pct) > 2 ? '  ⚠ over 2%' : '');
-            acctEl.className = 'rv' + (parseFloat(pct) > 2 ? ' r' : ' g');
+
+        // ── Binding target: whichever underlying level is CLOSER to current price ──
+        // For calls: smaller number is closer; for puts: larger number is closer
+        var bindingUnderlying = 0, bindingLabel = '';
+        var candidates = [];
+        if (wallCapUnderlying > 0) candidates.push({ level: wallCapUnderlying, label: 'GEX wall cap' });
+        if (atrTgtUnderlying > 0) candidates.push({ level: atrTgtUnderlying, label: '2× ATR target' });
+
+        if (candidates.length > 0 && underlying > 0) {
+          // Pick whichever requires the smallest move from current price
+          candidates.sort(function (a, b) {
+            return Math.abs(a.level - underlying) - Math.abs(b.level - underlying);
+          });
+          bindingUnderlying = candidates[0].level;
+          bindingLabel = candidates[0].label;
+        } else if (candidates.length > 0) {
+          bindingUnderlying = candidates[0].level;
+          bindingLabel = candidates[0].label;
+        }
+
+        var bindEl = g('sw-binding-tgt');
+        if (bindEl) {
+          if (bindingUnderlying > 0) {
+            bindEl.textContent = bindingUnderlying + '  (' + bindingLabel + ')';
+            bindEl.className = 'rv g';
+          } else {
+            bindEl.textContent = 'Set walls or enter ATR';
+            bindEl.className = 'rv o';
+          }
+        }
+
+        // ── Option exit price estimate ─────────────────────────
+        // Δ premium ≈ delta × Δ underlying  (first-order, ignores theta/vega)
+        var optExitPrice = 0, rewardDollars = 0;
+        var optExitEl = g('sw-opt-exit');
+        var rewardEl = g('sw-reward');
+        if (bindingUnderlying > 0 && underlying > 0 && prem > 0) {
+          var underlyingMove = Math.abs(bindingUnderlying - underlying);
+          var premiumGain = Math.round(underlyingMove * delta * 100) / 100;
+          optExitPrice = Math.round((prem + premiumGain) * 100) / 100;
+          rewardDollars = Math.round(premiumGain * 100);
+          if (optExitEl) optExitEl.textContent = '$' + optExitPrice + '  (est. +$' + premiumGain + ' from Δ×move)';
+          if (rewardEl) { rewardEl.textContent = '+$' + rewardDollars + ' / contract'; rewardEl.className = 'rv g'; }
+        } else if (prem > 0 && underlying <= 0) {
+          if (optExitEl) optExitEl.textContent = 'Enter underlying price';
+          if (rewardEl) rewardEl.textContent = '—';
+        } else {
+          if (optExitEl) optExitEl.textContent = 'Set target above';
+          if (rewardEl) rewardEl.textContent = '—';
+        }
+
+        // ── Stops ──────────────────────────────────────────────
+        // 30% hard stop
+        var stop30Price = Math.round(prem * 0.70 * 100) / 100;
+        var risk30Dollars = Math.round(prem * 0.30 * 100);
+
+        if (g('sw-stop-30')) g('sw-stop-30').textContent = '$' + stop30Price + '  (−30%)';
+        if (g('sw-risk-30')) g('sw-risk-30').textContent = '−$' + risk30Dollars + ' / contract';
+
+        // EMA9-derived stop
+        var stopEmaPrice = 0, riskEmaDollars = 0;
+        var stopEmaEl = g('sw-stop-ema');
+        var riskEmaEl = g('sw-risk-ema');
+        if (ema9 > 0 && underlying > 0 && prem > 0) {
+          var ema9Move = Math.abs(underlying - ema9);
+          var premiumDrop = Math.round(ema9Move * delta * 100) / 100;
+          stopEmaPrice = Math.round((prem - premiumDrop) * 100) / 100;
+          riskEmaDollars = Math.round(premiumDrop * 100);
+          if (stopEmaEl) stopEmaEl.textContent = '$' + Math.max(stopEmaPrice, 0).toFixed(2) + '  (Δ×|price−EMA9| = −$' + premiumDrop + ')';
+          if (riskEmaEl) { riskEmaEl.textContent = '−$' + riskEmaDollars + ' / contract'; riskEmaEl.className = 'rv r'; }
+        } else {
+          if (stopEmaEl) stopEmaEl.textContent = 'Enter underlying + EMA9 + delta';
+          if (riskEmaEl) { riskEmaEl.textContent = '—'; riskEmaEl.className = 'rv'; }
+        }
+
+        // Pick tighter (smaller dollar loss)
+        var riskUsed = risk30Dollars, stopUsed = stop30Price, stopUsedLabel = '30% premium stop';
+        if (riskEmaDollars > 0 && riskEmaDollars < risk30Dollars) {
+          riskUsed = riskEmaDollars; stopUsed = stopEmaPrice; stopUsedLabel = 'EMA9 structural stop';
+        }
+        if (g('sw-stop-used')) {
+          g('sw-stop-used').textContent = '$' + stopUsed.toFixed(2) + '  ← ' + stopUsedLabel;
+          g('sw-stop-used').className = 'rv r';
+        }
+        if (g('sw-risk-used')) {
+          g('sw-risk-used').textContent = '−$' + riskUsed + ' / contract';
+          g('sw-risk-used').className = 'rv r';
+        }
+
+        // ── R:R verdict ────────────────────────────────────────
+        var rrEl = g('sw-rr-ratio');
+        var rrLabel = g('sw-rr-label');
+        var verdictBanner = g('sw-rr-verdict');
+        if (rewardDollars > 0 && riskUsed > 0) {
+          var rr = rewardDollars / riskUsed;
+          var rrText = rr.toFixed(2) + ':1';
+          if (rrEl) rrEl.textContent = rrText;
+          if (rr >= 2) {
+            if (verdictBanner) verdictBanner.style.background = '#f0fff4';
+            if (rrEl) rrEl.style.color = '#1a7f37';
+            if (rrLabel) { rrLabel.textContent = 'R:R ✓ Take it — reward is ' + rrText + ' your risk'; rrLabel.style.color = '#1a7f37'; }
+          } else if (rr >= 1.5) {
+            if (verdictBanner) verdictBanner.style.background = '#fffbf0';
+            if (rrEl) rrEl.style.color = '#b7620a';
+            if (rrLabel) { rrLabel.textContent = 'R:R marginal — only if setup is very clean'; rrLabel.style.color = '#b7620a'; }
+          } else {
+            if (verdictBanner) verdictBanner.style.background = '#fff1f0';
+            if (rrEl) rrEl.style.color = '#c0392b';
+            if (rrLabel) { rrLabel.textContent = 'R:R too low — skip. Not worth it on 1 contract.'; rrLabel.style.color = '#c0392b'; }
           }
         } else {
-          if (riskEl) riskEl.textContent = 'Enter estimated premium';
-          if (acctEl) acctEl.textContent = '—';
+          if (verdictBanner) verdictBanner.style.background = '#f2f2f7';
+          if (rrEl) { rrEl.textContent = '—'; rrEl.style.color = '#8e8e93'; }
+          if (rrLabel) { rrLabel.textContent = 'Fill in inputs above to see R:R'; rrLabel.style.color = '#8e8e93'; }
         }
+
+        // ── Account check ──────────────────────────────────────
+        var outlay = Math.round(prem * 100);
+        var riskEl2 = g('sw-plan-risk');
+        var acctEl = g('sw-plan-acct');
+        if (riskEl2) { riskEl2.textContent = '$' + outlay + ' (premium × 100)'; riskEl2.className = 'rv' + (outlay > 150 ? ' r' : outlay > 90 ? ' o' : ' g'); }
+        if (acctEl) {
+          var pct = ((outlay / 3000) * 100).toFixed(1);
+          acctEl.textContent = pct + '% of $3,000' + (parseFloat(pct) > 2 ? '  ⚠ over 2%' : '');
+          acctEl.className = 'rv' + (parseFloat(pct) > 2 ? ' r' : ' g');
+        }
+
+        // ── Pre-fill journal date ──────────────────────────────
+        var jDateEl = g('sw-entry-date');
+        if (jDateEl && !jDateEl.value) jDateEl.value = new Date().toISOString().split('T')[0];
+
+        // Store computed values for journal logging
+        window._swPlanCache = {
+          optExitPrice: optExitPrice,
+          riskUsed: riskUsed,
+          stopUsed: stopUsed,
+          stopUsedLabel: stopUsedLabel,
+          rewardDollars: rewardDollars,
+          rr: rewardDollars > 0 && riskUsed > 0 ? rewardDollars / riskUsed : 0,
+          bindingUnderlying: bindingUnderlying,
+          bindingLabel: bindingLabel
+        };
       }
 
       function resetSwingSetup() {
@@ -2948,6 +3395,166 @@
         var vd = document.getElementById('sw-verdict');
         vd.className = 'sig idle';
         vd.innerHTML = '<div class="sigt">Tick swing checks above</div><div class="ss">Start with weekly — 2+ weeks of same VWAP slope?</div>';
+      }
+
+      // ══ SWING → JOURNAL INTEGRATION ══
+      async function swingLogToJournal() {
+        var sym = ((document.getElementById('sw-sym') || {}).value || '').toUpperCase().trim();
+        var dir = ((document.getElementById('sw-plan-dir') || {}).value || '');
+        var dte = ((document.getElementById('sw-plan-dte') || {}).value || '50');
+        var strike = nv('sw-plan-strike');
+        var prem = nv('sw-plan-prem');
+        var date = document.getElementById('sw-entry-date').value || new Date().toISOString().split('T')[0];
+        var note = document.getElementById('sw-entry-note').value || '';
+
+        if (!sym || !dir || !prem) { alert('Fill in Symbol, Direction, and Entry Premium first.'); return; }
+
+        var cache = window._swPlanCache || {};
+        var typeStr = sym + ' ' + (dir === 'call' ? 'Call' : 'Put') + ' Swing' + (strike ? ' ' + strike : '') + ' ' + dte + 'DTE';
+
+        // Embed R:R plan into note
+        var planNote = 'Entry:$' + prem
+          + ' | Stop:$' + (cache.stopUsed ? cache.stopUsed.toFixed(2) : '—') + ' (' + (cache.stopUsedLabel || '—') + ')'
+          + ' | Target:' + (cache.bindingUnderlying ? cache.bindingUnderlying + ' underlying' : '—') + ' (' + (cache.bindingLabel || '—') + ')'
+          + ' | Est.exit:$' + (cache.optExitPrice || '—')
+          + ' | Risk:$' + (cache.riskUsed || '—')
+          + ' | Reward:$' + (cache.rewardDollars || '—')
+          + ' | R:R:' + (cache.rr ? cache.rr.toFixed(2) + ':1' : '—');
+        var fullNote = (note ? note + ' · ' : '') + planNote;
+
+        var gexVal = swingGexEnv === 'trend' ? 'NEG' : swingGexEnv === 'pin' ? 'POS' : swingGexEnv === 'zero' ? 'ZERO' : '';
+        var stopPrice = cache.stopUsed || Math.round(prem * 0.70 * 100) / 100;
+        var trade = {
+          date: date,
+          type: typeStr,
+          entry: prem,
+          exit: 0,
+          result: 'OPEN',
+          gex: gexVal,
+          touch: 'NA',
+          rules: 'YES',
+          pnl: 0,
+          note: fullNote,
+          isSwing: true,
+          sym: sym,
+          dir: dir,
+          strike: strike,
+          dte: parseInt(dte),
+          stopPrice: stopPrice,
+          stopLabel: cache.stopUsedLabel || '30% stop',
+          targetUnderlying: cache.bindingUnderlying || 0,
+          targetLabel: cache.bindingLabel || '',
+          optExitEst: cache.optExitPrice || 0,
+          riskDollars: cache.riskUsed || 0,
+          rewardDollars: cache.rewardDollars || 0,
+          rr: cache.rr || 0,
+          wallCap: (dir === 'call' ? swingWalls.bullTgt : swingWalls.bearTgt) || 0,
+          createdAt: Date.now()
+        };
+
+        trades.unshift(trade);
+        if (auth.currentUser) {
+          try { localStorage.setItem(getUserStorageKey(auth.currentUser.uid), JSON.stringify(trades)); } catch (e) { }
+        }
+        renderJ();
+
+        // Reset form fields
+        ['sw-sym', 'sw-plan-strike', 'sw-plan-prem', 'sw-underlying', 'sw-entry-note'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+        var dirEl = document.getElementById('sw-plan-dir'); if (dirEl) dirEl.value = '';
+        document.getElementById('sw-plan-result').style.display = 'none';
+
+        if (!auth.currentUser) { alert('Logged locally. Sign in to sync to Firebase.'); return; }
+        try {
+          await addDoc(getUserTradesCol(), trade);
+        } catch (e) {
+          console.error('Firestore swing write failed', e);
+        }
+
+        // Navigate to journal
+        sp('journal', document.querySelector('.tab:nth-child(5)'));
+        alert('Swing trade logged! Edit exit price in Journal when you close the position.');
+      }
+
+      function openSwingEdit(tradeId) {
+        var trade = trades.find(function (t) { return (t.id || t.createdAt + '') === tradeId; });
+        if (!trade) return;
+        swingEditId = tradeId;
+        var modal = document.getElementById('sw-edit-modal');
+        modal.style.display = 'flex';
+        var meta = document.getElementById('sw-edit-meta');
+        var metaParts = [trade.type, 'Entry: $' + trade.entry];
+        if (trade.stopPrice) metaParts.push('Stop: $' + trade.stopPrice.toFixed(2));
+        if (trade.riskDollars) metaParts.push('Risk: −$' + trade.riskDollars);
+        if (trade.optExitEst) metaParts.push('Target~: $' + trade.optExitEst);
+        if (trade.rewardDollars) metaParts.push('Reward: +$' + trade.rewardDollars);
+        if (trade.rr) metaParts.push('R:R: ' + trade.rr.toFixed(2) + ':1');
+        meta.textContent = metaParts.join('  ·  ');
+        var exitEl = document.getElementById('sw-edit-exit');
+        if (exitEl) exitEl.value = trade.exit && trade.exit > 0 ? trade.exit : '';
+        var resultEl = document.getElementById('sw-edit-result');
+        if (resultEl) resultEl.value = trade.result || 'OPEN';
+        var noteEl = document.getElementById('sw-edit-note');
+        if (noteEl) noteEl.value = trade.note || '';
+
+        // Live P&L preview on exit change
+        if (exitEl) {
+          exitEl.oninput = function () {
+            var ex = parseFloat(exitEl.value);
+            var pv = document.getElementById('sw-edit-pnl-preview');
+            if (ex > 0 && trade.entry > 0) {
+              var pnl = Math.round((ex - trade.entry) * 100);
+              pv.style.display = 'block';
+              pv.textContent = 'P&L preview: ' + (pnl >= 0 ? '+' : '') + '$' + pnl + ' per contract';
+              pv.style.color = pnl >= 0 ? '#1a7f37' : '#c0392b';
+              pv.style.background = pnl >= 0 ? '#f0fff4' : '#fff1f0';
+            } else {
+              pv.style.display = 'none';
+            }
+          };
+        }
+      }
+      function closeSwingEdit() {
+        document.getElementById('sw-edit-modal').style.display = 'none';
+        swingEditId = null;
+      }
+      async function saveSwingEdit() {
+        var exitVal = parseFloat(document.getElementById('sw-edit-exit').value) || 0;
+        var result = document.getElementById('sw-edit-result').value;
+        var note = document.getElementById('sw-edit-note').value;
+
+        var idx = trades.findIndex(function (t) { return (t.id || t.createdAt + '') === swingEditId; });
+        if (idx < 0) { closeSwingEdit(); return; }
+        var trade = trades[idx];
+        var pnl = exitVal > 0 && trade.entry > 0 ? Math.round((exitVal - trade.entry) * 100 * 100) / 100 : trade.pnl || 0;
+        trades[idx] = Object.assign({}, trade, { exit: exitVal, result: result, note: note, pnl: pnl, updatedAt: Date.now() });
+
+        if (auth.currentUser) {
+          try { localStorage.setItem(getUserStorageKey(auth.currentUser.uid), JSON.stringify(trades)); } catch (e) { }
+        }
+        renderJ();
+        closeSwingEdit();
+
+        if (!auth.currentUser) { alert('Updated locally. Sign in to sync.'); return; }
+        if (trade.id) {
+          try {
+            await setDoc(doc(db, 'users', auth.currentUser.uid, 'trades', trade.id), trades[idx]);
+          } catch (e) {
+            try { await addDoc(getUserTradesCol(), trades[idx]); } catch (e2) { console.warn('Firestore update failed', e2); }
+          }
+        } else {
+          try { await addDoc(getUserTradesCol(), trades[idx]); } catch (e) { console.warn('Firestore add failed', e); }
+        }
+      }
+
+      var journalFilter = 'all';
+      function setJournalFilter(filter, btn) {
+        journalFilter = filter;
+        ['j-filter-all', 'j-filter-0dte', 'j-filter-swing'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) { el.style.background = '#f2f2f7'; el.style.color = '#636366'; }
+        });
+        if (btn) { btn.style.background = '#007aff'; btn.style.color = '#fff'; }
+        renderJ();
       }
 
       // ══ LOTTERY ══
@@ -3270,6 +3877,7 @@
         setGexEnv, setScn, resetSetup, ct, resetEntry, addTrade, clearAll,
         sct, resetSwing, sp, calcWalls, calcGap, calcFill, calcFV,
         setSwingGex, calcSwingWalls, updateSwingPlan, resetSwingSetup, openLotteryFromHeader,
+        swingLogToJournal, openSwingEdit, closeSwingEdit, saveSwingEdit, setJournalFilter,
         lottSpin, lottReset, lottUpdateExcluded,
         signUpWithEmailPassword, signInWithEmailPassword, signOutCurrentUser
       });
@@ -3278,6 +3886,10 @@
       document.body.classList.remove('auth-ready');
       bindFormPersistence();
       restoreFormState();
+      updateSwingGexInterpretation(swingGexEnv);
+      // Set swing entry date default
+      var swDateEl = document.getElementById('sw-entry-date');
+      if (swDateEl && !swDateEl.value) swDateEl.value = new Date().toISOString().split('T')[0];
       if (!document.getElementById('j-date').value) {
         document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
       }
