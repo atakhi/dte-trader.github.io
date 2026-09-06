@@ -1132,97 +1132,188 @@
 
   <!-- ══ JOURNAL PAGE ══ -->
   <div id="pg-journal" class="pg">
-    <div class="g3">
-      <div class="sc">
-        <div class="sn" id="j-pnl">$0</div>
-        <div class="sl">Total P&L</div>
-      </div>
-      <div class="sc">
-        <div class="sn" id="j-wr">0%</div>
-        <div class="sl">Win rate</div>
-      </div>
-      <div class="sc">
-        <div class="sn" id="j-n">0</div>
-        <div class="sl">Trades</div>
-      </div>
-    </div>
-    <div class="g2">
-      <div class="sc">
-        <div class="sn" id="j-wins">0</div>
-        <div class="sl">Wins</div>
-      </div>
-      <div class="sc">
-        <div class="sn" id="j-losses">0</div>
-        <div class="sl">Losses</div>
-      </div>
+
+    <!-- ── Sub-tab bar ── -->
+    <div style="display:flex;gap:0;margin-bottom:14px;background:#f2f2f7;border-radius:12px;padding:3px">
+      <button id="jt-trades-btn" onclick="setJournalSubTab('trades')" style="flex:1;padding:7px 0;border:none;border-radius:10px;font-size:13px;font-weight:600;background:#fff;color:#1c1c1e;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.10)">Trades</button>
+      <button id="jt-watch-btn" onclick="setJournalSubTab('watchlist')" style="flex:1;padding:7px 0;border:none;border-radius:10px;font-size:13px;font-weight:600;background:transparent;color:#8e8e93;cursor:pointer">Watchlist</button>
     </div>
 
-    <div class="lbl" style="display:flex;justify-content:space-between;align-items:center">
-      <span>Log trade or observation</span>
-      <div style="display:flex;gap:6px">
-        <button id="j-filter-all" onclick="setJournalFilter('all',this)" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#007aff;color:#fff;cursor:pointer">All</button>
-        <button id="j-filter-0dte" onclick="setJournalFilter('0dte',this)" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#f2f2f7;color:#636366;cursor:pointer">0DTE</button>
-        <button id="j-filter-swing" onclick="setJournalFilter('swing',this)" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#f2f2f7;color:#636366;cursor:pointer">Swing</button>
+    <!-- ══ TRADES SUB-TAB ══ -->
+    <div id="jt-trades">
+      <div class="g3">
+        <div class="sc"><div class="sn" id="j-pnl">$0</div><div class="sl">Total P&L</div></div>
+        <div class="sc"><div class="sn" id="j-wr">0%</div><div class="sl">Win rate</div></div>
+        <div class="sc"><div class="sn" id="j-n">0</div><div class="sl">Trades</div></div>
       </div>
-    </div>
-    <div class="fg">
-      <input class="fi" id="j-date" type="date">
-      <select class="fi" id="j-type">
-        <option value="">Instrument</option>
-        <optgroup label="0DTE">
-          <option value="SPX Call 0DTE">SPX Call 0DTE</option>
-          <option value="SPX Put 0DTE">SPX Put 0DTE</option>
-          <option value="QQQ Call 0DTE">QQQ Call 0DTE</option>
-          <option value="QQQ Put 0DTE">QQQ Put 0DTE</option>
-        </optgroup>
-        <optgroup label="Swing">
-          <option value="QQQ Call Swing">QQQ Call Swing</option>
-          <option value="QQQ Put Swing">QQQ Put Swing</option>
-          <option value="SPY Call Swing">SPY Call Swing</option>
-          <option value="SPY Put Swing">SPY Put Swing</option>
-        </optgroup>
-        <option value="Observation">Observation</option>
-      </select>
-      <input class="fi" id="j-entry" type="number" placeholder="Fill price" step="0.01" inputmode="decimal">
-      <input class="fi" id="j-exit" type="number" placeholder="Exit price (leave blank if open)" step="0.01" inputmode="decimal">
-      <select class="fi" id="j-result">
-        <option value="">Outcome</option>
-        <option value="WIN">Win — target hit</option>
-        <option value="LOSS-EMA">Loss — EMA9 stop</option>
-        <option value="LOSS-TIME">Loss — time exit</option>
-        <option value="MANUAL">Manual / early exit</option>
-        <option value="OPEN">Still open (swing)</option>
-        <option value="SKIP">Skipped — no setup</option>
-        <option value="OBS">Observation only</option>
-      </select>
-      <select class="fi" id="j-gex">
-        <option value="">GEX today</option>
-        <option value="NEG">Negative — trending</option>
-        <option value="POS">Positive — pinning</option>
-        <option value="ZERO">Near zero</option>
-      </select>
-      <select class="fi" id="j-touch">
-        <option value="">EMA9 touch #</option>
-        <option value="1">1st touch</option>
-        <option value="2">2nd touch</option>
-        <option value="3">3rd+ touch</option>
-        <option value="NA">N/A</option>
-      </select>
-      <select class="fi" id="j-rules">
-        <option value="">Rules followed?</option>
-        <option value="YES">Yes</option>
-        <option value="NO">No — broke rule</option>
-      </select>
-      <input class="fi full" id="j-note" type="text" placeholder="What happened? Setup quality? Lesson?">
-    </div>
-    <button class="btn prim" onclick="addTrade()">Log entry</button>
+      <div class="g2">
+        <div class="sc"><div class="sn" id="j-wins">0</div><div class="sl">Wins</div></div>
+        <div class="sc"><div class="sn" id="j-losses">0</div><div class="sl">Losses</div></div>
+      </div>
 
-    <div class="lbl">History</div>
-    <div class="card" id="j-list">
-      <div class="empty">No entries yet</div>
+      <div class="lbl" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Log trade or observation</span>
+        <div style="display:flex;gap:6px">
+          <button id="j-filter-all"   onclick="setJournalFilter('all',this)"   style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#007aff;color:#fff;cursor:pointer">All</button>
+          <button id="j-filter-0dte"  onclick="setJournalFilter('0dte',this)"  style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#f2f2f7;color:#636366;cursor:pointer">0DTE</button>
+          <button id="j-filter-swing" onclick="setJournalFilter('swing',this)" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#f2f2f7;color:#636366;cursor:pointer">Swing</button>
+        </div>
+      </div>
+      <div class="fg">
+        <input class="fi" id="j-date" type="date">
+        <select class="fi" id="j-type">
+          <option value="">Instrument</option>
+          <optgroup label="0DTE">
+            <option value="SPX Call 0DTE">SPX Call 0DTE</option>
+            <option value="SPX Put 0DTE">SPX Put 0DTE</option>
+            <option value="QQQ Call 0DTE">QQQ Call 0DTE</option>
+            <option value="QQQ Put 0DTE">QQQ Put 0DTE</option>
+          </optgroup>
+          <optgroup label="Swing">
+            <option value="QQQ Call Swing">QQQ Call Swing</option>
+            <option value="QQQ Put Swing">QQQ Put Swing</option>
+            <option value="SPY Call Swing">SPY Call Swing</option>
+            <option value="SPY Put Swing">SPY Put Swing</option>
+          </optgroup>
+          <option value="Observation">Observation</option>
+        </select>
+        <input class="fi" id="j-entry" type="number" placeholder="Fill price" step="0.01" inputmode="decimal">
+        <input class="fi" id="j-exit"  type="number" placeholder="Exit price (leave blank if open)" step="0.01" inputmode="decimal">
+        <select class="fi" id="j-result">
+          <option value="">Outcome</option>
+          <option value="WIN">Win — target hit</option>
+          <option value="LOSS-EMA">Loss — EMA9 stop</option>
+          <option value="LOSS-TIME">Loss — time exit</option>
+          <option value="MANUAL">Manual / early exit</option>
+          <option value="OPEN">Still open (swing)</option>
+          <option value="SKIP">Skipped — no setup</option>
+          <option value="OBS">Observation only</option>
+        </select>
+        <select class="fi" id="j-gex">
+          <option value="">GEX today</option>
+          <option value="NEG">Negative — trending</option>
+          <option value="POS">Positive — pinning</option>
+          <option value="ZERO">Near zero</option>
+        </select>
+        <select class="fi" id="j-touch">
+          <option value="">EMA9 touch #</option>
+          <option value="1">1st touch</option>
+          <option value="2">2nd touch</option>
+          <option value="3">3rd+ touch</option>
+          <option value="NA">N/A</option>
+        </select>
+        <select class="fi" id="j-rules">
+          <option value="">Rules followed?</option>
+          <option value="YES">Yes</option>
+          <option value="NO">No — broke rule</option>
+        </select>
+        <input class="fi full" id="j-note" type="text" placeholder="What happened? Setup quality? Lesson?">
+      </div>
+      <button class="btn prim" onclick="addTrade()">Log entry</button>
+
+      <div class="lbl">History</div>
+      <div class="card" id="j-list"><div class="empty">No entries yet</div></div>
+      <br>
+      <button class="btn dng" onclick="clearAll()">Clear all history</button>
     </div>
-    <br>
-    <button class="btn dng" onclick="clearAll()">Clear all history</button>
+
+    <!-- ══ WATCHLIST SUB-TAB ══ -->
+    <div id="jt-watchlist" style="display:none">
+
+      <!-- Watchlist summary pills -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="background:#f0fff4;border:1.5px solid #34c759;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:600;color:#1a7f37">
+          <span id="wl-count-ready">0</span> Ready
+        </div>
+        <div style="background:#fffbf0;border:1.5px solid #ff9500;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:600;color:#b7620a">
+          <span id="wl-count-watching">0</span> Watching
+        </div>
+        <div style="background:#f2f2f7;border:1.5px solid #c7c7cc;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:600;color:#8e8e93">
+          <span id="wl-count-passed">0</span> Passed
+        </div>
+      </div>
+
+      <!-- Add to watchlist form -->
+      <div class="lbl">Add candidate</div>
+      <div class="card" style="padding:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div>
+            <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Symbol</div>
+            <input class="inp" id="wl-sym" type="text" placeholder="NVDA, AAPL…" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Direction</div>
+            <select class="fi" id="wl-dir">
+              <option value="">Select</option>
+              <option value="call">Call (bullish)</option>
+              <option value="put">Put (bearish)</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Date analysed</div>
+            <input class="fi" id="wl-date" type="date">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">GEX regime</div>
+            <select class="fi" id="wl-gex">
+              <option value="">Select</option>
+              <option value="NEG">Negative — trending</option>
+              <option value="ZERO">Near zero</option>
+              <option value="POS">Positive — pinning</option>
+            </select>
+          </div>
+          <div style="grid-column:1/-1">
+            <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Why interesting — setup quality</div>
+            <input class="fi full" id="wl-why" type="text" placeholder="EMA9 pullback on daily, clean structure, weekly trend aligned…">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Blocking reason</div>
+            <select class="fi" id="wl-block">
+              <option value="">Select</option>
+              <option value="earnings">Earnings upcoming</option>
+              <option value="iv">IV rank too high</option>
+              <option value="spread">Spread too wide</option>
+              <option value="oi">Low open interest</option>
+              <option value="gex">GEX wrong regime</option>
+              <option value="structure">Structure not clean yet</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Check again after</div>
+            <input class="fi" id="wl-check-after" type="date">
+          </div>
+          <div style="grid-column:1/-1">
+            <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Block detail / notes</div>
+            <input class="fi full" id="wl-note" type="text" placeholder="e.g. Earnings Oct 23 — check again Oct 24">
+          </div>
+        </div>
+
+        <!-- Stock checklist snapshot -->
+        <div style="font-size:11px;color:#8e8e93;margin-bottom:6px;font-weight:600">Stock checklist at time of analysis</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:10px" id="wl-checklist">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#1c1c1e;cursor:pointer"><input type="checkbox" id="wlc0" style="accent-color:#5856d6"> Earnings checked</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#1c1c1e;cursor:pointer"><input type="checkbox" id="wlc1" style="accent-color:#5856d6"> IV rank &lt; 50%</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#1c1c1e;cursor:pointer"><input type="checkbox" id="wlc2" style="accent-color:#5856d6"> Spread &lt; 5%</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#1c1c1e;cursor:pointer"><input type="checkbox" id="wlc3" style="accent-color:#5856d6"> OI &gt; 500</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#1c1c1e;cursor:pointer"><input type="checkbox" id="wlc4" style="accent-color:#5856d6"> Beta &gt; 0.7</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#1c1c1e;cursor:pointer"><input type="checkbox" id="wlc5" style="accent-color:#5856d6"> Swing setup checks passed</label>
+        </div>
+
+        <button class="btn prim" onclick="addWatchlistEntry()" style="background:#5856d6;margin-bottom:0">Add to Watchlist</button>
+      </div>
+
+      <!-- Watchlist filter -->
+      <div class="lbl" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Candidates</span>
+        <div style="display:flex;gap:6px">
+          <button id="wl-f-all"     onclick="setWatchlistFilter('all',this)"      style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#5856d6;color:#fff;cursor:pointer">All</button>
+          <button id="wl-f-ready"   onclick="setWatchlistFilter('ready',this)"    style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#f2f2f7;color:#636366;cursor:pointer">Ready</button>
+          <button id="wl-f-watching"onclick="setWatchlistFilter('watching',this)" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:none;background:#f2f2f7;color:#636366;cursor:pointer">Watching</button>
+        </div>
+      </div>
+      <div class="card" id="wl-list"><div class="empty">No candidates yet — analyse a stock and park it here</div></div>
+    </div>
   </div>
 
   <!-- ══ SWING EDIT MODAL ══ -->
@@ -1565,18 +1656,28 @@
       <div class="ss">Saved separately from 0DTE. Fill weekly GEX + walls here. Swing Entry uses this data for dates and targets.</div>
     </div>
 
-    <div class="lbl">Weekly GEX regime <span style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">check Sunday evening</span></div>
+    <div class="lbl">Monthly GEX regime <span style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">read from nearest (m) expiry on optioncharts</span></div>
     <div class="gex-dir">
       <div class="gex-btn" id="sw-gb-trend" onclick="setSwingGex('trend')">Negative<br><span style="font-size:11px;font-weight:400">Trending</span></div>
-      <div class="gex-btn" id="sw-gb-zero" onclick="setSwingGex('zero')">Near Zero<br><span style="font-size:11px;font-weight:400">Skip week</span></div>
+      <div class="gex-btn" id="sw-gb-zero" onclick="setSwingGex('zero')">Near Zero<br><span style="font-size:11px;font-weight:400">Skip</span></div>
       <div class="gex-btn" id="sw-gb-pin" onclick="setSwingGex('pin')">Positive<br><span style="font-size:11px;font-weight:400">Pinning</span></div>
     </div>
     <div id="sw-gex-env-box" class="sig idle">
-      <div class="sigt" id="sw-gex-env-t">Select weekly net GEX</div>
-      <div class="ss" id="sw-gex-env-s">From optioncharts.io — weekly / all-expiry view</div>
+      <div class="sigt" id="sw-gex-env-t">Select monthly GEX regime</div>
+      <div class="ss" id="sw-gex-env-s">From optioncharts.io — always read from the nearest (m) monthly expiry. This gives the most meaningful walls. Your trading expiry can be (m) or (w) — they don't have to match.</div>
     </div>
 
-    <div class="lbl">Swing walls + QQQ price</div>
+    <!-- GEX date guidance card -->
+    <div class="card" style="padding:0">
+      <div class="shdr blue">How to pick the right GEX expiry to read</div>
+      <div class="row"><span class="rk">Always read from</span><span class="rv b">Nearest (m) monthly on optioncharts — largest OI, most defended walls</span></div>
+      <div class="row"><span class="rk">Your trading expiry</span><span class="rv">Can be (m) or (w) — whichever lands in 45–60 DTE window</span></div>
+      <div class="row"><span class="rk">They don't need to match</span><span class="rv g">Read Nov 20 (m) for walls → trade Oct 23 (w) if that's your 45–60 DTE window</span></div>
+      <div class="row"><span class="rk">When no (m) in range</span><span class="rv o">No monthly in 45–60 DTE window → use nearest (w) weekly that fits. Walls from (m) still apply.</span></div>
+      <div class="row"><span class="rk">GEX expires with contracts</span><span class="rv r">After an (m) expiry passes, walls shift — re-read the next (m) before any new entry</span></div>
+    </div>
+
+    <div class="lbl">Swing walls + underlying price</div>
     <div class="card" style="padding:12px">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
         <div>
@@ -1588,7 +1689,7 @@
           <input class="inp" id="sw-wput" type="number" placeholder="e.g. 540" inputmode="numeric" oninput="calcSwingWalls()">
         </div>
         <div>
-          <div style="font-size:11px;color:#636366;font-weight:500;margin-bottom:5px">QQQ now</div>
+          <div style="font-size:11px;color:#636366;font-weight:500;margin-bottom:5px">Underlying now</div>
           <input class="inp" id="sw-wprice" type="number" placeholder="e.g. 560" inputmode="numeric" oninput="calcSwingWalls()">
         </div>
       </div>
@@ -1666,7 +1767,7 @@
 
     <div class="sig info" style="margin-bottom:10px">
       <div class="sigt">Swing Entry</div>
-      <div class="ss">Uses data from Swing Setup. Long QQQ calls/puts only. Checklist → plan dates/targets → enter.</div>
+      <div class="ss">Uses data from Swing Setup. Long calls/puts on any symbol. Checklist → plan dates/targets → enter.</div>
     </div>
 
     <div class="lbl">This week's read <span style="font-weight:400;text-transform:none;font-size:10px;color:#aaa">from Swing Setup</span></div>
@@ -1674,7 +1775,7 @@
       <div class="row"><span class="rk">Weekly GEX</span><span class="rv" id="ses-gex">— set in Swing Setup</span></div>
       <div class="row"><span class="rk">Call wall</span><span class="rv r" id="ses-cwall">—</span></div>
       <div class="row"><span class="rk">Put wall</span><span class="rv g" id="ses-pwall">—</span></div>
-      <div class="row"><span class="rk">QQQ now</span><span class="rv" id="ses-price">—</span></div>
+      <div class="row"><span class="rk">Underlying now</span><span class="rv" id="ses-price">—</span></div>
     </div>
 
     <div class="lbl">Checklist — weekly → daily → 4hr</div>
@@ -1785,13 +1886,12 @@
           </select>
         </div>
         <div>
-          <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Buy DTE</div>
-          <select class="fi" id="sw-plan-dte" onchange="updateSwingPlan()">
-            <option value="45">45 DTE</option>
-            <option value="50" selected>50 DTE</option>
-            <option value="55">55 DTE</option>
-            <option value="60">60 DTE</option>
-          </select>
+          <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Expiry date <span style="color:#c7c7cc">(from option chain)</span></div>
+          <input class="inp" id="sw-expiry-date" type="date" oninput="updateSwingPlan()">
+        </div>
+        <div id="sw-dte-feedback" style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:6px 10px;border-radius:10px;background:#f2f2f7;font-size:11px;color:#8e8e93">
+          <span id="sw-dte-val">— DTE</span>
+          <span id="sw-dte-status" style="font-weight:600">Pick expiry</span>
         </div>
         <div>
           <div style="font-size:11px;color:#8e8e93;margin-bottom:4px">Strike</div>
@@ -1852,8 +1952,8 @@
         <div class="sw-ch" onclick="toggleStockCheck(3)" style="padding:10px 14px;border-top:0.5px solid #f2f2f7">
           <div class="scb" id="ssc3"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="2,6 5,9 10,3"/></svg></div>
           <div>
-            <div class="cl">Open interest &gt; 500 contracts at your strike</div>
-            <div class="cs">Low open interest = wide spreads and difficulty exiting. Check the option chain — your specific strike and expiry should have at least 500 open contracts. Below that, you may not get a fair fill when you need to exit.</div>
+            <div class="cl">OI &gt; 100 at your strike AND spread &lt; $0.20</div>
+            <div class="cs">Check the option chain at your exact strike and expiry. Open interest above 100 confirms activity. More important: bid-ask spread under $0.20 — a tight spread means market makers are competing and you'll get fair fills on entry and exit. Wide spread (e.g. $0.50+) costs you on both sides even if OI looks acceptable.</div>
           </div>
         </div>
 
@@ -1924,7 +2024,8 @@
           <input class="fi" id="sw-entry-note" type="text" placeholder="Setup reason…">
         </div>
       </div>
-      <button class="btn prim" id="sw-log-btn" onclick="swingLogToJournal()" style="background:#5856d6;margin-bottom:0">Log swing to Journal →</button>
+      <button class="btn prim" id="sw-log-btn" onclick="swingLogToJournal()" style="background:#5856d6;margin-bottom:6px">Log swing to Journal →</button>
+      <button class="btn sec" onclick="parkToWatchlist()" style="margin-bottom:0;color:#5856d6;border-color:#5856d6">Park to Watchlist — not trading yet</button>
     </div>
 
     <!-- ── RULES ── -->
@@ -1936,6 +2037,15 @@
       <div class="row"><span class="rk">Time stop</span><span class="rv r">Still underwater after 5–7 sessions AND structure weakens → exit. Do not hold decaying theta.</span></div>
       <div class="row"><span class="rk">Hard date</span><span class="rv r">30 DTE remaining → exit regardless of P&L. Gamma and theta risk too high.</span></div>
       <div class="row"><span class="rk">Hard rule</span><span class="rv r">Never average down. 1 contract is 1 contract — adding is a separate new trade decision.</span></div>
+    </div>
+
+    <div class="lbl">Mid-trade review cadence</div>
+    <div class="card" style="padding:0">
+      <div class="row"><span class="rk">Every Sunday</span><span class="rv">Re-read (m) monthly GEX → has regime changed? Wall levels shifted? Update swing setup if so.</span></div>
+      <div class="row"><span class="rk">Every Friday close</span><span class="rv">Weekly expiry removes gamma — walls can move. Check optioncharts after 4pm. If wall moved past your target → reassess Monday.</span></div>
+      <div class="row"><span class="rk">After 3%+ underlying move</span><span class="rv o">Big move changes gamma landscape. Re-read GEX before assuming old walls still hold.</span></div>
+      <div class="row"><span class="rk">GEX regime flip</span><span class="rv r">If GEX flips neg→pos or pos→neg mid-trade → exit at next open. The structural reason for your trade no longer exists. Don't wait for EMA9.</span></div>
+      <div class="row"><span class="rk">(m) expiry passes</span><span class="rv r">After a monthly expiry date passes, its gamma disappears and walls reset. Always re-read the next (m) before holding further.</span></div>
     </div>
     </div>
 
@@ -2169,6 +2279,7 @@
         document.getElementById('auth-email').value = user.email || '';
         setAuthStatus('Signed in as ' + user.email, 'go');
         syncUserTrades(user.uid);
+        loadWatchlistLocal(user.uid);
         lottLoadFromFirestore(user.uid);
       } else {
         document.getElementById('signout-btn').style.display = 'none';
@@ -3050,37 +3161,65 @@
       var res = document.getElementById('sw-plan-result');
       if (!res) return;
 
-      var sym       = ((document.getElementById('sw-sym')       || {}).value || '').toUpperCase().trim();
-      var dir       = ((document.getElementById('sw-plan-dir')  || {}).value || '');
-      var dte       = parseInt(((document.getElementById('sw-plan-dte') || {}).value || '50'), 10);
-      var strike    = nv('sw-plan-strike');
-      var prem      = nv('sw-plan-prem');
-      var delta     = nv('sw-delta')     || 0.50;   // default ATM delta
-      var underlying= nv('sw-underlying');
-      var ema9      = nv('sw-ema9');
-      var atr       = nv('sw-atr');
+      var sym        = ((document.getElementById('sw-sym')          || {}).value || '').toUpperCase().trim();
+      var dir        = ((document.getElementById('sw-plan-dir')     || {}).value || '');
+      var expiryStr  = ((document.getElementById('sw-expiry-date')  || {}).value || '');
+      var strike     = nv('sw-plan-strike');
+      var prem       = nv('sw-plan-prem');
+      var delta      = nv('sw-delta')      || 0.50;
+      var underlying = nv('sw-underlying');
+      var ema9       = nv('sw-ema9');
+      var atr        = nv('sw-atr');
 
-      // Need at least direction + premium to show a plan
-      if (!dir || !prem) { res.style.display = 'none'; return; }
+      // ── DTE calculation and validation ─────────────────────────────────────
+      var today = new Date(); today.setHours(0,0,0,0);
+      var dte = 0, dteValid = false, exitBy = null;
+      var dteValEl    = document.getElementById('sw-dte-val');
+      var dteStatusEl = document.getElementById('sw-dte-status');
+      var dteFeedback = document.getElementById('sw-dte-feedback');
+
+      if (expiryStr) {
+        var expiry = new Date(expiryStr); expiry.setHours(0,0,0,0);
+        dte    = Math.round((expiry - today) / 86400000);
+        exitBy = new Date(expiry); exitBy.setDate(exitBy.getDate() - 30);
+        var dteColor, dteStatus;
+        if      (dte < 0)   { dteColor='#c0392b'; dteStatus='✗ Date in the past'; dteValid=false; }
+        else if (dte < 30)  { dteColor='#c0392b'; dteStatus='✗ Under 30 DTE — no hold time left after hard exit'; dteValid=false; }
+        else if (dte < 45)  { dteColor='#c0392b'; dteStatus='✗ Below minimum — need at least 45 DTE. Pick a further expiry.'; dteValid=false; }
+        else if (dte <= 60) { dteColor='#1a7f37'; dteStatus='✓ Sweet spot 45–60 DTE — ideal theta and delta balance'; dteValid=true; }
+        else if (dte <= 75) { dteColor='#b7620a'; dteStatus='⚠ 61–75 DTE — acceptable when no (m) monthly in 45–60 range. Using (w) weekly is fine here.'; dteValid=true; }
+        else                { dteColor='#c0392b'; dteStatus='✗ Over 75 DTE — too far out, theta works against you too long. Find a shorter expiry.'; dteValid=false; }
+        if (dteValEl)    dteValEl.textContent = dte + ' DTE' + (dte > 60 && dte <= 75 ? ' · (w) ok' : '');
+        if (dteStatusEl) { dteStatusEl.textContent = dteStatus; dteStatusEl.style.color = dteColor; }
+        if (dteFeedback) dteFeedback.style.background = dte>=45&&dte<=60 ? '#f0fff4' : dte>60&&dte<=75 ? '#fffbf0' : '#fff1f0';
+      } else {
+        if (dteValEl)    dteValEl.textContent = '— DTE';
+        if (dteStatusEl) { dteStatusEl.textContent = 'Pick expiry from chain'; dteStatusEl.style.color = '#8e8e93'; }
+        if (dteFeedback) dteFeedback.style.background = '#f2f2f7';
+      }
+
+      // Need at least direction + premium + expiry to show plan
+      if (!dir || !prem || !expiryStr) { res.style.display = 'none'; return; }
       res.style.display = 'block';
 
       // ── Dates ──────────────────────────────────────────────
-      var today  = new Date();
-      var exp    = nextFriday(addBusinessDays(today, dte));
-      var exitBy = nextFriday(addBusinessDays(today, Math.max(dte - 30, 5)));
       function g(id){ return document.getElementById(id); }
-      if (g('sw-exp-date'))  g('sw-exp-date').textContent  = fmtDate(exp);
-      if (g('sw-exit-date')) g('sw-exit-date').textContent = fmtDate(exitBy);
-
-      // Push hard exit date into earnings checklist so it's visible without scrolling
-      var earningsDateEl = document.getElementById('sw-earnings-exit-date');
-      if (earningsDateEl) {
-        earningsDateEl.textContent = fmtDate(exitBy);
-        earningsDateEl.style.color = '#c0392b';
+      var expDate = new Date(expiryStr);
+      if (g('sw-exp-date')) {
+        g('sw-exp-date').textContent = fmtDate(expDate) + '  (' + dte + ' DTE)';
+        g('sw-exp-date').style.color = dteValid ? '#1c1c1e' : '#c0392b';
+      }
+      if (g('sw-exit-date') && exitBy) {
+        var daysToExit = Math.round((exitBy - today) / 86400000);
+        g('sw-exit-date').textContent = fmtDate(exitBy) + '  (' + daysToExit + ' days from now)';
       }
 
+      // Push hard exit into earnings checklist
+      var earningsDateEl = document.getElementById('sw-earnings-exit-date');
+      if (earningsDateEl && exitBy) { earningsDateEl.textContent = fmtDate(exitBy); earningsDateEl.style.color = '#c0392b'; }
+
       var symLabel = (sym || '—') + (strike ? ' ' + strike : '') + ' ' + (dir === 'call' ? 'Call ▲' : 'Put ▼');
-      if (g('sw-plan-symdir')) g('sw-plan-symdir').textContent = symLabel;
+      if (g('sw-plan-symdir')) g('sw-plan-symdir').textContent = symLabel + (dte ? '  ·  ' + dte + ' DTE' : '');
 
       // ── Wall cap ───────────────────────────────────────────
       var wallCapUnderlying = 0;
@@ -3314,18 +3453,23 @@
 
     // ══ SWING → JOURNAL INTEGRATION ══
     async function swingLogToJournal() {
-      var sym    = ((document.getElementById('sw-sym')      || {}).value || '').toUpperCase().trim();
-      var dir    = ((document.getElementById('sw-plan-dir') || {}).value || '');
-      var dte    = ((document.getElementById('sw-plan-dte') || {}).value || '50');
-      var strike = nv('sw-plan-strike');
-      var prem   = nv('sw-plan-prem');
-      var date   = document.getElementById('sw-entry-date').value || new Date().toISOString().split('T')[0];
-      var note   = document.getElementById('sw-entry-note').value || '';
+      var sym        = ((document.getElementById('sw-sym')          || {}).value || '').toUpperCase().trim();
+      var dir        = ((document.getElementById('sw-plan-dir')     || {}).value || '');
+      var expiryStr  = ((document.getElementById('sw-expiry-date')  || {}).value || '');
+      var strike     = nv('sw-plan-strike');
+      var prem       = nv('sw-plan-prem');
+      var date       = document.getElementById('sw-entry-date').value || new Date().toISOString().split('T')[0];
+      var note       = document.getElementById('sw-entry-note').value || '';
 
       if (!sym || !dir || !prem) { alert('Fill in Symbol, Direction, and Entry Premium first.'); return; }
 
+      // Derive DTE from expiry date
+      var today2 = new Date(); today2.setHours(0,0,0,0);
+      var dte = 0;
+      if (expiryStr) { var exp2 = new Date(expiryStr); exp2.setHours(0,0,0,0); dte = Math.round((exp2 - today2) / 86400000); }
+
+      var typeStr = sym + ' ' + (dir === 'call' ? 'Call' : 'Put') + ' Swing' + (strike ? ' ' + strike : '') + (dte ? ' ' + dte + 'DTE' : '') + (expiryStr ? ' exp:' + expiryStr.slice(5) : '');
       var cache = window._swPlanCache || {};
-      var typeStr = sym + ' ' + (dir === 'call' ? 'Call' : 'Put') + ' Swing' + (strike ? ' ' + strike : '') + ' ' + dte + 'DTE';
 
       // ── Capture swing setup checklist snapshot ─────────────────────────────
       var swingCheckLabels = [
@@ -3393,7 +3537,8 @@
         sym: sym,
         dir: dir,
         strike: strike,
-        dte: parseInt(dte),
+        dte: dte,
+        expiry: expiryStr,
         stopPrice: stopPrice,
         stopLabel: cache.stopUsedLabel || '30% stop',
         targetUnderlying: cache.bindingUnderlying || 0,
@@ -3420,7 +3565,7 @@
       renderJ();
 
       // Reset form fields
-      ['sw-sym','sw-plan-strike','sw-plan-prem','sw-underlying','sw-entry-note','sw-delta','sw-ema9','sw-atr'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      ['sw-sym','sw-plan-strike','sw-plan-prem','sw-underlying','sw-entry-note','sw-delta','sw-ema9','sw-atr','sw-expiry-date'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
       var dirEl = document.getElementById('sw-plan-dir'); if(dirEl) dirEl.value = '';
       document.getElementById('sw-plan-result').style.display = 'none';
       // Reset checklists
@@ -3799,6 +3944,174 @@
       }
     }
 
+    // ══ JOURNAL SUB-TABS ══
+    var journalSubTab = 'trades';
+    function setJournalSubTab(tab) {
+      journalSubTab = tab;
+      document.getElementById('jt-trades').style.display    = tab === 'trades'    ? 'block' : 'none';
+      document.getElementById('jt-watchlist').style.display = tab === 'watchlist' ? 'block' : 'none';
+      var tb = document.getElementById('jt-trades-btn');
+      var wb = document.getElementById('jt-watch-btn');
+      if (tb) { tb.style.background = tab === 'trades' ? '#fff' : 'transparent'; tb.style.color = tab === 'trades' ? '#1c1c1e' : '#8e8e93'; tb.style.boxShadow = tab === 'trades' ? '0 1px 4px rgba(0,0,0,0.10)' : 'none'; }
+      if (wb) { wb.style.background = tab === 'watchlist' ? '#fff' : 'transparent'; wb.style.color = tab === 'watchlist' ? '#1c1c1e' : '#8e8e93'; wb.style.boxShadow = tab === 'watchlist' ? '0 1px 4px rgba(0,0,0,0.10)' : 'none'; }
+    }
+
+    // ══ WATCHLIST ══
+    var watchlist = [];
+    var watchlistFilter = 'all';
+    var BLOCK_LABELS = { earnings:'Earnings upcoming', iv:'IV rank too high', spread:'Spread too wide', oi:'Low open interest', gex:'GEX wrong regime', structure:'Structure not clean yet', other:'Other' };
+    var WL_CHECK_LABELS = ['Earnings checked','IV rank < 50%','Spread < 5%','OI > 500','Beta > 0.7','Swing setup checks passed'];
+
+    function getUserWatchlistCol() {
+      return collection(db, 'users', auth.currentUser.uid, 'watchlist');
+    }
+
+    async function addWatchlistEntry() {
+      var sym    = (document.getElementById('wl-sym').value || '').toUpperCase().trim();
+      var dir    = document.getElementById('wl-dir').value || '';
+      var date   = document.getElementById('wl-date').value || new Date().toISOString().split('T')[0];
+      var gex    = document.getElementById('wl-gex').value || '';
+      var why    = document.getElementById('wl-why').value || '';
+      var block  = document.getElementById('wl-block').value || '';
+      var checkAfter = document.getElementById('wl-check-after').value || '';
+      var note   = document.getElementById('wl-note').value || '';
+      var checks = [0,1,2,3,4,5].map(function(i){ return document.getElementById('wlc'+i).checked; });
+      if (!sym) { alert('Symbol required'); return; }
+      var entry = { sym, dir, date, gex, why, block, checkAfter, note, checks, status: 'watching', createdAt: Date.now() };
+      watchlist.unshift(entry);
+      saveWatchlistLocal();
+      renderWatchlist();
+      ['wl-sym','wl-why','wl-note','wl-check-after'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      ['wl-dir','wl-gex','wl-block'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      [0,1,2,3,4,5].forEach(function(i){ var el=document.getElementById('wlc'+i); if(el) el.checked=false; });
+      if (!auth.currentUser) return;
+      try { await addDoc(getUserWatchlistCol(), entry); } catch(e) { console.warn('Watchlist Firestore write failed', e); }
+    }
+
+    function saveWatchlistLocal() {
+      if (auth.currentUser) {
+        try { localStorage.setItem('wl_' + auth.currentUser.uid, JSON.stringify(watchlist)); } catch(e) {}
+      }
+    }
+
+    function setWatchlistFilter(f, btn) {
+      watchlistFilter = f;
+      ['wl-f-all','wl-f-ready','wl-f-watching'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) { el.style.background = '#f2f2f7'; el.style.color = '#636366'; }
+      });
+      if (btn) { btn.style.background = '#5856d6'; btn.style.color = '#fff'; }
+      renderWatchlist();
+    }
+
+    async function setWatchlistStatus(idx, status) {
+      if (idx < 0 || idx >= watchlist.length) return;
+      watchlist[idx].status = status;
+      watchlist[idx].updatedAt = Date.now();
+      saveWatchlistLocal();
+      renderWatchlist();
+      if (!auth.currentUser || !watchlist[idx].id) return;
+      try { await setDoc(doc(db, 'users', auth.currentUser.uid, 'watchlist', watchlist[idx].id), watchlist[idx]); } catch(e) {}
+    }
+
+    async function deleteWatchlistEntry(idx) {
+      if (!confirm('Remove ' + watchlist[idx].sym + ' from watchlist?')) return;
+      var entry = watchlist.splice(idx, 1)[0];
+      saveWatchlistLocal();
+      renderWatchlist();
+      if (!auth.currentUser || !entry.id) return;
+      try { await setDoc(doc(db, 'users', auth.currentUser.uid, 'watchlist', entry.id), { _deleted: true, deletedAt: Date.now() }); } catch(e) {}
+    }
+
+    function renderWatchlist() {
+      var ready    = watchlist.filter(function(w){ return w.status==='ready'; }).length;
+      var watching = watchlist.filter(function(w){ return w.status==='watching'; }).length;
+      var passed   = watchlist.filter(function(w){ return w.status==='passed'; }).length;
+      var rEl = document.getElementById('wl-count-ready');    if(rEl) rEl.textContent = ready;
+      var wEl = document.getElementById('wl-count-watching'); if(wEl) wEl.textContent = watching;
+      var pEl = document.getElementById('wl-count-passed');   if(pEl) pEl.textContent = passed;
+
+      var list = document.getElementById('wl-list');
+      if (!list) return;
+
+      var filtered = watchlist.map(function(w, i){ return Object.assign({}, w, {_idx: i}); }).filter(function(w){
+        if (watchlistFilter === 'ready')    return w.status === 'ready';
+        if (watchlistFilter === 'watching') return w.status === 'watching';
+        return true;
+      });
+
+      if (!filtered.length) {
+        list.innerHTML = '<div class="empty">' + (watchlistFilter === 'all' ? 'No candidates yet — analyse a stock and park it here' : 'No ' + watchlistFilter + ' candidates') + '</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(function(w) {
+        var idx = w._idx;
+        var statusColor = w.status==='ready' ? '#1a7f37' : w.status==='passed' ? '#8e8e93' : '#b7620a';
+        var statusBg    = w.status==='ready' ? '#f0fff4' : w.status==='passed' ? '#f2f2f7' : '#fffbf0';
+        var statusLabel = w.status==='ready' ? 'Ready ✓' : w.status==='passed' ? 'Passed' : 'Watching';
+        var dirLabel    = w.dir==='call' ? 'Call ▲' : w.dir==='put' ? 'Put ▼' : '';
+        var gexLabel    = w.gex==='NEG' ? '↓Neg' : w.gex==='POS' ? '+Pos' : w.gex==='ZERO' ? '~Zero' : '';
+        var blockLabel  = BLOCK_LABELS[w.block] || w.block || '—';
+
+        var checkRow = '';
+        if (w.checks && w.checks.length) {
+          checkRow = '<div style="display:flex;flex-wrap:wrap;gap:4px 10px;padding:5px 14px 6px;font-size:10.5px;background:#f9f9fb;border-bottom:0.5px solid #f2f2f7">'
+            + WL_CHECK_LABELS.map(function(l, i){ var ok=w.checks[i]; return '<span style="color:'+(ok?'#34c759':'#ff3b30')+'">'+(ok?'✓':'✗')+' '+l+'</span>'; }).join('')
+            + '</div>';
+        }
+
+        var checkAfterStr = '';
+        if (w.checkAfter) {
+          var daysUntil = Math.ceil((new Date(w.checkAfter) - new Date()) / 86400000);
+          var caColor = daysUntil <= 3 ? '#c0392b' : daysUntil <= 7 ? '#b7620a' : '#636366';
+          checkAfterStr = '<span style="font-size:10px;color:'+caColor+';font-weight:600"> · Check after '+w.checkAfter.slice(5)+(daysUntil<=7?' ('+daysUntil+'d)':'')+' </span>';
+        }
+
+        var actions = '';
+        if (w.status==='watching') actions += '<button onclick="setWatchlistStatus('+idx+',\'ready\')" style="font-size:10px;padding:2px 8px;border-radius:20px;border:1.5px solid #34c759;background:#f0fff4;color:#1a7f37;cursor:pointer;margin-right:4px">→ Ready</button>';
+        if (w.status==='ready')    actions += '<button onclick="setWatchlistStatus('+idx+',\'watching\')" style="font-size:10px;padding:2px 8px;border-radius:20px;border:1.5px solid #ff9500;background:#fffbf0;color:#b7620a;cursor:pointer;margin-right:4px">← Watch</button>';
+        actions += '<button onclick="setWatchlistStatus('+idx+',\'passed\')" style="font-size:10px;padding:2px 8px;border-radius:20px;border:1.5px solid #c7c7cc;background:#f2f2f7;color:#8e8e93;cursor:pointer;margin-right:4px">Pass</button>';
+        actions += '<button onclick="deleteWatchlistEntry('+idx+')" style="font-size:10px;padding:2px 8px;border-radius:20px;border:1.5px solid #ff3b30;background:#fff1f0;color:#c0392b;cursor:pointer">✕</button>';
+
+        return '<div class="tl" style="flex-direction:column;align-items:stretch;padding:0">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px 4px">'
+          +   '<div style="display:flex;align-items:center;gap:6px">'
+          +     '<span style="font-weight:700;font-size:14px">'+w.sym+'</span>'
+          +     '<span style="font-size:11px;color:#636366">'+dirLabel+'</span>'
+          +     (gexLabel?'<span style="font-size:10px;color:#8e8e93">'+gexLabel+'</span>':'')
+          +     '<span style="font-size:10px;color:#8e8e93">'+(w.date?w.date.slice(5):'')+'</span>'
+          +   '</div>'
+          +   '<span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:'+statusBg+';color:'+statusColor+'">'+statusLabel+'</span>'
+          + '</div>'
+          + '<div style="padding:2px 14px 4px;font-size:11px;color:#1c1c1e">'+(w.why||'—')+'</div>'
+          + '<div style="padding:2px 14px 6px;font-size:11px;color:#c0392b;font-weight:500">⚠ '+blockLabel+(w.note?': '+w.note:'')+checkAfterStr+'</div>'
+          + checkRow
+          + '<div style="padding:6px 14px 8px;display:flex;gap:4px;flex-wrap:wrap">'+actions+'</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    function parkToWatchlist() {
+      var sym = ((document.getElementById('sw-sym')||{}).value||'').toUpperCase().trim();
+      var dir = ((document.getElementById('sw-plan-dir')||{}).value||'');
+      if (!sym) { alert('Enter a symbol first'); return; }
+      var wDate = document.getElementById('wl-date'); if(wDate) wDate.value = new Date().toISOString().split('T')[0];
+      var wSym  = document.getElementById('wl-sym');  if(wSym)  wSym.value  = sym;
+      var wDir  = document.getElementById('wl-dir');  if(wDir)  wDir.value  = dir;
+      var wGex  = document.getElementById('wl-gex');  if(wGex)  wGex.value  = swingGexEnv==='trend'?'NEG':swingGexEnv==='pin'?'POS':swingGexEnv==='zero'?'ZERO':'';
+      if (typeof stockChecks !== 'undefined') { stockChecks.forEach(function(v,i){ var el=document.getElementById('wlc'+i); if(el) el.checked=v; }); }
+      sp('journal', document.querySelector('.tab:nth-child(5)'));
+      setTimeout(function(){ setJournalSubTab('watchlist'); }, 80);
+    }
+
+    function loadWatchlistLocal(uid) {
+      try {
+        var raw = localStorage.getItem('wl_' + uid);
+        if (raw) { watchlist = JSON.parse(raw); renderWatchlist(); }
+      } catch(e) {}
+    }
+
     function getLottCol() {
       return collection(db, 'users', auth.currentUser.uid, 'lottery');
     }
@@ -3903,7 +4216,7 @@
       try { localStorage.setItem('lott_state_v1', JSON.stringify({history:lottHistory,excluded:[...lottExcluded]})); } catch(e) {}
       if(!auth.currentUser) return;
       try {
-        var stateRef = doc(db, 'users', auth.currentUser.uid, 'lottery_state', 'main');
+        var stateRef = doc(db, 'users', auth.currentUser.uid, 'lottery', 'main');
         await setDoc(stateRef, {history:lottHistory, excluded:[...lottExcluded], updatedAt:Date.now()});
         lottUpdateSyncStatus('Synced ✓', '#34c759');
       } catch(e) {
@@ -3919,7 +4232,7 @@
 
     async function lottLoadFromFirestore(uid) {
       try {
-        var stateRef = doc(db, 'users', uid, 'lottery_state', 'main');
+        var stateRef = doc(db, 'users', uid, 'lottery', 'main');
         var snap = await getDoc(stateRef);
         if(snap.exists()) {
           var data = snap.data();
@@ -3967,7 +4280,9 @@
       setGexEnv, setScn, resetSetup, ct, resetEntry, addTrade, clearAll,
       sct, resetSwing, sp, calcWalls, calcGap, calcFill, calcFV,
       setSwingGex, calcSwingWalls, updateSwingPlan, resetSwingSetup, openLotteryFromHeader,
-      swingLogToJournal, openSwingEdit, closeSwingEdit, saveSwingEdit, setJournalFilter,
+      swingLogToJournal, openSwingEdit, closeSwingEdit, saveSwingEdit,
+      setJournalFilter, setJournalSubTab,
+      addWatchlistEntry, setWatchlistFilter, setWatchlistStatus, deleteWatchlistEntry, parkToWatchlist,
       updatePortfolioAllocator, toggleStockCheck, updateStockChecklist,
       lottSpin, lottReset, lottUpdateExcluded,
       signUpWithEmailPassword, signInWithEmailPassword, signOutCurrentUser
